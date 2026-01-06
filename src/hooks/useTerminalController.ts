@@ -5,6 +5,7 @@ import { registerDefaultCommands } from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
 import type { TerminalProps } from "@components/terminal/types";
 import { ControllerReturn, TerminalState } from "../types";
+import { getGreeting } from "../utils";
 
 const DEFAULT_SUGGESTED = ["help", "work", "resume", "contact"];
 
@@ -266,7 +267,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         const suggested = (
           initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED
         ).join(" · ");
-        model.pushLines(["Welcome.", "", `Start here: ${suggested}`, ""]);
+        model.pushLines([getGreeting(), "", `Start here: ${suggested}`, ""]);
         setLinesFromModel();
       }
 
