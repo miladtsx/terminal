@@ -4,7 +4,7 @@ import { CommandRegistry } from "@components/terminal/commandRegistry";
 import { registerDefaultCommands } from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
 import type { TerminalProps } from "@components/terminal/types";
-import { ControllerReturn, TerminalState } from "./types";
+import { ControllerReturn, TerminalState } from "../types";
 
 const DEFAULT_SUGGESTED = ["help", "work", "resume", "contact"];
 

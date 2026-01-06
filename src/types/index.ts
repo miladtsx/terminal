@@ -19,3 +19,5 @@ export type ControllerReturn = {
   onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   focusInput: () => void;
 };
+
+export type Period = "morning" | "afternoon" | "evening" | "night";
