@@ -1,0 +1,151 @@
+:root {
+  --bg: #04060a;
+  --text: #eaf1fb;
+  --muted: #b9c5dc;
+  --accent: #8dd0ff;
+  --card: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 14px;
+  --shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: radial-gradient(circle at 20% 20%, rgba(141, 208, 255, 0.08), transparent 36%),
+    radial-gradient(circle at 80% 10%, rgba(120, 164, 255, 0.06), transparent 30%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: transparent;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(141, 208, 255, 0.3);
+  color: #0b101a;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 20px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(141, 208, 255, 0.12);
+  border: 1px solid rgba(141, 208, 255, 0.26);
+  color: var(--text);
+  font-size: 13px;
+  letter-spacing: 0.1px;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
+
+/* -------------------- */
+
+.t-root {
+  position: fixed;
+  inset: 0;
+  background: #07080a;
+  color: rgba(235, 245, 255, 0.92);
+  opacity: 0;
+  transition: opacity 420ms ease;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  cursor: text;
+}
+
+.t-root.is-ready {
+  opacity: 1;
+}
+
+.t-wrap {
+  height: 100%;
+  overflow: auto;
+  padding: 18px 16px 26px;
+}
+
+.t-output {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  font-size: 14px;
+  user-select: text;
+}
+
+.t-inputRow {
+  display: flex;
+  align-items: flex-start;
+  /* important for multiline */
+  gap: 10px;
+}
+
+.t-prompt {
+  opacity: 0.85;
+  user-select: none;
+}
+
+.t-input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: rgba(235, 245, 255, 0.92);
+  font: inherit;
+  padding: 0;
+  min-width: 12ch;
+
+  resize: none;
+  /* no manual resize */
+  overflow: hidden;
+  /* for auto-grow */
+  white-space: pre-wrap;
+  /* wrap lines */
+  word-break: break-word;
+  /* wrap huge tokens */
+  line-height: 1.45;
+
+  caret-color: rgba(235, 245, 255, 0.95);
+  caret-shape: block;
+  /* supported in some browsers */
+}
+
+.t-input::placeholder {
+  color: rgba(235, 245, 255, 0.35);
+}
+
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
