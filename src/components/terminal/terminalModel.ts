@@ -59,6 +59,11 @@ export class TerminalModel {
         return this.history[this.historyIndex] || "";
     }
 
+    setLine(index: number, line: TerminalLineInput) {
+        if (index < 0 || index >= this.lines.length) return;
+        this.lines[index] = this.normalize(line);
+    }
+
     private normalize(line: TerminalLineInput): TerminalLine {
         if (typeof line === "string") {
             const text: TextSegment = { type: "text", text: line };

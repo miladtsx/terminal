@@ -116,7 +116,12 @@ export default function Terminal(props: TerminalProps) {
     onInputChange,
     focusInput,
     executeCommand,
+    introStartLineRange,
+    introStartVisible,
+    showIntroInput,
   } = useTerminalController(props);
+  const showInput = showIntroInput;
+  const introRange = introStartLineRange;
 
   return (
     <div
@@ -127,16 +132,29 @@ export default function Terminal(props: TerminalProps) {
     >
       <div className="t-wrap" ref={scrollRef}>
         <pre className="t-output" aria-live="polite">
-          {lines.map((line, index) => (
-            <span key={`line-${index}`}>
-              {renderLine(line, index, executeCommand)}
-              {index < lines.length - 1 ? "\n" : null}
-            </span>
-          ))}
+          {lines.map((line, index) => {
+            const isIntroLine =
+              !!introRange &&
+              index >= introRange.start &&
+              index < introRange.start + introRange.count;
+            const className = isIntroLine
+              ? `intro-start-line${introStartVisible ? " is-visible" : ""}`
+              : undefined;
+
+            return (
+              <span key={`line-${index}`} className={className}>
+                {renderLine(line, index, executeCommand)}
+                {index < lines.length - 1 ? "\n" : null}
+              </span>
+            );
+          })}
         </pre>
 
-        <div className="t-inputRow">
-          <span className="t-prompt">{prompt}</span>
+        <div
+          className={`t-inputRow${showInput ? "" : " intro-hidden"}`}
+          aria-hidden={!showInput}
+        >
+          {<span className="t-prompt">{prompt}</span>}
           <textarea
             ref={inputRef}
             className="t-input"

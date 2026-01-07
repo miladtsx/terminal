@@ -83,11 +83,128 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   }, []);
 
   const typingTimersRef = useRef<number[]>([]);
+  const introTimersRef = useRef<number[]>([]);
+  const [introStartLineRange, setIntroStartLineRange] = useState<{
+    start: number;
+    count: number;
+  } | null>(null);
+  const [introStartVisible, setIntroStartVisible] = useState(false);
+  const [showIntroInput, setShowIntroInput] = useState(false);
 
   const cancelTyping = useCallback(() => {
     typingTimersRef.current.forEach((id) => clearTimeout(id));
     typingTimersRef.current = [];
   }, []);
+
+  const cancelIntroTyping = useCallback(() => {
+    introTimersRef.current.forEach((id) => clearTimeout(id));
+    introTimersRef.current = [];
+    setIntroStartLineRange(null);
+    setIntroStartVisible(false);
+    setShowIntroInput(true);
+  }, []);
+
+  const startIntroSequence = useCallback(() => {
+    const model = modelRef.current;
+    if (!model) return;
+
+    const greeting = getGreeting();
+    const typingDuration = 1000;
+    const perChar = typingDuration / Math.max(greeting.length, 1);
+
+    model.pushLine("");
+    setLinesFromModel();
+
+    const timers: number[] = [];
+
+    for (let i = 0; i < greeting.length; i++) {
+      const timer = window.setTimeout(() => {
+        model.setLine(0, greeting.slice(0, i + 1));
+        setLinesFromModel();
+      }, Math.round(perChar * (i + 1)));
+      timers.push(timer);
+    }
+
+    const suggested =
+      initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
+    setShowIntroInput(false);
+
+    const typeIntroStartLines = (extraTimers: number[]) => {
+      const startLines = formatCommandToButton("Start here:", suggested)();
+
+      if (!startLines.length) {
+        setShowIntroInput(true);
+        focusInput();
+        return;
+      }
+
+      const flattenLine = (line: TerminalLineInput) => {
+        if (typeof line === "string") return line;
+        return line
+          .map((segment) => {
+            if (segment.type === "text") return segment.text;
+            if (segment.type === "command") return segment.label;
+            if (segment.type === "copy") return segment.label || segment.value;
+            return "";
+          })
+          .join("");
+      };
+
+      const lineTexts = startLines.map(flattenLine);
+      const blankIndex = model.lines.length;
+      model.pushLine("");
+      lineTexts.forEach(() => model.pushLine(""));
+      setLinesFromModel();
+
+      const firstLineIndex = blankIndex + 1;
+      let offset = 120;
+      lineTexts.forEach((lineText, lineIndex) => {
+        for (let i = 0; i < lineText.length; i++) {
+          const ch = lineText[i];
+          const prev = lineText.slice(0, i);
+          offset += humanDelay(prev, ch) * 0.1;
+          const timer = window.setTimeout(() => {
+            model.setLine(firstLineIndex + lineIndex, lineText.slice(0, i + 1));
+            setLinesFromModel();
+          }, offset);
+          extraTimers.push(timer);
+        }
+        offset += 140;
+      });
+
+      const finalizeTimer = window.setTimeout(() => {
+        startLines.forEach((line, index) => {
+          model.setLine(firstLineIndex + index, line);
+        });
+        setLinesFromModel();
+        setIntroStartLineRange({
+          start: firstLineIndex,
+          count: startLines.length,
+        });
+        setIntroStartVisible(false);
+        requestAnimationFrame(() => {
+          setIntroStartVisible(true);
+          setShowIntroInput(true);
+          focusInput();
+        });
+      }, offset);
+
+      extraTimers.push(finalizeTimer);
+    };
+
+    const startBlockTimer = window.setTimeout(() => {
+      typeIntroStartLines(timers);
+    }, typingDuration);
+
+    timers.push(startBlockTimer);
+    introTimersRef.current = timers;
+  }, [
+    focusInput,
+    setLinesFromModel,
+    setIntroStartLineRange,
+    setIntroStartVisible,
+    setShowIntroInput,
+  ]);
 
   const runCommand = useCallback(
     (raw: string) => {
@@ -133,6 +250,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       const normalized = (command || "").trim();
       if (!normalized) return;
 
+      cancelIntroTyping();
       cancelTyping();
       resetTabState();
       inputFromHistory.current = false;
@@ -338,17 +456,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       });
 
       if (!model.lines.length) {
-        const suggested: string[] =
-          initialPropsRef.current.suggestedCommands ||
-          DEFAULT_SUGGESTED_COMMANDS;
-
-        model.pushLines([
-          getGreeting(),
-          "",
-          ...formatCommandToButton("Start here:", suggested)(),
-          "",
-        ]);
-        setLinesFromModel();
+        startIntroSequence();
       }
 
       hasInitializedRef.current = true;
@@ -370,16 +478,19 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         true
       );
       cancelTyping();
+      cancelIntroTyping();
       model.clear();
       setLinesFromModel();
       hasInitializedRef.current = false;
     };
   }, [
+    cancelIntroTyping,
     cancelTyping,
     focusInput,
     handleGlobalKeyDown,
     handleGlobalPointerDown,
     setLinesFromModel,
+    startIntroSequence,
   ]);
 
   return {
@@ -393,5 +504,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     onInputChange,
     focusInput,
     executeCommand,
+    introStartLineRange,
+    introStartVisible,
+    showIntroInput,
   };
 }

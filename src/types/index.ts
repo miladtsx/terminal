@@ -11,7 +11,7 @@ export type TerminalState = {
 };
 export type ControllerReturn = {
   ready: boolean;
-  lines: string[];
+  lines: TerminalLine[];
   input: string;
   prompt: string;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
@@ -20,6 +20,9 @@ export type ControllerReturn = {
   onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   focusInput: () => void;
   executeCommand: (cmd: any) => void;
+  introStartLineRange: { start: number; count: number } | null;
+  introStartVisible: boolean;
+  showIntroInput: boolean;
 };
 
 export type Period = "morning" | "afternoon" | "evening" | "night";
