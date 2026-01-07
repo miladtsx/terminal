@@ -15,7 +15,7 @@ import type {
   TerminalLineInput,
 } from "@components/terminal/types";
 import { ControllerReturn, TerminalState } from "../types";
-import { createTypeSfx, getGreeting } from "../utils";
+import { createTypeSfx, getGreeting, humanDelay } from "../utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
@@ -140,25 +140,29 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       focusInput();
 
       const timers: number[] = [];
-      const delayPerChar = 100;
       const { tick } = getTypeSfx();
+
+      let t = 0;
 
       for (let i = 0; i < normalized.length; i++) {
         const ch = normalized[i];
+        const prev = normalized.slice(0, i);
+        t += humanDelay(prev, ch);
+
         const timer = window.setTimeout(() => {
           setState((prev) => ({
             ...prev,
             input: normalized.slice(0, i + 1),
           }));
-          if (ch !== " " && ch !== "\n" && ch !== "\t") tick();
-        }, delayPerChar * (i + 1));
+          if (ch !== " ") tick();
+        }, t);
         timers.push(timer);
       }
 
       const finalTimer = window.setTimeout(() => {
         runCommand(normalized);
         setState((prev) => ({ ...prev, input: "" }));
-      }, delayPerChar * (normalized.length + 1));
+      }, t);
 
       timers.push(finalTimer);
       typingTimersRef.current = timers;

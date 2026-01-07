@@ -63,3 +63,27 @@ export function createTypeSfx() {
 
   return { tick, ctx };
 }
+
+/**
+ * General delay function to mimic human typing style
+ * @param prev 
+ * @param ch 
+ * @returns 
+ */
+export function humanDelay(prev: string, ch: string) {
+  const base = 85; // average human pace
+
+  // small gaussian-like jitter
+  const jitter = (Math.random() + Math.random() - 1) * 18;
+
+  // pauses humans make
+  let pause = 0;
+  if (ch === " ") pause += 120;
+  if (ch === "." || ch === "," || ch === ":") pause += 160;
+  if (ch === "/" || ch === "-" || ch === "_") pause += 80;
+
+  // hesitation before commands / flags
+  if (prev.endsWith(" ") && ch === "-") pause += 140;
+
+  return Math.max(30, base + jitter + pause);
+}
