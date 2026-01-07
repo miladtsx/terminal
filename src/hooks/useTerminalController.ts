@@ -15,9 +15,10 @@ import type {
   TerminalLineInput,
 } from "@components/terminal/types";
 import { ControllerReturn, TerminalState } from "../types";
-import { getGreeting } from "../utils";
+import { createTypeSfx, getGreeting } from "../utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
+  const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef(new TerminalModel({ prompt: props.prompt || ">" }));
@@ -122,6 +123,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     [setLinesFromModel, normalizeCommandOutput]
   );
 
+  const getTypeSfx = () => {
+    if (!typeSfxRef.current) typeSfxRef.current = createTypeSfx();
+    return typeSfxRef.current;
+  };
+
   const executeCommand = useCallback(
     (command: string) => {
       const normalized = (command || "").trim();
@@ -135,13 +141,16 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       const timers: number[] = [];
       const delayPerChar = 100;
+      const { tick } = getTypeSfx();
 
       for (let i = 0; i < normalized.length; i++) {
+        const ch = normalized[i];
         const timer = window.setTimeout(() => {
           setState((prev) => ({
             ...prev,
             input: normalized.slice(0, i + 1),
           }));
+          if (ch !== " " && ch !== "\n" && ch !== "\t") tick();
         }, delayPerChar * (i + 1));
         timers.push(timer);
       }
