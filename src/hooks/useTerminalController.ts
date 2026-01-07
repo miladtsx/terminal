@@ -1,13 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import { CommandRegistry } from "@components/terminal/commandRegistry";
-import { registerDefaultCommands } from "@components/terminal/defaultCommands";
+import {
+  CommandRegistry,
+  CommandOutput,
+} from "@components/terminal/commandRegistry";
+import {
+  registerDefaultCommands,
+  DEFAULT_SUGGESTED_COMMANDS,
+  formatCommandToButton,
+} from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
-import type { TerminalProps } from "@components/terminal/types";
+import type {
+  TerminalProps,
+  TerminalLineInput,
+} from "@components/terminal/types";
 import { ControllerReturn, TerminalState } from "../types";
 import { getGreeting } from "../utils";
-
-const DEFAULT_SUGGESTED = ["help", "work", "resume", "contact"];
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -27,14 +35,25 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     lines: [],
   });
 
-  const setLinesFromModel = useCallback((extraLines: string[] = []) => {
-    const model = modelRef.current;
-    if (!model) return;
-    if (extraLines.length) {
-      model.pushLines(extraLines);
-    }
-    setState((prev) => ({ ...prev, lines: [...model.lines] }));
-  }, []);
+  const setLinesFromModel = useCallback(
+    (extraLines: TerminalLineInput[] = []) => {
+      const model = modelRef.current;
+      if (!model) return;
+      if (extraLines.length) {
+        model.pushLines(extraLines);
+      }
+      setState((prev) => ({ ...prev, lines: [...model.lines] }));
+    },
+    []
+  );
+
+  const normalizeCommandOutput = useCallback(
+    (value: CommandOutput): TerminalLineInput[] => {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
+    },
+    []
+  );
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus();
@@ -62,6 +81,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     }));
   }, []);
 
+  const typingTimersRef = useRef<number[]>([]);
+
+  const cancelTyping = useCallback(() => {
+    typingTimersRef.current.forEach((id) => clearTimeout(id));
+    typingTimersRef.current = [];
+  }, []);
+
   const runCommand = useCallback(
     (raw: string) => {
       const cmd = (raw || "").trim();
@@ -84,7 +110,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       try {
         const out = entry.handler({ args, raw: cmd, model, registry });
-        const lines = Array.isArray(out) ? out : out ? [String(out)] : [];
+        const lines = normalizeCommandOutput(out);
         setLinesFromModel(lines.concat(lines.length ? [""] : []));
       } catch (error) {
         setLinesFromModel([
@@ -93,7 +119,42 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         ]);
       }
     },
-    [setLinesFromModel]
+    [setLinesFromModel, normalizeCommandOutput]
+  );
+
+  const executeCommand = useCallback(
+    (command: string) => {
+      const normalized = (command || "").trim();
+      if (!normalized) return;
+
+      cancelTyping();
+      resetTabState();
+      inputFromHistory.current = false;
+      setState((prev) => ({ ...prev, input: "" }));
+      focusInput();
+
+      const timers: number[] = [];
+      const delayPerChar = 100;
+
+      for (let i = 0; i < normalized.length; i++) {
+        const timer = window.setTimeout(() => {
+          setState((prev) => ({
+            ...prev,
+            input: normalized.slice(0, i + 1),
+          }));
+        }, delayPerChar * (i + 1));
+        timers.push(timer);
+      }
+
+      const finalTimer = window.setTimeout(() => {
+        runCommand(normalized);
+        setState((prev) => ({ ...prev, input: "" }));
+      }, delayPerChar * (normalized.length + 1));
+
+      timers.push(finalTimer);
+      typingTimersRef.current = timers;
+    },
+    [cancelTyping, focusInput, resetTabState, runCommand]
   );
 
   const handleGlobalPointerDown = useCallback(
@@ -264,10 +325,16 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       });
 
       if (!model.lines.length) {
-        const suggested = (
-          initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED
-        ).join(" · ");
-        model.pushLines([getGreeting(), "", `Start here: ${suggested}`, ""]);
+        const suggested: string[] =
+          initialPropsRef.current.suggestedCommands ||
+          DEFAULT_SUGGESTED_COMMANDS;
+
+        model.pushLines([
+          getGreeting(),
+          "",
+          ...formatCommandToButton("Start here:", suggested)(),
+          "",
+        ]);
         setLinesFromModel();
       }
 
@@ -289,11 +356,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         handleGlobalPointerDown,
         true
       );
+      cancelTyping();
       model.clear();
       setLinesFromModel();
       hasInitializedRef.current = false;
     };
   }, [
+    cancelTyping,
     focusInput,
     handleGlobalKeyDown,
     handleGlobalPointerDown,
@@ -310,5 +379,6 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     handleKeyDown,
     onInputChange,
     focusInput,
+    executeCommand,
   };
 }

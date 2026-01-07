@@ -1,4 +1,5 @@
 import type { TerminalModel } from "./terminalModel";
+import type { TerminalLineInput } from "./types";
 
 export type CommandMeta = {
     desc?: string;
@@ -11,7 +12,8 @@ export type CommandHandlerContext = {
     registry: CommandRegistry;
 };
 
-export type CommandHandler = (context: CommandHandlerContext) => string | string[] | void;
+export type CommandOutput = TerminalLineInput | TerminalLineInput[] | void;
+export type CommandHandler = (context: CommandHandlerContext) => CommandOutput;
 
 export type CommandEntry = {
     handler: CommandHandler;

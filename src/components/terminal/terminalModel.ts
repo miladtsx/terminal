@@ -1,6 +1,12 @@
+import type {
+    TerminalLine,
+    TerminalLineInput,
+    TextSegment,
+} from "./types";
+
 export class TerminalModel {
     prompt: string;
-    lines: string[];
+    lines: TerminalLine[];
     history: string[];
     historyIndex: number;
 
@@ -11,11 +17,11 @@ export class TerminalModel {
         this.historyIndex = -1;
     }
 
-    pushLine(text = "") {
-        this.lines.push(String(text));
+    pushLine(line: TerminalLineInput = "") {
+        this.lines.push(this.normalize(line));
     }
 
-    pushLines(lines: string[] = []) {
+    pushLines(lines: TerminalLineInput[] = []) {
         lines.forEach((line) => this.pushLine(line));
     }
 
@@ -51,5 +57,13 @@ export class TerminalModel {
             return "";
         }
         return this.history[this.historyIndex] || "";
+    }
+
+    private normalize(line: TerminalLineInput): TerminalLine {
+        if (typeof line === "string") {
+            const text: TextSegment = { type: "text", text: line };
+            return [text];
+        }
+        return line;
     }
 }

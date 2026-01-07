@@ -1,13 +1,70 @@
-import type { CommandRegistry } from "./commandRegistry";
+import type { CommandHandlerContext, CommandRegistry } from "./commandRegistry";
 import type { TerminalModel } from "./terminalModel";
-import type { TerminalProps } from "./types";
+import type {
+  TerminalLineInput,
+  LineSegment,
+  CommandSegment,
+  CopySegment,
+  TextSegment,
+  TerminalProps,
+} from "./types";
+
+export const DEFAULT_SUGGESTED_COMMANDS = ["help", "work", "resume", "contact"];
 
 type RegisterDefaultsArgs = {
   registry: CommandRegistry;
   props: TerminalProps;
   model: TerminalModel;
-  setLinesFromModel: (extraLines?: string[]) => void;
+  setLinesFromModel: (extraLines?: TerminalLineInput[]) => void;
 };
+
+const createTextSegment = (text: string): TextSegment => ({
+  type: "text",
+  text,
+});
+
+const createCommandSegment = (command: string): CommandSegment => ({
+  type: "command",
+  label: `[${command}]`,
+  command,
+});
+
+const createCopySegment = (value: string, label?: string): CopySegment => ({
+  type: "copy",
+  value,
+  label,
+});
+
+const buildCommandButtonLine = (commands: string[]): LineSegment[] => {
+  const segments: LineSegment[] = [createTextSegment("  ")];
+  commands.forEach((command, index) => {
+    if (index) {
+      segments.push(createTextSegment(" · "));
+    }
+    segments.push(createCommandSegment(command));
+  });
+  return segments;
+};
+
+const buildContactRow = (label: string, value: string): LineSegment[] => [
+  createTextSegment(`  ${label}`),
+  createTextSegment("  "),
+  createTextSegment(value),
+  createTextSegment(" "),
+  createCopySegment(value, label),
+];
+
+export function formatCommandToButton(
+  prefixPrompt: string,
+  commands: string[]
+) {
+  return (): TerminalLineInput[] => {
+    const list = commands;
+    if (!list.length) return [];
+
+    return [prefixPrompt, buildCommandButtonLine(list), ""];
+  };
+}
 
 export function registerDefaultCommands({
   registry,
@@ -32,32 +89,43 @@ export function registerDefaultCommands({
     { title: "Automation", desc: "Agentic workflows, less ops toil." },
   ];
 
-  registry
-    .register(
-      "help",
-      () => {
-        const rows = registry.list().map((command) => {
-          const right = command.desc ? ` — ${command.desc}` : "";
-          return `  ${command.name}${right}`;
-        });
+  const contactEntries = [
+    { label: "email", value: contact.email },
+    { label: "github", value: contact.github },
+  ];
 
-        return [
-          "commands:",
-          ...rows,
-          "",
-          "tips:",
-          "  ↑/↓ history",
-          "  Tab autocomplete",
-        ];
-      },
-      { desc: "show commands" }
-    )
+  const formatSuggestedLines = formatCommandToButton(
+    "Suggested commands:",
+    props.suggestedCommands ?? DEFAULT_SUGGESTED_COMMANDS
+  );
+
+  const helpHandler = ({
+    registry: registryContext,
+  }: CommandHandlerContext) => {
+    const rows = registryContext.list().map((command) => {
+      const right = command.desc ? ` — ${command.desc}` : "";
+      return `  ${command.name}${right}`;
+    });
+
+    return [
+      ...formatSuggestedLines(),
+      "commands:",
+      ...rows,
+      "",
+      "tips:",
+      "  ↑/↓ history",
+      "  Tab autocomplete",
+    ];
+  };
+
+  registry
+    .register("help", helpHandler, { desc: "show commands" })
+    .register("?", helpHandler, { desc: "show commands (alias)" })
     .register(
       "about",
       () =>
         props.aboutLines || [
-          "developer portfolio terminal",
-          "minimal interface, maximal signal",
+          "It started as my personal website, but ended up being this!",
         ],
       { desc: "short bio" }
     )
@@ -65,8 +133,10 @@ export function registerDefaultCommands({
       "contact",
       () => [
         "contact:",
-        `  email  ${contact.email}`,
-        `  github ${contact.github}`,
+        ...contactEntries.map((entry) =>
+          buildContactRow(entry.label, entry.value)
+        ),
+        "",
       ],
       { desc: "how to reach me" }
     )

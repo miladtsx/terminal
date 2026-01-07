@@ -1,4 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from "react";
+import type { TerminalLine } from "@components/terminal/types";
 
 export type TerminalState = {
   ready: boolean;
@@ -6,7 +7,7 @@ export type TerminalState = {
   tabPrefix: string;
   tabMatches: string[];
   tabIndex: number;
-  lines: string[];
+  lines: TerminalLine[];
 };
 export type ControllerReturn = {
   ready: boolean;
@@ -18,6 +19,7 @@ export type ControllerReturn = {
   handleKeyDown: (event: ReactKeyboardEvent<HTMLTextAreaElement>) => void;
   onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   focusInput: () => void;
+  executeCommand: (cmd: any) => void;
 };
 
 export type Period = "morning" | "afternoon" | "evening" | "night";
