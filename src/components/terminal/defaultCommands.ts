@@ -25,7 +25,7 @@ const createTextSegment = (text: string): TextSegment => ({
 
 const createCommandSegment = (command: string): CommandSegment => ({
   type: "command",
-  label: `[${command}]`,
+  label: `${command}`,
   command,
 });
 
