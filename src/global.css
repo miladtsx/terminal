@@ -236,6 +236,18 @@
     display: block;
     width: 100%;
     height: 100%;
+    cursor: pointer;
+    transition: transform 250ms ease, color 500ms ease;
+  }
+
+  .t-copyIcon:hover {
+    color: var(--accent);
+    transform: scale(1.5) rotate(180deg);
+  }
+
+  .t-copyIcon.is-active {
+    transform: scale(1.5) rotate(180deg);
+    color: var(--accent);
   }
 
   .t-copyIcon path {

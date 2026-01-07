@@ -33,14 +33,21 @@ function CopyIcon() {
   return (
     <svg
       className="t-copyIcon"
-      width="14"
-      height="14"
+      width="16"
+      height="16"
       viewBox="0 0 24 24"
-      role="presentation"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
     >
-      <path d="M8 5h9a1 1 0 0 1 1 1v11h-1V7H9v11h6v1H8a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm8 2H6a1 1 0 0 0-1 1v12h12a1 1 0 0 0 1-1V8Zm-1 1v10H6V9h9Z" />
+      {/* back sheet */}
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      {/* front sheet */}
+      <rect x="4" y="4" width="11" height="11" rx="2" />
     </svg>
   );
 }
