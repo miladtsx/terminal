@@ -269,6 +269,113 @@
   .t-copyState.is-visible {
     color: var(--accent);
   }
+
+  .t-notice-backdrop {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(7, 8, 10, 0.55);
+    backdrop-filter: blur(14px) saturate(135%);
+    z-index: 4;
+    animation: fadeIn 140ms ease;
+  }
+
+  .t-notice {
+    position: relative;
+    max-width: min(520px, 92vw);
+    width: 100%;
+    background: linear-gradient(160deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 18px 80px rgba(0, 0, 0, 0.55),
+      0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .t-notice-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .t-notice-eyebrow {
+    margin: 0 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 11px;
+    color: rgba(235, 245, 255, 0.7);
+  }
+
+  .t-notice-title {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: 0.2px;
+  }
+
+  .t-notice-body {
+    margin: 8px 0 12px;
+    color: rgba(235, 245, 255, 0.86);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .t-notice-close {
+    align-self: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.1px;
+    transition: transform 120ms ease, border-color 150ms ease;
+  }
+
+  .t-notice-close:hover,
+  .t-notice-close:focus-visible {
+    border-color: rgba(141, 208, 255, 0.8);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  .t-notice-progress {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .t-notice-progressBar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #d6f0ff);
+    width: 100%;
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+    transition: transform 80ms linear;
+  }
+
+  .t-notice-progressHandle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 22px rgba(141, 208, 255, 0.9);
+  }
 }
 
 @layer utilities {
@@ -286,5 +393,15 @@
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

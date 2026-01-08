@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { useTerminalController } from "../../hooks/useTerminalController";
+import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
+import { NotificationOverlay } from "@components/terminal/NotificationOverlay";
 import type {
   TerminalLine,
   CommandSegment,
@@ -24,6 +24,7 @@ export default function Terminal(props: TerminalProps) {
     introStartVisible,
     showIntroInput,
   } = useTerminalController(props);
+  const { notification, dismiss } = useNotificationOverlay();
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
 
@@ -34,6 +35,9 @@ export default function Terminal(props: TerminalProps) {
       role="application"
       aria-label="Terminal portfolio"
     >
+      {notification ? (
+        <NotificationOverlay notification={notification} onDismiss={dismiss} />
+      ) : null}
       <div className="t-wrap" ref={scrollRef}>
         <pre className="t-output" aria-live="polite">
           {lines.map((line, index) => {
