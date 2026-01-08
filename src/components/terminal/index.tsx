@@ -6,110 +6,7 @@ import type {
   CopySegment,
   TerminalProps,
 } from "./types";
-
-const copyToClipboard = async (value: string) => {
-  if (!value) return;
-  try {
-    await navigator.clipboard.writeText(value);
-    return;
-  } catch {
-    try {
-      const textarea = document.createElement("textarea");
-      textarea.value = value;
-      textarea.setAttribute("readonly", "true");
-      textarea.style.position = "absolute";
-      textarea.style.left = "-9999px";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-    } catch (err: unknown) {
-      console.error(err)
-    }
-  }
-};
-
-function CopyIcon() {
-  return (
-    <svg
-      className="t-copyIcon"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      {/* back sheet */}
-      <rect x="9" y="9" width="11" height="11" rx="2" />
-      {/* front sheet */}
-      <rect x="4" y="4" width="11" height="11" rx="2" />
-    </svg>
-  );
-}
-
-function renderLine(
-  line: TerminalLine,
-  lineIndex: number,
-  executeCommand: (command: string) => void
-): ReactNode[] {
-  const segments: ReactNode[] = line.map((segment, segmentIndex) => {
-    const key = `line-${lineIndex}-seg-${segmentIndex}`;
-    switch (segment.type) {
-      case "text":
-        return <span key={key}>{segment.text}</span>;
-      case "command": {
-        const attrs = segment as CommandSegment;
-        const ariaLabel = attrs.ariaLabel || `Run ${attrs.command}`;
-        return (
-          <button
-            key={key}
-            type="button"
-            className="t-commandLink"
-            onClick={() => executeCommand(attrs.command)}
-            aria-label={ariaLabel}
-          >
-            {attrs.label}
-          </button>
-        );
-      }
-      case "copy": {
-        const attrs = segment as CopySegment;
-        const label = attrs.label || attrs.value;
-        const ariaLabel = attrs.ariaLabel || `Copy ${label}`;
-        return (
-          <button
-            key={key}
-            type="button"
-            className="t-copyButton"
-            aria-label={ariaLabel}
-            title={ariaLabel}
-            onClick={(event) => {
-              event.stopPropagation();
-              void copyToClipboard(attrs.value);
-            }}
-          >
-            <CopyIcon />
-          </button>
-        );
-      }
-      default:
-        return null;
-    }
-  });
-
-  if (!segments.length) {
-    segments.push(
-      <span key={`line-${lineIndex}-empty`}></span>
-    );
-  }
-
-  return segments;
-}
+import { TerminalLineRow } from "@components/terminal/TerminalLine";
 
 export default function Terminal(props: TerminalProps) {
   const {
@@ -149,8 +46,13 @@ export default function Terminal(props: TerminalProps) {
               : undefined;
 
             return (
-              <span key={`line-${index}`} className={className}>
-                {renderLine(line, index, executeCommand)}
+              <span key={`line-${index}`}>
+                <TerminalLineRow
+                  line={line}
+                  lineIndex={index}
+                  className={className}
+                  executeCommand={executeCommand}
+                />
                 {index < lines.length - 1 ? "\n" : null}
               </span>
             );
