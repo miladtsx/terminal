@@ -207,7 +207,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   ]);
 
   const runCommand = useCallback(
-    (raw: string) => {
+    async (raw: string) => {
       const cmd = (raw || "").trim();
       if (!cmd) return;
 
@@ -227,7 +227,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
 
       try {
-        const out = entry.handler({ args, raw: cmd, model, registry });
+        const out = await Promise.resolve(
+          entry.handler({ args, raw: cmd, model, registry })
+        );
         const lines = normalizeCommandOutput(out);
         setLinesFromModel(lines.concat(lines.length ? [""] : []));
       } catch (error) {
@@ -278,7 +280,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
 
       const finalTimer = window.setTimeout(() => {
-        runCommand(normalized);
+        void runCommand(normalized);
         setState((prev) => ({ ...prev, input: "" }));
       }, t);
 
@@ -338,7 +340,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       if (event.key === "Enter") {
         event.preventDefault();
         resetTabState();
-        runCommand(input);
+        void runCommand(input);
         inputFromHistory.current = false;
         setState((prev) => ({ ...prev, input: "" }));
         return;
