@@ -1,9 +1,7 @@
+import { useTerminalController } from "@hooks/useTerminalController";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/terminal/NotificationOverlay";
 import type {
-  TerminalLine,
-  CommandSegment,
-  CopySegment,
   TerminalProps,
 } from "./types";
 import { TerminalLineRow } from "@components/terminal/TerminalLine";
