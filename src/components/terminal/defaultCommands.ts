@@ -8,6 +8,12 @@ import type {
   TextSegment,
   TerminalProps,
 } from "./types";
+import type { OfflineStatus } from "@utils";
+import {
+  disableOffline,
+  getOfflineStatus,
+  refreshOfflineResources,
+} from "@utils";
 
 export const DEFAULT_SUGGESTED_COMMANDS = ["help", "work", "resume", "contact"];
 
@@ -118,6 +124,31 @@ export function registerDefaultCommands({
     ];
   };
 
+  const formatOfflineLines = (status: OfflineStatus, action: string) => {
+    const lines: string[] = [];
+
+    if (!status.supported) {
+      lines.push("offline unavailable: service workers not supported");
+      return lines;
+    }
+
+    lines.push(`offline ${action}: ${status.cacheName || "pending"}`);
+    lines.push(`network: ${status.online ? "online" : "offline"}`);
+
+    if (status.message) {
+      lines.push(status.message);
+    }
+
+    if (status.entries && status.entries.length) {
+      lines.push("cached:");
+      status.entries.forEach((entry) => lines.push(`  ${entry}`));
+    } else {
+      lines.push("cached: none yet");
+    }
+
+    return lines;
+  };
+
   registry
     .register("help", helpHandler, { desc: "show commands" })
     .register("?", helpHandler, { desc: "show commands (alias)" })
@@ -164,5 +195,31 @@ export function registerDefaultCommands({
         return [];
       },
       { desc: "clear the screen" }
+    )
+    .register(
+      "offline",
+      async ({ args }) => {
+        const subcommand = (args[0] || "status").toLowerCase();
+
+        if (subcommand === "status") {
+          const status = await getOfflineStatus();
+          return formatOfflineLines(status, "status");
+        }
+
+        if (subcommand === "refresh") {
+          const status = await refreshOfflineResources();
+          return formatOfflineLines(status, "refresh");
+        }
+
+        if (subcommand === "disable") {
+          const status = await disableOffline();
+          return formatOfflineLines(status, "disable");
+        }
+
+        return ["usage: offline status|refresh|disable"];
+      },
+      {
+        desc: "offline status | refresh cache | disable (clear sw/cache/IndexedDB)",
+      }
     );
 }

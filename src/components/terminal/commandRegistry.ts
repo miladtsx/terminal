@@ -13,7 +13,9 @@ export type CommandHandlerContext = {
 };
 
 export type CommandOutput = TerminalLineInput | TerminalLineInput[] | void;
-export type CommandHandler = (context: CommandHandlerContext) => CommandOutput;
+export type CommandHandler =
+    | ((context: CommandHandlerContext) => CommandOutput)
+    | ((context: CommandHandlerContext) => Promise<CommandOutput>);
 
 export type CommandEntry = {
     handler: CommandHandler;
