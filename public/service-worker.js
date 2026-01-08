@@ -1,6 +1,5 @@
 const CACHE_NAME = "tsx-terminal";
-//TODO add llm_tsx.txt
-const CORE_ASSETS = ["/", "/index.html", "/resume.pdf"];
+const CORE_ASSETS = ["/", "/index.html", "/resume_tsx.pdf", "/llm_tsx.txt"];
 
 const log = (...args) => {
   console.log(`[${CACHE_NAME} sw]`, ...args);
