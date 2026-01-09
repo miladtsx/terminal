@@ -1,5 +1,5 @@
 const CACHE_NAME = "tsx-terminal";
-const CORE_ASSETS = ["/", "/index.html", "/resume_tsx.pdf", "/llm_tsx.txt"];
+const CORE_ASSETS = ["/", "/index.html", "/files/resume_tsx.pdf", "/files/llm_tsx.txt"];
 
 const log = (...args) => {
   console.log(`[${CACHE_NAME} sw]`, ...args);

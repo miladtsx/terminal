@@ -9,12 +9,14 @@ export class TerminalModel {
     lines: TerminalLine[];
     history: string[];
     historyIndex: number;
+    cwdParts: string[];
 
     constructor({ prompt = ">" }: { prompt?: string } = {}) {
         this.prompt = prompt;
         this.lines = [];
         this.history = [];
         this.historyIndex = -1;
+        this.cwdParts = ["home"];
     }
 
     pushLine(line: TerminalLineInput = "") {
@@ -33,12 +35,26 @@ export class TerminalModel {
         this.lines = [];
     }
 
-    remember(cmd: string) {
+    remember(cmd: string): boolean {
         const trimmed = (cmd || "").trim();
-        if (!trimmed) return;
+        if (!trimmed) return false;
         const last = this.history[this.history.length - 1];
         if (last !== trimmed) this.history.push(trimmed);
         this.historyIndex = -1;
+        return last !== trimmed;
+    }
+
+    setHistory(history: string[]) {
+        this.history = [...history];
+        this.historyIndex = -1;
+    }
+
+    clearHistory() {
+        this.setHistory([]);
+    }
+
+    getHistory(): string[] {
+        return [...this.history];
     }
 
     prevHistory() {
@@ -62,6 +78,18 @@ export class TerminalModel {
     setLine(index: number, line: TerminalLineInput) {
         if (index < 0 || index >= this.lines.length) return;
         this.lines[index] = this.normalize(line);
+    }
+
+    getCwdParts(): string[] {
+        return [...this.cwdParts];
+    }
+
+    setCwd(parts: string[]) {
+        this.cwdParts = [...parts];
+    }
+
+    getCwd(): string {
+        return this.cwdParts.join("/") + "/";
     }
 
     private normalize(line: TerminalLineInput): TerminalLine {

@@ -10,6 +10,10 @@ import {
   formatCommandToButton,
 } from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
+import {
+  appendHistory,
+  loadHistory,
+} from "@components/terminal/historyStore";
 import type {
   TerminalProps,
   TerminalLineInput,
@@ -215,7 +219,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       const registry = registryRef.current;
       if (!model || !registry) return;
 
-      model.remember(cmd);
+      const stored = model.remember(cmd);
+      if (stored) void appendHistory(cmd);
       model.echoCommand(cmd);
 
       const [name, ...args] = cmd.split(/\s+/);
@@ -432,6 +437,17 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     (event: ChangeEvent<HTMLTextAreaElement>) => {
       inputFromHistory.current = false;
       const value = event.target.value;
+      const match = value.trim().match(/^(\d+)!$/);
+      if (match) {
+        const index = Number(match[1]) - 1;
+        const history = modelRef.current.getHistory();
+        const recalled = history[index];
+        if (recalled) {
+          inputFromHistory.current = true;
+          setState((prev) => ({ ...prev, input: recalled }));
+          return;
+        }
+      }
       setState((prev) => ({ ...prev, input: value }));
     },
     []
@@ -467,6 +483,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     requestAnimationFrame(() => {
       setState((prev) => ({ ...prev, ready: true }));
     });
+
+    void (async () => {
+      const history = await loadHistory();
+      if (history.length) {
+        model.setHistory(history);
+      }
+    })();
 
     focusInput();
     document.addEventListener("keydown", handleGlobalKeyDown);

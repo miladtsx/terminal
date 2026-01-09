@@ -11,7 +11,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "hash-files": "node scripts/generate-file-hashes.js"
   },
   "dependencies": {
     "react": "^18.2.0",
