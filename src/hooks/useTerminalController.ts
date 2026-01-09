@@ -1,25 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
-import {
-  CommandRegistry,
-  CommandOutput,
-} from "@components/terminal/commandRegistry";
+import { CommandRegistry } from "@components/terminal/commandRegistry";
 import {
   registerDefaultCommands,
   DEFAULT_SUGGESTED_COMMANDS,
   formatCommandToButton,
 } from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
+import { appendHistory, loadHistory } from "@components/terminal/historyStore";
 import {
-  appendHistory,
-  loadHistory,
-} from "@components/terminal/historyStore";
-import type {
   TerminalProps,
   TerminalLineInput,
-} from "@components/terminal/types";
-import { ControllerReturn, TerminalState } from "../types";
-import { createTypeSfx, getGreeting, humanDelay } from "../utils";
+  ControllerReturn,
+  TerminalState,
+  CommandOutput,
+} from "@types";
+import { createTypeSfx, getGreeting, humanDelay } from "@utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);

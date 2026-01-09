@@ -1,36 +1,24 @@
-import type { CommandHandlerContext, CommandRegistry } from "./commandRegistry";
-import type { TerminalModel } from "./terminalModel";
-import type {
+import { clearPersistedHistory } from "./historyStore";
+import {
+  CommandHandlerContext,
   TerminalLineInput,
   LineSegment,
   CommandSegment,
   CopySegment,
   TextSegment,
-  TerminalProps,
-} from "./types";
-import { copyToClipboard } from "@utils";
-import type { OfflineStatus } from "@utils";
+  FileMeta,
+  RegisterDefaultsArgs,
+} from "@types";
 import {
+  copyToClipboard,
+  OfflineStatus,
   disableOffline,
   getOfflineStatus,
   refreshOfflineResources,
 } from "@utils";
-import { clearPersistedHistory } from "./historyStore";
-import {
-  findFileByName,
-  listFiles,
-  listTextFiles,
-  type FileMeta,
-} from "../../data/files";
+import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 
 export const DEFAULT_SUGGESTED_COMMANDS = ["help", "work", "resume", "contact"];
-
-type RegisterDefaultsArgs = {
-  registry: CommandRegistry;
-  props: TerminalProps;
-  model: TerminalModel;
-  setLinesFromModel: (extraLines?: TerminalLineInput[]) => void;
-};
 
 const createTextSegment = (text: string): TextSegment => ({
   type: "text",

@@ -1,18 +1,11 @@
 import { useEffect, useState } from "react";
 import { copyToClipboard } from "@utils";
-import type {
+import {
   CommandSegment,
   CopySegment,
   LineSegment,
-  TerminalLine,
-} from "./types";
-
-type TerminalLineProps = {
-  line: TerminalLine;
-  lineIndex: number;
-  className?: string;
-  executeCommand: (command: string) => void;
-};
+  TerminalLineProps,
+} from "@types";
 
 function CopyIcon({ active }: { active: boolean }) {
   return (

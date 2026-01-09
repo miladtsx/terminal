@@ -1,10 +1,4 @@
-export type OfflineStatus = {
-  supported: boolean;
-  online: boolean;
-  cacheName?: string;
-  entries?: string[];
-  message?: string;
-};
+import { OfflineStatus } from "@types";
 
 const MESSAGE_TIMEOUT = 4000;
 

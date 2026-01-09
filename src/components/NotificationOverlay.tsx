@@ -1,9 +1,4 @@
-import type { OverlayNotification } from "../../hooks/useNotificationOverlay";
-
-type NotificationOverlayProps = {
-  notification: OverlayNotification;
-  onDismiss: () => void;
-};
+import { NotificationOverlayProps } from "@types";
 
 export function NotificationOverlay({
   notification,

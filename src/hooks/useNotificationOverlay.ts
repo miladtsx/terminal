@@ -1,18 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
-export type OverlayNotification = {
-  id: number;
-  title: string;
-  description?: string;
-  durationMs: number;
-  progress: number;
-};
-
-export type NotificationPayload = {
-  title: string;
-  description?: string;
-  durationMs?: number;
-};
+import { NotificationPayload, OverlayNotification } from "@types";
 
 const DEFAULT_DURATION = 5000;
 
@@ -42,9 +29,7 @@ export function useNotificationOverlay(defaultDurationMs = DEFAULT_DURATION) {
       const elapsed = performance.now() - startRef.current;
       const pct = Math.min(elapsed / durationRef.current, 1);
 
-      setNotification((prev) =>
-        prev ? { ...prev, progress: pct } : prev
-      );
+      setNotification((prev) => (prev ? { ...prev, progress: pct } : prev));
 
       if (pct < 1) {
         rafRef.current = requestAnimationFrame(tick);

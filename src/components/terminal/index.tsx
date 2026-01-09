@@ -1,10 +1,10 @@
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
-import { NotificationOverlay } from "@components/terminal/NotificationOverlay";
-import type {
+import { NotificationOverlay } from "@components/NotificationOverlay";
+import { TerminalLineRow } from "@components/TerminalLine";
+import {
   TerminalProps,
-} from "./types";
-import { TerminalLineRow } from "@components/terminal/TerminalLine";
+} from "@types";
 
 export default function Terminal(props: TerminalProps) {
   const {

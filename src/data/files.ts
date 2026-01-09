@@ -1,13 +1,5 @@
+import { FileMeta } from "@types";
 import manifest from "./fileManifest.json";
-
-export type FileMeta = {
-  name: string;
-  path: string;
-  size: number;
-  sha256: string;
-  text: boolean;
-  mtime?: string;
-};
 
 const files: FileMeta[] = manifest;
 
