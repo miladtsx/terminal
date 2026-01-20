@@ -8,6 +8,7 @@ export interface TerminalProps {
   contact?: ContactInfo;
   caseStudies?: CaseStudy[];
   aboutLines?: string[];
+  onBookCall?: () => void;
 }
 
 export type TerminalState = {
@@ -65,8 +66,6 @@ export type TerminalLineInput = string | TerminalLine;
 
 export type ContactInfo = {
   email: string;
-  github: string;
-  x: string;
 };
 
 export type CaseStudy = {

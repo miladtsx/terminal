@@ -25,10 +25,15 @@ const createTextSegment = (text: string): TextSegment => ({
   text,
 });
 
-const createCommandSegment = (command: string): CommandSegment => ({
+const createCommandSegment = (
+  command: string,
+  label?: string,
+  ariaLabel?: string
+): CommandSegment => ({
   type: "command",
-  label: `${command}`,
+  label: label ?? `${command}`,
   command,
+  ariaLabel,
 });
 
 const createCopySegment = (value: string, label?: string): CopySegment => ({
@@ -49,7 +54,7 @@ const buildCommandButtonLine = (commands: string[]): LineSegment[] => {
 };
 
 const buildContactRow = (label: string, value: string): LineSegment[] => [
-  createTextSegment(`  ${label}`),
+  createTextSegment(`${label}`),
   createTextSegment("  "),
   createTextSegment(value),
   createTextSegment(" "),
@@ -175,7 +180,6 @@ export function registerDefaultCommands({
 }: RegisterDefaultsArgs) {
   const contact = props.contact || {
     email: "miladtsx+terminal@gmail.com",
-    github: "https://github.com/miladtsx",
   };
 
   const caseStudies = props.caseStudies || [
@@ -191,9 +195,10 @@ export function registerDefaultCommands({
   ];
 
   const contactEntries = [
-    { label: "email", value: contact.email },
-    { label: "github", value: contact.github },
-  ];
+    contact.email
+      ? { label: "email", displayLabel: "✉", value: contact.email }
+      : null,
+  ].filter(Boolean) as { label: string; value: string; displayLabel?: string }[];
 
   const formatSuggestedLines = formatCommandToButton(
     "Suggested commands:",
@@ -276,7 +281,10 @@ export function registerDefaultCommands({
     "  Focus: Idea to Product, Automation, Security",
     "  Availability: Open to interesting ideas, and consulting",
     "  Links:",
-    ...contactEntries.map((entry) => `    ${entry.label}: ${entry.value}`),
+    ...contactEntries.map(
+      (entry) =>
+        `    ${entry.displayLabel ?? entry.label}: ${entry.value}`
+    ),
   ];
 
   registry
@@ -292,14 +300,34 @@ export function registerDefaultCommands({
     )
     .register(
       "contact",
-      () => [
-        "contact:",
-        ...contactEntries.map((entry) =>
-          buildContactRow(entry.label, entry.value)
-        ),
-        "",
-      ],
+      () => {
+        const lines: TerminalLineInput[] = [
+          ...contactEntries.map((entry) =>
+            buildContactRow(entry.displayLabel ?? entry.label, entry.value)
+          ),
+        ];
+
+        lines.push("");
+
+        lines.push([
+          createTextSegment(" 📞 "),
+          createCommandSegment("book", "Book a call", "Open booking calendar"),
+        ]);
+
+        lines.push("");
+        return lines;
+      },
       { desc: "how to reach me" }
+    )
+    .register(
+      "book",
+      () => {
+        props.onBookCall?.();
+        return [
+          "Opening calendar embed…",
+        ].filter(Boolean) as TerminalLineInput[];
+      },
+      { desc: "open booking calendar" }
     )
     .register(
       "work",
@@ -532,7 +560,7 @@ export function registerDefaultCommands({
           verify: [
             "verify <file> — compute SHA256 locally, compare to manifest",
           ],
-          copy: ["copy email|github|x — copy to clipboard"],
+          copy: ["copy email — copy to clipboard"],
           whoami: ["compact profile card; alias: finger"],
           resume: ["open resume PDF"],
           history: [
@@ -557,6 +585,7 @@ export function registerDefaultCommands({
     )
     .register("history", historyHandler, {
       desc: "show or clear command history (history -c)",
+      subcommands: ["-c"],
     })
     .register(
       "clear",
@@ -591,6 +620,7 @@ export function registerDefaultCommands({
       },
       {
         desc: "offline status | refresh cache | disable (clear sw/cache/IndexedDB)",
+        subcommands: ["status", "refresh", "disable"],
       }
     );
 }
