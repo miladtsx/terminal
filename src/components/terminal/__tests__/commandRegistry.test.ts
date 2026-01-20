@@ -17,4 +17,26 @@ describe("CommandRegistry", () => {
         expect(registry.suggest("de")).toEqual(["Deploy", "debug"]);
         expect(registry.suggest("DE")).toEqual(["Deploy", "debug"]);
     });
+
+    it("suggests subcommands for the matching command", () => {
+        const registry = new CommandRegistry();
+        registry.register("offline", () => "o", {
+            subcommands: ["status", "refresh", "disable"],
+        });
+
+        expect(registry.suggestSubcommands("offline", "r")).toEqual(["refresh"]);
+        expect(registry.suggestSubcommands("offline", "")).toEqual([
+            "status",
+            "refresh",
+            "disable",
+        ]);
+    });
+
+    it("matches command names case-insensitively when finding subcommands", () => {
+        const registry = new CommandRegistry();
+        registry.register("History", () => "h", { subcommands: ["-c"] });
+
+        expect(registry.get("history")).toBeDefined();
+        expect(registry.suggestSubcommands("history", "-")).toEqual(["-c"]);
+    });
 });

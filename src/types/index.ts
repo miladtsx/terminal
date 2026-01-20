@@ -16,6 +16,7 @@ export type TerminalState = {
   tabPrefix: string;
   tabMatches: string[];
   tabIndex: number;
+  tabVisible: boolean;
   lines: TerminalLine[];
 };
 export type ControllerReturn = {
@@ -32,6 +33,9 @@ export type ControllerReturn = {
   introStartLineRange: { start: number; count: number } | null;
   introStartVisible: boolean;
   showIntroInput: boolean;
+  tabMatches: string[];
+  tabIndex: number;
+  tabVisible: boolean;
 };
 
 export type Period = "morning" | "afternoon" | "evening" | "night";
@@ -100,6 +104,7 @@ export type RegisterDefaultsArgs = {
 
 export type CommandMeta = {
   desc?: string;
+  subcommands?: string[];
 };
 
 export type CommandHandlerContext = {

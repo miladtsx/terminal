@@ -33,6 +33,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     tabPrefix: "",
     tabMatches: [],
     tabIndex: 0,
+    tabVisible: false,
     lines: [],
   });
 
@@ -79,6 +80,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       tabPrefix: "",
       tabMatches: [],
       tabIndex: 0,
+      tabVisible: false,
     }));
   }, []);
 
@@ -387,15 +389,63 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       if (event.key === "Tab") {
         event.preventDefault();
-        const token = (input.trim().split(/\s+/)[0] || "").toLowerCase();
-        if (!token) return;
+        const hasTrailingSpace = /\s$/.test(input);
+        const parts = input.trim().split(/\s+/).filter(Boolean);
+        const commandTokenOriginal = parts[0] || "";
+        const commandToken = commandTokenOriginal.toLowerCase();
+        if (!commandToken) return;
+
+        const inSubcommand = parts.length > 1 || hasTrailingSpace;
+        const subPrefix = inSubcommand ? parts[parts.length - 1] || "" : "";
+        const canonicalCommand =
+          registryRef.current.getCanonicalName(commandTokenOriginal) ||
+          commandTokenOriginal;
+
+        const subMatches = inSubcommand
+          ? registryRef.current.suggestSubcommands(
+              canonicalCommand,
+              subPrefix
+            )
+          : [];
+
+        const buildSuggestionInput = (value: string) =>
+          inSubcommand ? `${canonicalCommand} ${value}` : value;
 
         if (!tabPrefix) {
-          const matches = registryRef.current.suggest(token);
+          if (subMatches.length) {
+            const suggestions = subMatches.map(buildSuggestionInput);
+
+            if (suggestions.length === 1) {
+              setState((prev) => ({
+                ...prev,
+                input: `${suggestions[0]} `,
+                tabVisible: false,
+              }));
+              return;
+            }
+
+            modelRef.current.pushLine(subMatches.join("  "));
+            setLinesFromModel([""]);
+            setState((prev) => ({
+              ...prev,
+              tabPrefix: `${canonicalCommand} ${subPrefix}`.trim(),
+              tabMatches: suggestions,
+              tabIndex: 0,
+              tabVisible: true,
+              input: suggestions[0],
+            }));
+            return;
+          }
+
+          const matches = registryRef.current.suggest(commandToken);
           if (!matches.length) return;
 
           if (matches.length === 1) {
-            setState((prev) => ({ ...prev, input: `${matches[0]} ` }));
+            setState((prev) => ({
+              ...prev,
+              input: `${matches[0]} `,
+              tabVisible: false,
+            }));
             return;
           }
 
@@ -403,9 +453,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           setLinesFromModel([""]);
           setState((prev) => ({
             ...prev,
-            tabPrefix: token,
+            tabPrefix: commandToken,
             tabMatches: matches,
             tabIndex: 0,
+            tabVisible: true,
             input: matches[0],
           }));
           return;
@@ -417,6 +468,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
             ...prev,
             tabIndex: next,
             input: tabMatches[next],
+            tabVisible: true,
           }));
         }
         return;
@@ -444,7 +496,50 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           return;
         }
       }
-      setState((prev) => ({ ...prev, input: value }));
+      setState((prev) => {
+        if (!prev.tabPrefix) return { ...prev, input: value };
+
+        const raw = value;
+        const hasTrailingSpace = /\s$/.test(raw);
+        const parts = raw.trim().split(/\s+/).filter(Boolean);
+        const commandTokenOriginal = parts[0] || "";
+        const commandToken = commandTokenOriginal.toLowerCase();
+        if (!commandToken) {
+          return { ...prev, input: value, tabVisible: false, tabMatches: [] };
+        }
+
+        const inSubcommand = parts.length > 1 || hasTrailingSpace;
+        const subPrefix = inSubcommand ? parts[parts.length - 1] || "" : "";
+        const canonicalCommand =
+          registryRef.current.getCanonicalName(commandTokenOriginal) ||
+          commandTokenOriginal;
+
+        const getSuggestions = () => {
+          if (inSubcommand) {
+            const subs = registryRef.current.suggestSubcommands(
+              canonicalCommand,
+              subPrefix
+            );
+            return subs.map((s) => `${canonicalCommand} ${s}`.trim());
+          }
+          return registryRef.current.suggest(commandToken);
+        };
+
+        const nextMatches = getSuggestions();
+
+        if (!nextMatches.length) {
+          return { ...prev, input: value, tabMatches: [], tabVisible: false };
+        }
+
+        const currentIdx = prev.tabIndex % nextMatches.length;
+        return {
+          ...prev,
+          input: value,
+          tabMatches: nextMatches,
+          tabIndex: Math.max(0, currentIdx),
+          tabVisible: true,
+        };
+      });
     },
     []
   );
@@ -528,5 +623,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     introStartLineRange,
     introStartVisible,
     showIntroInput,
+    tabMatches: state.tabMatches,
+    tabIndex: state.tabIndex,
+    tabVisible: state.tabVisible,
   };
 }

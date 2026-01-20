@@ -4,6 +4,15 @@ export class CommandRegistry {
   private commands = new Map<string, CommandEntry>();
   private order: string[] = [];
 
+  private normalize(value: string): string {
+    return value.toLowerCase();
+  }
+
+  private findRegisteredName(name: string): string | undefined {
+    const normalized = this.normalize(name);
+    return this.order.find((registered) => this.normalize(registered) === normalized);
+  }
+
   register(
     name: string,
     handler: CommandHandler,
@@ -19,7 +28,12 @@ export class CommandRegistry {
   }
 
   get(name: string): CommandEntry | undefined {
-    return this.commands.get(name);
+    const registeredName = this.findRegisteredName(name) || name;
+    return this.commands.get(registeredName);
+  }
+
+  getCanonicalName(name: string): string | undefined {
+    return this.findRegisteredName(name);
   }
 
   list(): Array<{ name: string } & CommandMeta> {
@@ -30,9 +44,20 @@ export class CommandRegistry {
   }
 
   suggest(prefix?: string): string[] {
-    const lower = (prefix || "").toLowerCase();
+    const lower = this.normalize(prefix || "");
     return this.order.filter((command) =>
-      command.toLowerCase().startsWith(lower)
+      this.normalize(command).startsWith(lower)
     );
+  }
+
+  suggestSubcommands(command: string, prefix?: string): string[] {
+    const registeredName = this.findRegisteredName(command);
+    if (!registeredName) return [];
+
+    const subcommands = this.commands.get(registeredName)?.meta.subcommands;
+    if (!subcommands?.length) return [];
+
+    const lower = this.normalize(prefix || "");
+    return subcommands.filter((sub) => this.normalize(sub).startsWith(lower));
   }
 }
