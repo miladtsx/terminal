@@ -1,11 +1,13 @@
 import React from "react";
 import { useTerminalController } from "@hooks/useTerminalController";
+import { useTerminalFonts } from "@hooks/useTerminalFonts";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
 import { TerminalProps } from "@types";
 
 export default function Terminal(props: TerminalProps) {
+  const fontController = useTerminalFonts();
   const {
     ready,
     lines,
@@ -23,7 +25,7 @@ export default function Terminal(props: TerminalProps) {
     tabMatches,
     tabIndex,
     tabVisible,
-  } = useTerminalController(props);
+  } = useTerminalController({ ...props, fontController });
   const { notification, dismiss } = useNotificationOverlay();
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
@@ -35,7 +37,7 @@ export default function Terminal(props: TerminalProps) {
     border: "1px solid rgba(255, 255, 255, 0.12)",
     borderRadius: 6,
     color: "#e8f0ff",
-    fontFamily: '"IBM Plex Mono", Consolas, monospace',
+    fontFamily: "var(--terminal-font, 'IBM Plex Mono', monospace)",
     fontSize: 13,
     lineHeight: 1.45,
     maxWidth: "100%",

@@ -1,6 +1,10 @@
 import type { KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from "react";
 import { CommandRegistry } from "@components/terminal/commandRegistry";
 import { TerminalModel } from "@components/terminal/terminalModel";
+import type {
+  TerminalFontController,
+  TerminalFontOption,
+} from "../utils/terminalFonts";
 
 export interface TerminalProps {
   prompt?: string;
@@ -9,6 +13,7 @@ export interface TerminalProps {
   caseStudies?: CaseStudy[];
   aboutLines?: string[];
   onBookCall?: () => void;
+  fontController?: TerminalFontController;
 }
 
 export type TerminalState = {

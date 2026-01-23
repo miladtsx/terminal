@@ -12,6 +12,7 @@
     --border: rgba(255, 255, 255, 0.08);
     --radius: 14px;
     --shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
+    --terminal-font: "Fira Code", "IBM Plex Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
     color-scheme: dark;
   }
 
@@ -30,6 +31,14 @@
     font-family: theme("fontFamily.sans");
     line-height: 1.6;
     min-height: 100%;
+  }
+
+  @font-face {
+    font-family: "Fira Code";
+    src: url("/fonts/FiraCode-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
   }
 
   body {
@@ -76,8 +85,13 @@
     color: rgba(235, 245, 255, 0.92);
     opacity: 0;
     transition: opacity 420ms ease;
-    font-family: theme("fontFamily.mono");
+    font-family: var(--terminal-font, theme("fontFamily.mono"));
     cursor: text;
+  }
+
+  /* ensure UA defaults (e.g., pre/button) don't override the terminal font */
+  .t-root * {
+    font-family: inherit;
   }
 
   .t-root.is-ready {

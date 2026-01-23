@@ -26,6 +26,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const inputFromHistory = useRef(false);
   const initialPropsRef = useRef(props);
   const hasInitializedRef = useRef(false);
+  const fontControllerRef = useRef(props.fontController);
+  const previewBaseRef = useRef<string | null>(null);
 
   const [state, setState] = useState<TerminalState>({
     ready: false,
@@ -74,7 +76,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     el.style.height = Math.min(el.scrollHeight, 220) + "px";
   }, []);
 
-  const resetTabState = useCallback(() => {
+  const resetTabState = useCallback((options?: { revertPreview?: boolean }) => {
+    if (options?.revertPreview !== false) {
+      void fontControllerRef.current?.resetPreview?.();
+      previewBaseRef.current = null;
+    }
+
     setState((prev) => ({
       ...prev,
       tabPrefix: "",
@@ -83,6 +90,90 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       tabVisible: false,
     }));
   }, []);
+
+  const buildSuggestions = useCallback(
+    (
+      rawInput: string,
+    ): { matches: string[]; prefix: string; isSubcommand: boolean } => {
+      const raw = rawInput || "";
+      const hasTrailingSpace = /\s$/.test(raw);
+      const parts = raw.trim().split(/\s+/).filter(Boolean);
+
+      const commandTokenOriginal = parts[0] || "";
+      if (!commandTokenOriginal) {
+        return { matches: [], prefix: "", isSubcommand: false };
+      }
+
+      const canonicalCommand =
+        registryRef.current.getCanonicalName(commandTokenOriginal) ||
+        commandTokenOriginal;
+
+      const inSubcommand = parts.length > 1 || hasTrailingSpace;
+      const subPrefix = (() => {
+        if (!inSubcommand) return "";
+        if (parts.length === 1 && hasTrailingSpace) return "";
+        if (parts.length > 1 && hasTrailingSpace && parts.length === 2)
+          return "";
+        return parts.length > 1 ? parts[parts.length - 1] || "" : "";
+      })();
+
+      if (inSubcommand) {
+        const subMatches = registryRef.current.suggestSubcommands(
+          canonicalCommand,
+          {
+            prefix: subPrefix,
+            parts,
+            raw,
+            hasTrailingSpace,
+          },
+        );
+
+        const matches = subMatches.map((sub) =>
+          sub.startsWith(canonicalCommand)
+            ? sub
+            : `${canonicalCommand} ${sub}`.trim(),
+        );
+
+        return {
+          matches,
+          prefix: `${canonicalCommand} ${subPrefix}`.trim(),
+          isSubcommand: true,
+        };
+      }
+
+      const matches = registryRef.current.suggest(commandTokenOriginal);
+      return { matches, prefix: commandTokenOriginal, isSubcommand: false };
+    },
+    [],
+  );
+
+  const extractDisplayFontId = useCallback((input: string): string | null => {
+    const match = input.trim().match(/^display\s+font\s+([^\s]+)$/i);
+    return match ? match[1] : null;
+  }, []);
+
+  const previewFontFromInput = useCallback(
+    (input: string) => {
+      const fontId = extractDisplayFontId(input);
+      if (!fontId) {
+        if (previewBaseRef.current) {
+          void fontControllerRef.current?.resetPreview?.();
+        }
+        previewBaseRef.current = null;
+        return;
+      }
+
+      if (!previewBaseRef.current) {
+        const current = fontControllerRef.current?.getCurrentFont();
+        previewBaseRef.current = current?.id ?? null;
+      }
+
+      void fontControllerRef.current?.previewFont(fontId).catch(() => {
+        // ignore preview failures
+      });
+    },
+    [extractDisplayFontId],
+  );
 
   const typingTimersRef = useRef<number[]>([]);
   const introTimersRef = useRef<number[]>([]);
@@ -347,6 +438,23 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         inputFromHistory.current = false;
         setState((prev) => ({ ...prev, input: "" }));
         return;
+      }
+
+      if (event.key === "Escape") {
+        if (tabVisible) {
+          event.preventDefault();
+          const fallback = state.tabPrefix || input;
+          resetTabState();
+          setState((prev) => ({ ...prev, input: fallback }));
+          return;
+        }
+
+        if (previewBaseRef.current) {
+          event.preventDefault();
+          void fontControllerRef.current?.resetPreview?.();
+          previewBaseRef.current = null;
+          return;
+        }
       }
 
       const metaOrCtrl = event.ctrlKey || event.metaKey;
