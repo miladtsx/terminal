@@ -8,17 +8,27 @@ import {
   TextSegment,
   FileMeta,
   RegisterDefaultsArgs,
+  OfflineStatus,
+  TerminalFontMeta,
 } from "@types";
 import {
   copyToClipboard,
-  OfflineStatus,
   disableOffline,
   getOfflineStatus,
   refreshOfflineResources,
 } from "@utils";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
+import { blogIndex } from "../../data/blogIndex";
+import { logsIndex } from "../../data/logsIndex";
 
-export const DEFAULT_SUGGESTED_COMMANDS = ["help", "work", "resume", "contact"];
+export const DEFAULT_SUGGESTED_COMMANDS = [
+  "help",
+  "work",
+  "resume",
+  "blog list",
+  "logs list",
+  "contact",
+];
 
 const createTextSegment = (text: string): TextSegment => ({
   type: "text",
@@ -125,6 +135,28 @@ const FILE_ALIASES: Record<string, string> = {
 
 const textCache = new Map<string, string>();
 
+const FAQ_ITEMS = [
+  {
+    question: "What kinds of projects do you take on?",
+    answer:
+      "Fast-moving SaaS/platform work where a senior IC can own a vertical: ship features, fix reliability, improve delivery loops.",
+  },
+  {
+    question: "How quickly can we start?",
+    answer: "Usually within 1–2 weeks. Short kickoff, thin slice, then weekly checkpoints.",
+  },
+  {
+    question: "Do you work async?",
+    answer:
+      "Yes. I bias to async docs/Looms with a standing sync as needed. Clear updates beat meetings.",
+  },
+  {
+    question: "How do you mesh with our team?",
+    answer:
+      "I join your Slack/Teams, ship in your repos, and keep PRs small. If you lack process, I bring a light one.",
+  },
+];
+
 export const formatBytes = (value: number): string => {
   if (value < 1024) return `${value} B`;
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
@@ -177,6 +209,7 @@ export function registerDefaultCommands({
   props,
   model,
   setLinesFromModel,
+  fontController,
 }: RegisterDefaultsArgs) {
   const contact = props.contact || {
     email: "miladtsx+terminal@gmail.com",
@@ -274,6 +307,73 @@ export function registerDefaultCommands({
 
   const files = listFiles();
 
+  const displayFontHandler = async ({ args }: CommandHandlerContext) => {
+    const scope = (args[0] || "").toLowerCase();
+    if (scope && scope !== "font") {
+      return ["usage: display font [list|current|<id>]"];
+    }
+
+    if (!fontController) {
+      return ["display font unavailable: font controller not initialized."];
+    }
+
+    const action = (args[1] || "list").toLowerCase();
+
+    if (action === "list") return formatFontList();
+    if (action === "current") {
+      const current = fontController.getCurrentFont();
+      return [
+        "current font:",
+        `  ${current.label} (${current.id})`,
+        current.description ? `  ${current.description}` : "",
+      ].filter(Boolean);
+    }
+
+    const targetId = action === "set" ? (args[2] || "") : action;
+    if (!targetId) return ["usage: display font <id>", ...formatFontList()];
+
+    const option = fontController
+      .listFonts()
+      .find((item) => item.id.toLowerCase() === targetId.toLowerCase());
+
+    if (!option) return [`unknown font: ${targetId}`, "try: display font list"];
+
+    try {
+      await fontController.setFont(option.id);
+      return [
+        `font set to ${option.label}`,
+        option.description ? option.description : "",
+      ].filter(Boolean);
+    } catch (error) {
+      return [`failed to set font: ${(error as Error).message}`];
+    }
+  };
+
+  const formatFontList = () => {
+    if (!fontController) return ["display font is unavailable in this build."];
+
+    const current = fontController.getCurrentFont();
+    const items = fontController.listFonts();
+    const longest = items.reduce(
+      (len: number, item: TerminalFontMeta) => Math.max(len, item.id.length),
+      0
+    );
+
+    const rows = items.map((font: TerminalFontMeta) => {
+      const active = font.id === current.id ? " (current)" : "";
+      const desc = font.description ? ` — ${font.description}` : "";
+      return `  ${font.id.padEnd(longest)}  ${font.label}${active}${desc}`;
+    });
+
+    return [
+      "fonts:",
+      ...rows,
+      "",
+      "set: display font <id>",
+      "show current: display font current",
+    ];
+  };
+
   const whoamiHandler = () => [
     "Profile:",
     "  Name: TSX",
@@ -297,6 +397,164 @@ export function registerDefaultCommands({
           "It started as my personal website, but ended up being this!",
         ],
       { desc: "short bio" }
+    )
+    .register(
+      "blog",
+      ({ args }) => {
+        const sub = (args[0] || "list").toLowerCase();
+
+        const formatPostRow = (
+          postSlug: string,
+          title: string,
+          date?: string,
+          tags?: string[]
+        ) => {
+          const tagDisplay = tags?.length ? ` #${tags.join(",")}` : "";
+          const datePart = date ? ` ${date}` : "";
+          return `  ${postSlug.padEnd(18)}${datePart} — ${title}${tagDisplay}`;
+        };
+
+        if (sub === "list") {
+          let tag: string | undefined;
+          let searchTerm: string | undefined;
+
+          for (let i = 1; i < args.length; i++) {
+            const token = args[i];
+            if (token === "--tag" && args[i + 1]) {
+              tag = args[i + 1];
+              i++;
+              continue;
+            }
+            if ((token === "--search" || token === "--q") && args[i + 1]) {
+              searchTerm = args[i + 1];
+              i++;
+              continue;
+            }
+          }
+
+          let posts = blogIndex.filterByTag(tag);
+          if (searchTerm) {
+            const hits = blogIndex.search(searchTerm);
+            const hitSlugs = new Set(hits.map((h) => h.slug));
+            posts = posts.filter((p) => hitSlugs.has(p.slug));
+          }
+
+          if (!posts.length) {
+            return [
+              "blog list:",
+              "  no posts found" + (tag ? ` for tag '${tag}'` : ""),
+              "",
+              "try: blog tags",
+            ];
+          }
+
+          const lines = ["blog posts:"];
+          posts.forEach((post) => {
+            lines.push(formatPostRow(post.slug, post.title, post.date, post.tags));
+          });
+          return lines;
+        }
+
+        if (sub === "read") {
+          const query = args.slice(1).join(" ").trim();
+          if (!query) return ["usage: blog read <slug|title>"];
+
+          const post = blogIndex.findBySlugOrTitle(query);
+          if (!post) return [`blog not found: ${query}`];
+
+          return [
+            [
+              {
+                type: "logs",
+                items: [
+                  {
+                    date: post.date || "",
+                    note: post.title,
+                    body: post.summary,
+                    slug: post.slug,
+                    kind: "blog",
+                  },
+                ],
+              },
+            ],
+            "",
+            [
+              {
+                type: "markdown",
+                title: post.title,
+                markdown: [post.summary, post.body].filter(Boolean).join("\n\n"),
+              },
+            ],
+          ];
+        }
+
+        if (sub === "search") {
+          const query = args.slice(1).join(" ").trim();
+          if (!query) return ["usage: blog search <query>"];
+          const hits = blogIndex.search(query);
+          if (!hits.length) return [`no blog matches for "${query}"`];
+
+          const lines = hits.map((hit) => {
+            const summary = hit.summary ? ` — ${hit.summary}` : "";
+            return `  ${hit.slug.padEnd(18)} (${hit.score}) ${hit.title}${summary}`;
+          });
+          return ["blog search results:", ...lines];
+        }
+
+        if (sub === "tags") {
+          const tags = blogIndex.listTags();
+          if (!tags.length) return ["no tags yet"];
+          return [
+            "tags:",
+            ...tags.map((t) => `  ${t.tag.padEnd(10)} ${t.count}`),
+          ];
+        }
+
+        if (sub.startsWith("--")) {
+          const posts = blogIndex.filterByTag(args[1]);
+          if (!posts.length)
+            return ["usage: blog list [--tag <tag>] [--search <query>]"];
+          return [
+            "blog posts:",
+            ...posts.map((post) =>
+              formatPostRow(post.slug, post.title, post.date, post.tags)
+            ),
+          ];
+        }
+
+        return [
+          "usage:",
+          "  blog list [--tag t] [--search q]",
+          "  blog read <slug|title>",
+          "  blog search <query>",
+          "  blog tags",
+        ];
+      },
+      {
+        desc: "blog list/read/search/tags",
+        subcommands: ["list", "read", "search", "tags"],
+        subcommandSuggestions: ({ prefix, parts, hasTrailingSpace }) => {
+          const subToken = (parts[1] || "").toLowerCase();
+          const wantsRead = subToken === "read" || prefix.toLowerCase() === "read";
+          if (!wantsRead) return undefined;
+
+          const titlePrefix =
+            parts.length > 2
+              ? parts.slice(2).join(" ")
+              : hasTrailingSpace || prefix.toLowerCase() === "read"
+              ? ""
+              : prefix;
+
+          const matches = blogIndex
+            .getAll()
+            .map((p) => p.title)
+            .filter((title) =>
+              title.toLowerCase().startsWith(titlePrefix.toLowerCase())
+            );
+
+          return matches.map((title) => `read ${title}`);
+        },
+      }
     )
     .register(
       "contact",
@@ -503,6 +761,30 @@ export function registerDefaultCommands({
           }
         }
 
+        blogIndex.linesForSearch().forEach((entry) => {
+          entry.lines.forEach((line, index) => {
+            if (regex.test(line)) {
+              matches.push(
+                `blog/${entry.slug}:${(index + 1)
+                  .toString()
+                  .padStart(3, " ")}: ${line.trim()}`
+              );
+            }
+          });
+        });
+
+        logsIndex.linesForSearch().forEach((entry) => {
+          entry.lines.forEach((line, index) => {
+            if (regex.test(line)) {
+              matches.push(
+                `log/${entry.slug}:${(index + 1)
+                  .toString()
+                  .padStart(3, " ")}: ${line.trim()}`
+              );
+            }
+          });
+        });
+
         caseStudies.forEach((study, index) => {
           const haystack = `${study.title} ${study.desc}`;
           if (regex.test(haystack)) {
@@ -517,7 +799,7 @@ export function registerDefaultCommands({
         }
         return truncated;
       },
-      { desc: "search text files and case studies" }
+      { desc: "search text files, blog posts, logs, and case studies" }
     )
     .register(
       "copy",
@@ -532,7 +814,116 @@ export function registerDefaultCommands({
       },
       { desc: "copy contact info" }
     )
+    .register(
+      "faq",
+      () => {
+        return [
+          [
+            {
+              type: "faq",
+              items: FAQ_ITEMS,
+            },
+          ],
+        ];
+      },
+      { desc: "interactive FAQ" }
+    )
+    .register(
+      "logs",
+      ({ args }) => {
+        const sub = (args[0] || "list").toLowerCase();
+
+          if (sub === "list") {
+          const entries = logsIndex.getAll();
+          if (!entries.length) return ["no logs yet"];
+          return [
+            [
+              {
+                type: "logs",
+                items: entries.map((entry) => ({
+                  date: entry.date || "",
+                  note: entry.title,
+                  body: [entry.summary, entry.body].filter(Boolean).join("\n\n"),
+                  slug: entry.slug,
+                  kind: "log",
+                })),
+              },
+            ],
+          ];
+        }
+
+        if (sub === "read") {
+          const query = args.slice(1).join(" ").trim();
+          if (!query) return ["usage: logs read <slug|title>"];
+          const entry = logsIndex.findBySlugOrTitle(query);
+          if (!entry) return [`log not found: ${query}`];
+
+          return [
+            [
+              {
+                type: "logs",
+                items: [
+                  {
+                    date: entry.date || "",
+                    note: entry.title,
+                    body: [entry.summary, entry.body].filter(Boolean).join("\n\n"),
+                    slug: entry.slug,
+                    kind: "log",
+                  },
+                ],
+              },
+            ],
+            "",
+            [
+              {
+                type: "markdown",
+                title: entry.title,
+                markdown: entry.body,
+              },
+            ],
+          ];
+        }
+
+        if (sub === "search") {
+          const query = args.slice(1).join(" ").trim();
+          if (!query) return ["usage: logs search <query>"];
+          const hits = logsIndex.search(query);
+          if (!hits.length) return [`no log matches for \"${query}\"`];
+          const lines = hits.map(
+            (hit) =>
+              `  ${hit.slug.padEnd(18)} (${hit.score}) ${hit.title}${
+                hit.summary ? ` — ${hit.summary}` : ""
+              }`
+          );
+          return ["logs search results:", ...lines];
+        }
+
+        return ["usage: logs list | logs read <slug|title> | logs search <query>"];
+      },
+      { desc: "work logs list/read/search", subcommands: ["list", "read", "search"] }
+    )
     .register("whoami", whoamiHandler, { desc: "show profile card" })
+    .register(
+      "display",
+      displayFontHandler,
+      {
+        desc: "display settings (font)",
+        subcommands: ["font"],
+        subcommandSuggestions: ({ parts, hasTrailingSpace }) => {
+          const first = (parts[1] || "").toLowerCase();
+          if (first && first !== "font") return [];
+
+          if (!fontController) return [];
+          const fonts = fontController.listFonts();
+          const prefix = (parts[2] || "").toLowerCase();
+          const matches = fonts
+            .map((f: TerminalFontMeta) => f.id)
+            .filter((id: string) => id.toLowerCase().startsWith(prefix));
+
+          return matches.map((id) => `font ${id}`);
+        },
+      }
+    )
     .register("finger", whoamiHandler, {
       desc: "alias for whoami",
     })
@@ -554,7 +945,7 @@ export function registerDefaultCommands({
           pwd: ["print current directory (virtual)"],
           ls: ["list files from /files", "ls"],
           cat: ["cat <file> — print text files only"],
-          grep: ["grep <term> — search case studies + text files"],
+          grep: ["grep <term> — search case studies + text files + blog/log posts"],
           open: ["open <file> — open in new tab"],
           download: ["download <file> — trigger browser download"],
           verify: [
@@ -563,12 +954,29 @@ export function registerDefaultCommands({
           copy: ["copy email — copy to clipboard"],
           whoami: ["compact profile card; alias: finger"],
           resume: ["open resume PDF"],
+          blog: [
+            "blog list [--tag t] [--search q] — list posts",
+            "blog read <slug|title> — open a post",
+            "blog search <query> — ranked search",
+            "blog tags — show tag counts",
+          ],
+          logs: [
+            "logs list — list log entries",
+            "logs read <slug|title> — read a log entry",
+            "logs search <query> — keyword search",
+          ],
+          faq: ["faq — interactive Q&A accordion (click to expand)"],
           history: [
             "history — list commands",
             "history -c — clear history",
             "n! — load nth history entry into input (press Enter to execute)",
           ],
           offline: ["offline status|refresh|disable — manage SW cache"],
+          display: [
+            "display font list — show available fonts",
+            "display font current — show active font",
+            "display font <id> — switch terminal font",
+          ],
         };
 
         if (topic && pages[topic]) {

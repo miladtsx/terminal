@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { CommandRegistry } from "@components/terminal/commandRegistry";
 import {
@@ -14,18 +14,33 @@ import {
   ControllerReturn,
   TerminalState,
   CommandOutput,
+  LineSegment,
 } from "@types";
-import { createTypeSfx, getGreeting, humanDelay } from "@utils";
+import {
+  createTypeSfx,
+  getGreeting,
+  humanDelay,
+  parseShareCommandsFromLocation,
+} from "@utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Leave scroll position alone so users can stay at the prompt and scroll manually.
   const modelRef = useRef(new TerminalModel({ prompt: props.prompt || ">" }));
   const registryRef = useRef(new CommandRegistry());
   const inputFromHistory = useRef(false);
   const initialPropsRef = useRef(props);
   const hasInitializedRef = useRef(false);
+  const suppressHistoryRef = useRef(false);
+  const parsedShareCommands = useMemo(() => {
+    if (typeof window === "undefined") return [];
+    return parseShareCommandsFromLocation(window.location);
+  }, []);
+  const sharedCommandsRef = useRef<string[] | null>(
+    parsedShareCommands.length ? parsedShareCommands : null,
+  );
   const fontControllerRef = useRef(props.fontController);
   const previewBaseRef = useRef<string | null>(null);
 
@@ -48,7 +63,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
       setState((prev) => ({ ...prev, lines: [...model.lines] }));
     },
-    []
+    [],
   );
 
   const normalizeCommandOutput = useCallback(
@@ -56,7 +71,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       if (!value) return [];
       return Array.isArray(value) ? value : [value];
     },
-    []
+    [],
   );
 
   const focusInput = useCallback(() => {
@@ -211,10 +226,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     const timers: number[] = [];
 
     for (let i = 0; i < greeting.length; i++) {
-      const timer = window.setTimeout(() => {
-        model.setLine(0, greeting.slice(0, i + 1));
-        setLinesFromModel();
-      }, Math.round(perChar * (i + 1)));
+      const timer = window.setTimeout(
+        () => {
+          model.setLine(0, greeting.slice(0, i + 1));
+          setLinesFromModel();
+        },
+        Math.round(perChar * (i + 1)),
+      );
       timers.push(timer);
     }
 
@@ -243,10 +261,58 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           .join("");
       };
 
+      const sliceSegment = (segment: LineSegment, remaining: number) => {
+        switch (segment.type) {
+          case "text": {
+            const text = segment.text.slice(0, remaining);
+            return text.length
+              ? [{ ...segment, text }, text.length]
+              : [null, 0];
+          }
+          case "command": {
+            const label = segment.label.slice(0, remaining);
+            return label.length
+              ? [{ ...segment, label }, label.length]
+              : [null, 0];
+          }
+          case "copy": {
+            const base = segment.label || segment.value;
+            const label = base.slice(0, remaining);
+            return label.length
+              ? [{ ...segment, label }, label.length]
+              : [null, 0];
+          }
+          default: {
+            // For rich blocks (faq/log/markdown), only show when fully revealed
+            const len = flattenLine([segment]).length;
+            return remaining >= len ? [segment, len] : [null, 0];
+          }
+        }
+      };
+
+      const sliceLine = (
+        line: TerminalLineInput,
+        visible: number,
+      ): TerminalLineInput => {
+        if (typeof line === "string") return line.slice(0, visible);
+
+        let remaining = visible;
+        const out: LineSegment[] = [];
+
+        for (const segment of line) {
+          if (remaining <= 0) break;
+          const [partial, consumed] = sliceSegment(segment, remaining);
+          if (partial) out.push(partial);
+          remaining -= consumed;
+        }
+
+        return out;
+      };
+
       const lineTexts = startLines.map(flattenLine);
       const blankIndex = model.lines.length;
       model.pushLine("");
-      lineTexts.forEach(() => model.pushLine(""));
+      startLines.forEach(() => model.pushLine(""));
       setLinesFromModel();
 
       const firstLineIndex = blankIndex + 1;
@@ -257,7 +323,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           const prev = lineText.slice(0, i);
           offset += humanDelay(prev, ch) * 0.1;
           const timer = window.setTimeout(() => {
-            model.setLine(firstLineIndex + lineIndex, lineText.slice(0, i + 1));
+            model.setLine(
+              firstLineIndex + lineIndex,
+              sliceLine(startLines[lineIndex], i + 1),
+            );
             setLinesFromModel();
           }, offset);
           extraTimers.push(timer);
@@ -308,7 +377,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       const registry = registryRef.current;
       if (!model || !registry) return;
 
-      const stored = model.remember(cmd);
+      const stored = suppressHistoryRef.current ? false : model.remember(cmd);
       if (stored) void appendHistory(cmd);
       model.echoCommand(cmd);
 
@@ -322,7 +391,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       try {
         const out = await Promise.resolve(
-          entry.handler({ args, raw: cmd, model, registry })
+          entry.handler({ args, raw: cmd, model, registry }),
         );
         const lines = normalizeCommandOutput(out);
         setLinesFromModel(lines.concat(lines.length ? [""] : []));
@@ -333,7 +402,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         ]);
       }
     },
-    [setLinesFromModel, normalizeCommandOutput]
+    [setLinesFromModel, normalizeCommandOutput],
   );
 
   const getTypeSfx = () => {
@@ -381,8 +450,53 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       timers.push(finalTimer);
       typingTimersRef.current = timers;
     },
-    [cancelTyping, focusInput, resetTabState, runCommand]
+    [cancelTyping, focusInput, resetTabState, runCommand],
   );
+
+  const triggerSharedRunSequence = useCallback(() => {
+    const commands = sharedCommandsRef.current;
+    if (!commands || !commands.length) return false;
+
+    sharedCommandsRef.current = null;
+    const model = modelRef.current;
+    if (model) {
+      model.clear();
+      setLinesFromModel();
+    }
+
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("run");
+      window.history.replaceState({}, "", url.toString());
+    } catch {
+      /* ignore */
+    }
+
+    cancelIntroTyping();
+    setShowIntroInput(true);
+    focusInput();
+
+    const runSequence = async () => {
+      suppressHistoryRef.current = true;
+      for (const cmd of commands) {
+        executeCommand(cmd);
+        const delay = Math.min(4200, Math.max(900, 500 + cmd.length * 40));
+        await new Promise((resolve) => {
+          window.setTimeout(resolve, delay);
+        });
+      }
+      suppressHistoryRef.current = false;
+    };
+
+    void runSequence();
+    return true;
+  }, [
+    cancelIntroTyping,
+    executeCommand,
+    focusInput,
+    setLinesFromModel,
+    setShowIntroInput,
+  ]);
 
   const handleGlobalPointerDown = useCallback(
     (event: PointerEvent) => {
@@ -391,7 +505,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         return;
       requestAnimationFrame(() => focusInput());
     },
-    [focusInput]
+    [focusInput],
   );
 
   const handleGlobalKeyDown = useCallback(
@@ -418,7 +532,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         focusInput();
       }
     },
-    [focusInput, setLinesFromModel]
+    [focusInput, setLinesFromModel],
   );
 
   const canNavigateHistory = useCallback(() => {
@@ -429,11 +543,35 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
   const handleKeyDown = useCallback(
     (event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
-      const { input, tabPrefix, tabMatches, tabIndex } = state;
+      const { input, tabPrefix, tabMatches, tabIndex, tabVisible } = state;
+      const hasSuggestionsOpen = tabVisible && tabMatches.length > 0;
+
+      if (
+        event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey &&
+        event.key.toLowerCase() === "c"
+      ) {
+        event.preventDefault();
+        cancelTyping();
+        resetTabState();
+        inputFromHistory.current = false;
+
+        const model = modelRef.current;
+        if (model) {
+          const interrupted =
+            input.trim().length > 0 ? `${model.prompt} ${input}^C` : "^C";
+          model.pushLine(interrupted);
+          setLinesFromModel();
+        }
+
+        setState((prev) => ({ ...prev, input: "" }));
+        return;
+      }
 
       if (event.key === "Enter") {
         event.preventDefault();
-        resetTabState();
+        resetTabState({ revertPreview: false });
         void runCommand(input);
         inputFromHistory.current = false;
         setState((prev) => ({ ...prev, input: "" }));
@@ -476,6 +614,24 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
 
       if (event.key === "ArrowUp") {
+        if (hasSuggestionsOpen) {
+          event.preventDefault();
+          setState((prev) => {
+            const matches = prev.tabMatches;
+            if (!matches.length) return prev;
+            const nextIndex =
+              (prev.tabIndex - 1 + matches.length) % matches.length;
+            const nextInput = matches[nextIndex];
+            previewFontFromInput(nextInput);
+            return {
+              ...prev,
+              tabIndex: nextIndex,
+              input: nextInput,
+              tabVisible: true,
+            };
+          });
+          return;
+        }
         if (!canNavigateHistory()) return;
         event.preventDefault();
         resetTabState();
@@ -486,6 +642,23 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
 
       if (event.key === "ArrowDown") {
+        if (hasSuggestionsOpen) {
+          event.preventDefault();
+          setState((prev) => {
+            const matches = prev.tabMatches;
+            if (!matches.length) return prev;
+            const nextIndex = (prev.tabIndex + 1) % matches.length;
+            const nextInput = matches[nextIndex];
+            previewFontFromInput(nextInput);
+            return {
+              ...prev,
+              tabIndex: nextIndex,
+              input: nextInput,
+              tabVisible: true,
+            };
+          });
+          return;
+        }
         if (!canNavigateHistory()) return;
         event.preventDefault();
         resetTabState();
@@ -497,76 +670,31 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       if (event.key === "Tab") {
         event.preventDefault();
-        const hasTrailingSpace = /\s$/.test(input);
-        const parts = input.trim().split(/\s+/).filter(Boolean);
-        const commandTokenOriginal = parts[0] || "";
-        const commandToken = commandTokenOriginal.toLowerCase();
-        if (!commandToken) return;
-
-        const inSubcommand = parts.length > 1 || hasTrailingSpace;
-        const subPrefix = inSubcommand ? parts[parts.length - 1] || "" : "";
-        const canonicalCommand =
-          registryRef.current.getCanonicalName(commandTokenOriginal) ||
-          commandTokenOriginal;
-
-        const subMatches = inSubcommand
-          ? registryRef.current.suggestSubcommands(
-              canonicalCommand,
-              subPrefix
-            )
-          : [];
-
-        const buildSuggestionInput = (value: string) =>
-          inSubcommand ? `${canonicalCommand} ${value}` : value;
-
         if (!tabPrefix) {
-          if (subMatches.length) {
-            const suggestions = subMatches.map(buildSuggestionInput);
+          const suggestionResult = buildSuggestions(input);
+          if (!suggestionResult.matches.length) return;
 
-            if (suggestions.length === 1) {
-              setState((prev) => ({
-                ...prev,
-                input: `${suggestions[0]} `,
-                tabVisible: false,
-              }));
-              return;
-            }
-
-            modelRef.current.pushLine(subMatches.join("  "));
-            setLinesFromModel([""]);
+          if (suggestionResult.matches.length === 1) {
+            const [only] = suggestionResult.matches;
+            const nextInput = only.endsWith(" ") ? only : `${only} `;
             setState((prev) => ({
               ...prev,
-              tabPrefix: `${canonicalCommand} ${subPrefix}`.trim(),
-              tabMatches: suggestions,
-              tabIndex: 0,
-              tabVisible: true,
-              input: suggestions[0],
-            }));
-            return;
-          }
-
-          const matches = registryRef.current.suggest(commandToken);
-          if (!matches.length) return;
-
-          if (matches.length === 1) {
-            setState((prev) => ({
-              ...prev,
-              input: `${matches[0]} `,
+              input: nextInput,
               tabVisible: false,
             }));
+            previewFontFromInput(only.trim());
             return;
           }
 
-          modelRef.current.pushLine(matches.join("  "));
-          setLinesFromModel([""]);
           setState((prev) => ({
             ...prev,
-            tabPrefix: commandToken,
-            tabMatches: matches,
+            tabPrefix: suggestionResult.prefix || input.trim(),
+            tabMatches: suggestionResult.matches,
             tabIndex: 0,
             tabVisible: true,
-            input: matches[0],
+            input: suggestionResult.matches[0],
           }));
+          previewFontFromInput(suggestionResult.matches[0]);
           return;
         }
 
@@ -578,6 +706,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
             input: tabMatches[next],
             tabVisible: true,
           }));
+          previewFontFromInput(tabMatches[next]);
         }
         return;
       }
@@ -586,7 +715,15 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         resetTabState();
       }
     },
-    [canNavigateHistory, resetTabState, runCommand, setLinesFromModel, state]
+    [
+      canNavigateHistory,
+      cancelTyping,
+      resetTabState,
+      buildSuggestions,
+      runCommand,
+      setLinesFromModel,
+      state,
+    ],
   );
 
   const onInputChange = useCallback(
@@ -607,36 +744,18 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       setState((prev) => {
         if (!prev.tabPrefix) return { ...prev, input: value };
 
-        const raw = value;
-        const hasTrailingSpace = /\s$/.test(raw);
-        const parts = raw.trim().split(/\s+/).filter(Boolean);
-        const commandTokenOriginal = parts[0] || "";
-        const commandToken = commandTokenOriginal.toLowerCase();
-        if (!commandToken) {
-          return { ...prev, input: value, tabVisible: false, tabMatches: [] };
-        }
-
-        const inSubcommand = parts.length > 1 || hasTrailingSpace;
-        const subPrefix = inSubcommand ? parts[parts.length - 1] || "" : "";
-        const canonicalCommand =
-          registryRef.current.getCanonicalName(commandTokenOriginal) ||
-          commandTokenOriginal;
-
-        const getSuggestions = () => {
-          if (inSubcommand) {
-            const subs = registryRef.current.suggestSubcommands(
-              canonicalCommand,
-              subPrefix
-            );
-            return subs.map((s) => `${canonicalCommand} ${s}`.trim());
-          }
-          return registryRef.current.suggest(commandToken);
-        };
-
-        const nextMatches = getSuggestions();
+        const result = buildSuggestions(value);
+        const nextMatches = result.matches;
 
         if (!nextMatches.length) {
-          return { ...prev, input: value, tabMatches: [], tabVisible: false };
+          return {
+            ...prev,
+            input: value,
+            tabMatches: [],
+            tabVisible: false,
+            tabPrefix: "",
+            tabIndex: 0,
+          };
         }
 
         const currentIdx = prev.tabIndex % nextMatches.length;
@@ -644,12 +763,14 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           ...prev,
           input: value,
           tabMatches: nextMatches,
+          tabPrefix: result.prefix,
           tabIndex: Math.max(0, currentIdx),
           tabVisible: true,
         };
       });
+      previewFontFromInput(value);
     },
-    []
+    [buildSuggestions, previewFontFromInput],
   );
 
   useEffect(() => {
@@ -657,7 +778,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   }, [autoGrow, state.input]);
 
   useEffect(() => {
-    scrollToBottom();
+    //TODO selectively scroll down.
+    // scrollToBottom();
   }, [scrollToBottom, state.lines]);
 
   useEffect(() => {
@@ -670,9 +792,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         props: initialPropsRef.current,
         model,
         setLinesFromModel,
+        fontController: initialPropsRef.current.fontController,
       });
 
-      if (!model.lines.length) {
+      const sharedStarted = triggerSharedRunSequence();
+      if (!sharedStarted && !model.lines.length) {
         startIntroSequence();
       }
 
@@ -699,7 +823,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       document.removeEventListener(
         "pointerdown",
         handleGlobalPointerDown,
-        true
+        true,
       );
       cancelTyping();
       cancelIntroTyping();
@@ -715,6 +839,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     handleGlobalPointerDown,
     setLinesFromModel,
     startIntroSequence,
+    triggerSharedRunSequence,
   ]);
 
   return {

@@ -65,7 +65,39 @@ export type TextSegment = {
   text: string;
 };
 
-export type LineSegment = TextSegment | CommandSegment | CopySegment;
+export type FaqItem = { question: string; answer: string };
+
+export type FaqSegment = {
+  type: "faq";
+  items: FaqItem[];
+};
+
+export type LogItem = {
+  date: string;
+  note: string;
+  body?: string;
+  slug?: string;
+  kind?: "log" | "blog";
+};
+
+export type LogSegment = {
+  type: "logs";
+  items: LogItem[];
+};
+
+export type MarkdownSegment = {
+  type: "markdown";
+  title?: string;
+  markdown: string;
+};
+
+export type LineSegment =
+  | TextSegment
+  | CommandSegment
+  | CopySegment
+  | FaqSegment
+  | LogSegment
+  | MarkdownSegment;
 export type TerminalLine = LineSegment[];
 export type TerminalLineInput = string | TerminalLine;
 
@@ -104,11 +136,23 @@ export type RegisterDefaultsArgs = {
   props: TerminalProps;
   model: TerminalModel;
   setLinesFromModel: (extraLines?: TerminalLineInput[]) => void;
+  fontController?: TerminalFontController;
+};
+
+export type TerminalFontMeta = TerminalFontOption;
+
+export type SubcommandSuggestContext = {
+  prefix: string;
+  parts: string[];
+  raw: string;
+  hasTrailingSpace: boolean;
+  command: string;
 };
 
 export type CommandMeta = {
   desc?: string;
   subcommands?: string[];
+  subcommandSuggestions?: (ctx: SubcommandSuggestContext) => string[] | undefined;
 };
 
 export type CommandHandlerContext = {

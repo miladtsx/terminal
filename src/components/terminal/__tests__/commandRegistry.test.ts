@@ -39,4 +39,22 @@ describe("CommandRegistry", () => {
         expect(registry.get("history")).toBeDefined();
         expect(registry.suggestSubcommands("history", "-")).toEqual(["-c"]);
     });
+
+    it("uses custom subcommand suggestions when provided", () => {
+        const registry = new CommandRegistry();
+        registry.register("blog", () => "b", {
+            subcommands: ["list", "read"],
+            subcommandSuggestions: ({ prefix }) =>
+                prefix.startsWith("r") ? ["read post-a", "read post-b"] : undefined,
+        });
+
+        expect(
+            registry.suggestSubcommands("blog", {
+                prefix: "r",
+                parts: ["blog", "r"],
+                raw: "blog r",
+                hasTrailingSpace: false,
+            })
+        ).toEqual(["read post-a", "read post-b"]);
+    });
 });
