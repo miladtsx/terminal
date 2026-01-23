@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
@@ -30,6 +30,17 @@ export default function Terminal(props: TerminalProps) {
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
 
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const target = event.target as Element | null;
+      if (target && (target.closest(".t-output") || target.closest("a"))) {
+        return;
+      }
+      focusInput();
+    },
+    [focusInput]
+  );
+
   const suggestStyle: React.CSSProperties = {
     margin: "4px 0 8px",
     padding: "4px 6px",
@@ -52,12 +63,12 @@ export default function Terminal(props: TerminalProps) {
   };
 
   return (
-    <div
-      className={"t-root" + (ready ? " is-ready" : "")}
-      onMouseDown={() => focusInput()}
-      role="application"
-      aria-label="Terminal portfolio"
-    >
+      <div
+        className={"t-root" + (ready ? " is-ready" : "")}
+        onMouseDown={handleMouseDown}
+        role="application"
+        aria-label="Terminal portfolio"
+      >
       {notification ? (
         <NotificationOverlay notification={notification} onDismiss={dismiss} />
       ) : null}
