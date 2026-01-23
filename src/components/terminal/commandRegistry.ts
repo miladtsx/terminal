@@ -1,4 +1,9 @@
-import { CommandEntry, CommandHandler, CommandMeta } from "@types";
+import {
+  CommandEntry,
+  CommandHandler,
+  CommandMeta,
+  SubcommandSuggestContext,
+} from "@types";
 
 export class CommandRegistry {
   private commands = new Map<string, CommandEntry>();
@@ -50,14 +55,37 @@ export class CommandRegistry {
     );
   }
 
-  suggestSubcommands(command: string, prefix?: string): string[] {
+  suggestSubcommands(
+    command: string,
+    context: string | Partial<SubcommandSuggestContext> = {}
+  ): string[] {
     const registeredName = this.findRegisteredName(command);
     if (!registeredName) return [];
 
-    const subcommands = this.commands.get(registeredName)?.meta.subcommands;
+    const meta = this.commands.get(registeredName)?.meta;
+    if (!meta) return [];
+
+    const ctx: Partial<SubcommandSuggestContext> =
+      typeof context === "string" ? { prefix: context } : context;
+
+    const normalizedPrefix = ctx.prefix ?? "";
+
+    if (meta.subcommandSuggestions) {
+      const suggestions = meta.subcommandSuggestions({
+        prefix: normalizedPrefix,
+        parts: ctx.parts ?? [],
+        raw: ctx.raw ?? "",
+        hasTrailingSpace: Boolean(ctx.hasTrailingSpace),
+        command: registeredName,
+      });
+
+      if (suggestions?.length) return suggestions;
+    }
+
+    const subcommands = meta.subcommands;
     if (!subcommands?.length) return [];
 
-    const lower = this.normalize(prefix || "");
+    const lower = this.normalize(normalizedPrefix);
     return subcommands.filter((sub) => this.normalize(sub).startsWith(lower));
   }
 }
