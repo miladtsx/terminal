@@ -243,21 +243,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
         `
-Your system didn’t crash.
-It just quietly did the wrong thing.
+I’m a backend reliability engineer. I fix, harden, and scale systems you’re afraid to touch.
 
-I design and repair production systems that fail safely —
-inspectable, pausable, rewindable for real traffic.
+I’m the person you call when your backend “mostly works” and that’s no longer acceptable.
 
-This is for teams with long-lived, high-stakes workflows
-where bugs don’t announce themselves
-and the bill arrives months later.
-
-If you care what happens at 3am,
-after the alerts stop,
-you’re in the right place.
-
-I optimize for systems that survive contact with reality, not demo day.
+I build backends that don’t panic at 3am.
 `,
         suggested,
       )();
