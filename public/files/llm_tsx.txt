@@ -1,0 +1,175 @@
+
+RESUME KNOWLEDGE BASE
+===============================================
+
+IDENTITY & META
+---------------
+- Software Engineer with a decade of professional experience
+- Background: Backend, Security, Blockchain/Web3, DevOps
+- Industries: Finance[CeFi/Banking, DeFi], Entertainment[Online Multiplayer Gaming], Other[Cybersecurity,Suuply-Chain], ECommerce[Booking] systems, 
+- Strengths: Stability, performance optimization, security-first development, scaling systems
+
+
+CAREER TIMELINE (CANONICAL)
+--------------------------
+0) Technical Founder
+   Company: BlockByBlock (AI-Assisted Quest Platform)
+   Dates: 2025 – Present
+   Type: CoFounding / Closed Source
+   Tech: Smart contracts, Generative AI, TypeScript, Google Cloud (Cloud Run), API Design
+
+- In 10 days, from a paragraph (an Idea), delivered a mock MVP ready for pitching investors.
+- Launched the MVP in 6 months.
+- Integrated with X/Twitter, Gnosis Safe, Common EVM Blockchain networks and Google Gemini to  moderate user contents.
+
+1) Fractional CTO
+   Company: Vexor (BioLink)
+   Dates: 2024 – 2025
+   Type: Independent / Open Source
+   Tech: Solidity, Hardhat, TypeScript, JavaScript, GitHub Pages, API Design
+   Contributions:
+   - Designed and implemented decentralized alternative to Linktree
+   - Implemented smart contracts for verifiable ownership of links and metadata
+   - Open-sourced the project and encouraged community contributions
+   - Led project from idea to MVP
+
+2) Backend Developer & Blockchain Expert
+   Company: VENT Finance (DeFi Launchpad)
+   Dates: Nov 2021 – Jun 2024
+   Type: Remote
+   Tech:
+   - Solidity, Hardhat, Ethers.js, Web3.js
+   - Python, Node.js, TypeScript
+   - AWS (Lambda, CloudFront), Serverless, DynamoDB, PostgreSQL
+   Key Impacts:
+   - Reduced AWS infrastructure costs by ~60–70%
+   - Maintained smart contracts securing ~$4M TVL over 3 years
+   - Achieved 8.9/10 security audit score (Hacken)
+   - Reduced Ethereum whitelisting cost by ~99% using batching + ZK techniques
+   - Built on-chain automatic scoring system for ops scalability
+   - Reduced KYC processing time by ~50% via third-party integrations
+   - Implemented CI/CD automation, removing manual deployments
+   - Maintained 95%+ test coverage for smart contracts (TDD)
+   Integrations:
+   - Onfido (KYC), Klaviyo (Marketing), Biconomy/Gelato (Gasless UX)
+   - Alchemy / Ankr RPC
+
+3) Senior Backend Engineer
+   Company: Revision / Quiztion (Multiplayer Mobile Game)
+   Dates: Feb 2020 – Jul 2021
+   Type: Remote / Hybrid
+   Tech:
+   - Node.js, TypeScript, Docker, Redis, PostgreSQL
+   - Linux, SPLUNK, uWebSocket.js
+   Key Impacts:
+   - Increased crash-free user rate from ~65% → 92%
+   - Reduced CPU usage by ~90% (50%+ → <5%)
+   - Scaled concurrent users from ~100 → 2,000+
+   - Achieved ~10x throughput improvement in real-time communication
+   - Optimized hot SQL query (20k/day): ~5s → ~2s
+   - Implemented Postgres Streaming Replication (DR < 3 minutes, zero data loss)
+   - Fixed multiple race conditions causing data loss
+   - Found and fixed 2 critical sensitive data leaks (white-box security review)
+   - Hardened Linux servers (Fail2Ban, ModSecurity, SSL A+)
+   - Built stress-test robots simulating real user behavior
+   - Implemented structured logging and behavior analysis via SPLUNK
+   - Migrated architecture from monolith to microservices
+   - Assisted Unity client devs with WebSocket bidirectional communication (C#)
+
+4) Lead Backend Engineer / CTO-equivalent
+   Company: BugDasht (Crowdsourced Cybersecurity Platform)
+   Dates: Feb 2019 – Sep 2019
+   Type: Remote / Hybrid
+   Tech:
+   - PHP, Linux, PostgreSQL, Cryptography, Docker
+   Key Impacts:
+   - Built MVP from scratch (idea → market-ready in ~8 months)
+   - Identified critical business logic flaw preventing financial loss
+   - Designed secure key management and encryption strategy
+   - Implemented auditability and non-repudiation mechanisms
+   - Led backend architecture with security-first mindset
+   - Collaborated with internal/external security researchers
+
+5) Software Security Analyst (Blue Team)
+   Company: Mobile Communication Company of Iran (MCI)
+   Dates: Nov 2017 – Jul 2019
+   Type: On-site / Hybrid
+   Tech:
+   - Python, C#, C++, PHP, JavaScript
+   - Linux, Docker, BurpSuite, SPLUNK
+   Key Impacts:
+   - Automated SOC monitoring tasks (saved ~3 hours/day)
+   - Conducted vulnerability analysis and advisory reporting
+   - Performed white-box and black-box security testing
+   - Practiced buffer overflow exploitation using GDB
+   - Completed CEH v7 training and hands-on labs
+
+6) Junior Fullstack Software Engineer
+   Companies: Eligasht (Travel) & Saman Bank (Core Banking)
+   Dates: 2011 – 2017
+   Type: On-site
+   Tech:
+   - ASP.NET, C#, JavaScript, Oracle, IBM DB2, Linux
+   Key Contributions:
+   - Maintained and extended backend APIs
+   - Integrated third-party services
+   - Built Telegram bots reducing customer in-person visits
+   - Worked on large, multi-layer enterprise codebases
+
+PROJECTS (Idea to Product)
+-----------------
+
+- LinkTrue (Decentralized BioLink)|2024|http://dTip.vercel.app|Solo|Open Source|Tech:Solidity,Hardhat, GitHub Pages
+   - Designed and implemented decentralized alternative to Linktree
+   - Implemented smart contracts for verifiable ownership of links and metadata
+   - Open-sourced the project and encouraged community contributions
+   - Led project from idea to MVP
+
+
+- Private Permissioned Blockchain (IBM Hyperledger Fabric)
+  - Supply chain use case
+  - Delivered in ~45 days alongside full-time job
+
+- ERC20 Token & dApp
+  - Solidity smart contracts
+  - Ethereum testnet/mainnet
+  - Transaction monitoring dApp
+
+- DeFi Systems
+  - Staking, scoring, ticketing, crowdfunding
+  - NFT-based participation
+  - Zero-knowledge optimizations
+
+- IPFS Node Manager
+  - Node.js-based local IPFS management
+
+- Automation Robots
+  - Game stress testing bots
+  - SOC automation scripts
+
+SKILLS (CANONICAL)
+------------------
+Backend: Node.js, Python, TypeScript, C#
+Blockchain: Solidity, Ethereum, Hardhat, Ethers.js, Web3.js
+Security: AppSec, Smart Contract Security, Cryptography, PenTesting
+Databases: PostgreSQL, MySQL, DynamoDB, MongoDB
+DevOps: Linux, Docker, CI/CD, GitHub Actions, AWS, Serverless
+Architecture: Microservices, Event-driven systems, WebSockets
+Testing: TDD, Mocha/Chai, Smart Contract Testing
+Frontend (working knowledge): React, Next.js, HTML/CSS
+
+EDUCATION & CERTIFICATIONS
+--------------------------
+- M.Sc. Information Security / Cybersecurity — 2017
+- B.Sc. Software Engineering — 2012
+- Avalanche Fundamentals — 2024
+- Bitcoin SV Theory — 2021
+- CEH v7 (training completed)
+
+PERSONAL WORK TRAITS
+--------------------
+- Security-first mindset
+- Strong debugging and performance tuning
+- Rapid learner (zero → production systems repeatedly)
+- Comfortable owning systems end-to-end
+- Values clean code, automation, and reliability

@@ -1,7 +1,7 @@
 [
   {
     "name": "llm_tsx.txt",
-    "path": "/files/llm_tsx.txt",
+    "path": "files/llm_tsx.txt",
     "size": 0,
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "text": true,
@@ -9,7 +9,7 @@
   },
   {
     "name": "resume_tsx.pdf",
-    "path": "/files/resume_tsx.pdf",
+    "path": "files/resume_tsx.pdf",
     "size": 644,
     "sha256": "267ffe02f02e828989cf6f83bdbdc501b31b6761cbd592307bf7929b40737792",
     "text": false,
