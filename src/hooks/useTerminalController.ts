@@ -242,23 +242,22 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
-`
-
-Your AI system didn’t crash.
+        `
+Your system didn’t crash.
 It just quietly did the wrong thing.
 
-I design agentic systems that fail safely —
-inspectable, pausable, rewindable systems for production environments.
+I design and repair production systems that fail safely —
+inspectable, pausable, rewindable for real traffic.
 
-This is for teams running long-lived workflows where mistakes don’t announce themselves and fixes come too late.
+This is for teams with long-lived, high-stakes workflows
+where bugs don’t announce themselves
+and the bill arrives months later.
 
 If you care what happens at 3am,
 after the alerts stop,
-you’re probably in the right place.
+you’re in the right place.
 
 I optimize for systems that survive contact with reality, not demo day.
-
-
 `,
         suggested,
       )();
