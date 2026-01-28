@@ -22,11 +22,11 @@ import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
 
 export const DEFAULT_SUGGESTED_COMMANDS = [
-  "use-cases",
-  "logs",
-  "work",
+  // "use-cases",
+  // "logs",
+  // "work",
   "contact",
-  "blog",
+  // "blog",
 ];
 
 const createTextSegment = (text: string): TextSegment => ({
