@@ -14,6 +14,7 @@
     --shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
     --terminal-font: "Fira Code", "IBM Plex Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
     color-scheme: dark;
+    --terminal-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect width='12' height='12' x='2' y='2' rx='2' ry='2' fill='%23eaf1fb' stroke='rgba(255,255,255,0.5)' stroke-width='2'/%3E%3C/svg%3E") 8 8, text;
   }
 
   *,
@@ -86,7 +87,7 @@
     opacity: 0;
     transition: opacity 420ms ease;
     font-family: var(--terminal-font, theme("fontFamily.mono"));
-    cursor: text;
+    cursor: var(--terminal-cursor);
   }
 
   /* ensure UA defaults (e.g., pre/button) don't override the terminal font */
@@ -222,6 +223,294 @@
     transform: translateY(0.5px);
     box-shadow:
       inset 0 1px 2px rgba(0, 0, 0, 0.7);
+  }
+
+  @media (max-width: 640px) {
+    .intro-start-line.has-commands {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 12px;
+      width: 100%;
+      justify-items: center;
+      align-items: center;
+      margin: 6px 0 4px;
+    }
+
+    .intro-start-line.has-commands > span {
+      display: none;
+    }
+
+    .intro-start-line.has-commands .t-commandLink {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .t-faq {
+    margin: 8px 0 4px;
+    padding: 10px 12px;
+    border: 1px solid rgba(141, 208, 255, 0.2);
+    border-radius: 10px;
+    background: rgba(141, 208, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .t-faqItem + .t-faqItem {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .t-faqSummary {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e8f0ff;
+    font-weight: 600;
+    letter-spacing: 0.1px;
+    transition: color 120ms ease;
+  }
+
+  .t-faqItem.is-open .t-faqSummary,
+  .t-faqSummary:hover {
+    color: #a9e1ff;
+  }
+
+  .t-faqChevron {
+    display: inline-block;
+    transition: transform 160ms ease;
+    transform-origin: 40% 50%;
+  }
+
+  .t-faqItem.is-open .t-faqChevron {
+    transform: rotate(90deg);
+  }
+
+  .t-faqAnswer {
+    overflow: hidden;
+    transition: max-height 200ms ease;
+  }
+
+  .t-faqAnswerInner {
+    padding: 6px 0 0 20px;
+    color: #cfd9ec;
+    line-height: 1.5;
+  }
+
+  .t-logAccordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 10px 0;
+  }
+
+  .t-logItem {
+    border: 1px solid rgba(141, 208, 255, 0.22);
+    border-radius: 10px;
+    background: linear-gradient(
+      180deg,
+      rgba(141, 208, 255, 0.12),
+      rgba(141, 208, 255, 0.06)
+    );
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+  }
+
+  .t-logItem.is-open {
+    border-color: rgba(169, 225, 255, 0.5);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  }
+
+  .t-logSummary {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    color: #e8f0ff;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+
+  .t-logChevron {
+    transition: transform 160ms ease;
+    transform-origin: 40% 50%;
+  }
+
+  .t-logItem.is-open .t-logChevron {
+    transform: rotate(90deg);
+  }
+
+  .t-logTitle {
+    flex: 1;
+    text-align: left;
+  }
+
+  .t-logDate {
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #a9e1ff;
+  }
+
+  .t-eyeIcon {
+    display: block;
+  }
+
+  .t-logPanel {
+    overflow: hidden;
+    transition: max-height 200ms ease;
+    background: rgba(11, 16, 26, 0.8);
+  }
+
+  .t-logPanelInner {
+    padding: 12px 14px 14px;
+  }
+
+  .t-logEmpty {
+    color: #cfd9ec;
+    margin-bottom: 8px;
+  }
+
+  .t-logShare {
+    all: unset;
+    cursor: pointer;
+    font-size: 12px;
+    color: #0b101a;
+    background: #a9e1ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 120ms ease, transform 120ms ease;
+  }
+
+  .t-logShare:hover {
+    background: #d6f1ff;
+  }
+
+  .t-logShare:active {
+    transform: translateY(1px);
+  }
+
+  .t-markdown {
+    margin: 14px 0;
+    padding: 14px 16px;
+    border: 1px solid rgba(141, 208, 255, 0.18);
+    border-radius: 12px;
+    background: linear-gradient(
+      180deg,
+      rgba(141, 208, 255, 0.12),
+      rgba(11, 16, 26, 0.6)
+    );
+    color: #e8f0ff;
+    line-height: 1.55;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .t-markdownTitle {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #a9e1ff;
+  }
+
+  .t-markdownBody h1,
+  .t-markdownBody h2,
+  .t-markdownBody h3,
+  .t-markdownBody h4,
+  .t-markdownBody h5,
+  .t-markdownBody h6 {
+    margin: 10px 0 6px;
+    font-weight: 700;
+    color: #a9e1ff;
+    line-height: 1.35;
+  }
+
+  .t-markdownBody h1 {
+    font-size: 22px;
+  }
+
+  .t-markdownBody h2 {
+    font-size: 18px;
+  }
+
+  .t-markdownBody h3 {
+    font-size: 16px;
+  }
+
+  .t-markdownBody h4 {
+    font-size: 15px;
+  }
+
+  .t-markdownBody h5 {
+    font-size: 14px;
+  }
+
+  .t-markdownBody h6 {
+    font-size: 13px;
+    letter-spacing: 0.1px;
+  }
+
+  .t-markdownBody p {
+    margin: 8px 0;
+  }
+
+  .t-markdownBody a {
+    color: #9fd5ff;
+    text-decoration: underline;
+  }
+
+  .t-markdownBody a:hover {
+    color: #d6f1ff;
+  }
+
+  .t-markdownBody strong {
+    font-weight: 700;
+  }
+
+  .t-markdownBody em {
+    font-style: italic;
+  }
+
+  .t-markdownBody ul,
+  .t-markdownBody ol {
+    margin: 8px 0 8px 18px;
+    padding: 0 0 0 12px;
+    list-style-position: outside;
+  }
+
+  .t-markdownBody ul {
+    list-style-type: disc;
+  }
+
+  .t-markdownBody ol {
+    list-style-type: decimal;
+  }
+
+  .t-markdownBody li {
+    margin: 6px 0;
+  }
+
+  .t-markdownBody code {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 5px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  .t-markdownBody pre {
+    background: rgba(11, 16, 26, 0.8);
+    border: 1px solid rgba(141, 208, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    overflow-x: auto;
+    margin: 10px 0;
   }
 
 
@@ -593,6 +882,68 @@
     border-color: rgba(141, 208, 255, 0.8);
     transform: translateY(-1px);
     outline: none;
+  }
+
+  .t-contextMenu {
+    position: fixed;
+    min-width: 240px;
+    background: rgba(13, 18, 28, 0.7);
+    backdrop-filter: blur(18px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 18px;
+    box-shadow:
+      0 25px 60px rgba(3, 4, 9, 0.6);
+    padding: 10px 0;
+    z-index: 1200;
+    opacity: 0.9;
+  }
+
+  .t-contextMenuItem {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    padding: 8px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: var(--terminal-font, monospace);
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+
+  .t-contextMenuItem:hover,
+  .t-contextMenuItem:focus-visible {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .t-contextMenuItem small {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .t-contextMenuDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: 2px 0;
+  }
+
+  .t-contextMenuItem.system {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 4px;
+  }
+
+  .t-contextHint {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 13px;
+    color: var(--accent);
+    font-family: var(--terminal-font, monospace);
+    max-width: 360px;
   }
 }
 

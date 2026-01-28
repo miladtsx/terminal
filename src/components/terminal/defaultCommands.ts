@@ -22,12 +22,11 @@ import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
 
 export const DEFAULT_SUGGESTED_COMMANDS = [
-  "help",
+  "use-cases",
+  "logs",
   "work",
-  "resume",
-  "blog list",
-  "logs list",
   "contact",
+  "blog",
 ];
 
 const createTextSegment = (text: string): TextSegment => ({
@@ -38,7 +37,7 @@ const createTextSegment = (text: string): TextSegment => ({
 const createCommandSegment = (
   command: string,
   label?: string,
-  ariaLabel?: string
+  ariaLabel?: string,
 ): CommandSegment => ({
   type: "command",
   label: label ?? `${command}`,
@@ -102,7 +101,7 @@ function isDir(parts: string[], target: string[]): boolean {
 function resolveFileFromPath(
   token: string,
   cwd: string[],
-  resolver: (name: string) => FileMeta | undefined
+  resolver: (name: string) => FileMeta | undefined,
 ): FileMeta | undefined {
   const parts = normalizePath(token, cwd);
   if (!parts) return undefined;
@@ -117,7 +116,7 @@ function resolveFileFromPath(
 
 export function formatCommandToButton(
   prefixPrompt: string,
-  commands: string[]
+  commands: string[],
 ) {
   return (): TerminalLineInput[] => {
     const list = commands;
@@ -143,7 +142,8 @@ const FAQ_ITEMS = [
   },
   {
     question: "How quickly can we start?",
-    answer: "Usually within 1–2 weeks. Short kickoff, thin slice, then weekly checkpoints.",
+    answer:
+      "Usually within 1–2 weeks. Short kickoff, thin slice, then weekly checkpoints.",
   },
   {
     question: "Do you work async?",
@@ -177,14 +177,14 @@ async function computeSha256(buffer: ArrayBuffer): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", buffer);
   const bytes = new Uint8Array(digest);
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
-    ""
+    "",
   );
 }
 
 function formatFileRow(file: FileMeta) {
   const displayPath = file.path.startsWith("/") ? file.path : `/${file.path}`;
   return `  ${file.name.padEnd(18)} ${formatBytes(file.size).padStart(
-    8
+    8,
   )}  ${displayPath}`;
 }
 
@@ -202,6 +202,51 @@ function buildManPage(entries: Record<string, string[]>): string[] {
     ...lines.map((line) => `  ${line}`),
     "",
   ]);
+}
+
+function renderMarkdownBox(title: string, content: string): string[] {
+  const lines = content.split(/\r?\n/);
+  const out: string[] = [];
+  let inCode = false;
+
+  const push = (text: string = "") => out.push(`│ ${text}`);
+
+  lines.forEach((raw) => {
+    const line = raw.replace(/\s+$/, "");
+
+    if (/^```/.test(line)) {
+      inCode = !inCode;
+      push(inCode ? "code:" : "");
+      return;
+    }
+
+    if (inCode) {
+      push(`  ${line}`);
+      return;
+    }
+
+    if (/^#{1,6}\s+/.test(line)) {
+      const text = line.replace(/^#{1,6}\s+/, "");
+      push(text);
+      push();
+      return;
+    }
+
+    if (/^\s*[-*]\s+/.test(line)) {
+      push(`  • ${line.replace(/^\s*[-*]\s+/, "")}`);
+      return;
+    }
+
+    if (!line.trim()) {
+      push();
+      return;
+    }
+
+    push(line);
+  });
+
+  const horizontal = "─".repeat(Math.max(8, title.length + 6));
+  return [`┌─ ${title}`, `├${horizontal}`, ...out, `└${horizontal}`];
 }
 
 export function registerDefaultCommands({
@@ -231,11 +276,15 @@ export function registerDefaultCommands({
     contact.email
       ? { label: "email", displayLabel: "✉", value: contact.email }
       : null,
-  ].filter(Boolean) as { label: string; value: string; displayLabel?: string }[];
+  ].filter(Boolean) as {
+    label: string;
+    value: string;
+    displayLabel?: string;
+  }[];
 
   const formatSuggestedLines = formatCommandToButton(
     "Suggested commands:",
-    props.suggestedCommands ?? DEFAULT_SUGGESTED_COMMANDS
+    props.suggestedCommands ?? DEFAULT_SUGGESTED_COMMANDS,
   );
 
   const historyHandler = async ({ args, model }: CommandHandlerContext) => {
@@ -256,21 +305,36 @@ export function registerDefaultCommands({
 
     const width = (history.length + "").length;
     return history.map(
-      (item, index) => `${(index + 1).toString().padStart(width, " ")}  ${item}`
+      (item, index) =>
+        `${(index + 1).toString().padStart(width, " ")}  ${item}`,
     );
   };
 
   const helpHandler = ({
     registry: registryContext,
   }: CommandHandlerContext) => {
-    const rows = registryContext.list().map((command) => {
-      const right = command.desc ? ` — ${command.desc}` : "";
-      return `  ${command.name}${right}`;
+    const commands = [...registryContext.list()]
+      .filter((c) => c.desc)
+      .sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      );
+
+    const widestName = commands.reduce(
+      (max, cmd) => Math.max(max, cmd.name.length),
+      0,
+    );
+
+    const rows = commands.flatMap((command, index) => {
+      const desc = command.desc ? ` — ${command.desc}` : "";
+      const name = command.name.padEnd(widestName);
+      const line = `  • ${name} ${desc}`.trimEnd();
+      const spacer = index === commands.length - 1 ? [] : [""];
+      return [line, ...spacer];
     });
 
     return [
       ...formatSuggestedLines(),
-      "commands:",
+      "commands (A–Z):",
       ...rows,
       "",
       "tips:",
@@ -297,7 +361,7 @@ export function registerDefaultCommands({
 
     if (status.entries && status.entries.length) {
       lines.push("cached:");
-      status.entries.forEach((entry) => lines.push(`  ${entry}`));
+      status.entries.forEach((entry: string) => lines.push(`  ${entry}`));
     } else {
       lines.push("cached: none yet");
     }
@@ -329,7 +393,7 @@ export function registerDefaultCommands({
       ].filter(Boolean);
     }
 
-    const targetId = action === "set" ? (args[2] || "") : action;
+    const targetId = action === "set" ? args[2] || "" : action;
     if (!targetId) return ["usage: display font <id>", ...formatFontList()];
 
     const option = fontController
@@ -356,7 +420,7 @@ export function registerDefaultCommands({
     const items = fontController.listFonts();
     const longest = items.reduce(
       (len: number, item: TerminalFontMeta) => Math.max(len, item.id.length),
-      0
+      0,
     );
 
     const rows = items.map((font: TerminalFontMeta) => {
@@ -382,21 +446,25 @@ export function registerDefaultCommands({
     "  Availability: Open to interesting ideas, and consulting",
     "  Links:",
     ...contactEntries.map(
-      (entry) =>
-        `    ${entry.displayLabel ?? entry.label}: ${entry.value}`
+      (entry) => `    ${entry.displayLabel ?? entry.label}: ${entry.value}`,
     ),
   ];
 
   registry
     .register("help", helpHandler, { desc: "show commands" })
     .register("?", helpHandler, { desc: "show commands (alias)" })
+    .register("use-cases", ()=>{
+
+    }, {
+      desc: "See how agentic systems fail safely",
+    })
     .register(
       "about",
       () =>
         props.aboutLines || [
-          "It started as my personal website, but ended up being this!",
+          "I help teams avoid building systems that work in demos but fail in production.",
         ],
-      { desc: "short bio" }
+      { desc: "short bio" },
     )
     .register(
       "blog",
@@ -407,7 +475,7 @@ export function registerDefaultCommands({
           postSlug: string,
           title: string,
           date?: string,
-          tags?: string[]
+          tags?: string[],
         ) => {
           const tagDisplay = tags?.length ? ` #${tags.join(",")}` : "";
           const datePart = date ? ` ${date}` : "";
@@ -450,7 +518,9 @@ export function registerDefaultCommands({
 
           const lines = ["blog posts:"];
           posts.forEach((post) => {
-            lines.push(formatPostRow(post.slug, post.title, post.date, post.tags));
+            lines.push(
+              formatPostRow(post.slug, post.title, post.date, post.tags),
+            );
           });
           return lines;
         }
@@ -482,7 +552,9 @@ export function registerDefaultCommands({
               {
                 type: "markdown",
                 title: post.title,
-                markdown: [post.summary, post.body].filter(Boolean).join("\n\n"),
+                markdown: [post.summary, post.body]
+                  .filter(Boolean)
+                  .join("\n\n"),
               },
             ],
           ];
@@ -517,7 +589,7 @@ export function registerDefaultCommands({
           return [
             "blog posts:",
             ...posts.map((post) =>
-              formatPostRow(post.slug, post.title, post.date, post.tags)
+              formatPostRow(post.slug, post.title, post.date, post.tags),
             ),
           ];
         }
@@ -535,33 +607,34 @@ export function registerDefaultCommands({
         subcommands: ["list", "read", "search", "tags"],
         subcommandSuggestions: ({ prefix, parts, hasTrailingSpace }) => {
           const subToken = (parts[1] || "").toLowerCase();
-          const wantsRead = subToken === "read" || prefix.toLowerCase() === "read";
+          const wantsRead =
+            subToken === "read" || prefix.toLowerCase() === "read";
           if (!wantsRead) return undefined;
 
           const titlePrefix =
             parts.length > 2
               ? parts.slice(2).join(" ")
               : hasTrailingSpace || prefix.toLowerCase() === "read"
-              ? ""
-              : prefix;
+                ? ""
+                : prefix;
 
           const matches = blogIndex
             .getAll()
             .map((p) => p.title)
             .filter((title) =>
-              title.toLowerCase().startsWith(titlePrefix.toLowerCase())
+              title.toLowerCase().startsWith(titlePrefix.toLowerCase()),
             );
 
           return matches.map((title) => `read ${title}`);
         },
-      }
+      },
     )
     .register(
       "contact",
       () => {
         const lines: TerminalLineInput[] = [
           ...contactEntries.map((entry) =>
-            buildContactRow(entry.displayLabel ?? entry.label, entry.value)
+            buildContactRow(entry.displayLabel ?? entry.label, entry.value),
           ),
         ];
 
@@ -575,17 +648,17 @@ export function registerDefaultCommands({
         lines.push("");
         return lines;
       },
-      { desc: "how to reach me" }
+      { desc: "how to reach me" },
     )
     .register(
       "book",
       () => {
         props.onBookCall?.();
-        return [
-          "Opening calendar embed…",
-        ].filter(Boolean) as TerminalLineInput[];
+        return ["Opening calendar embed…"].filter(
+          Boolean,
+        ) as TerminalLineInput[];
       },
-      { desc: "open booking calendar" }
+      { desc: "open booking calendar" },
     )
     .register(
       "work",
@@ -597,11 +670,11 @@ export function registerDefaultCommands({
         });
         lines.push(
           "",
-          "hint: open links from your main site if you want richer content."
+          "hint: open links from your main site if you want richer content.",
         );
         return lines;
       },
-      { desc: "selected projects" }
+      { desc: "selected projects" },
     )
     .register("pwd", ({ model }) => [model.getCwd()], {
       desc: "print working directory",
@@ -619,7 +692,7 @@ export function registerDefaultCommands({
 
         return [`cd: no such file or directory: ${args[0] || ""}`];
       },
-      { desc: "change directory (home, home/files)" }
+      { desc: "change directory (home, home/files)" },
     )
     .register(
       "ls",
@@ -635,7 +708,7 @@ export function registerDefaultCommands({
 
         return ["ls: unsupported directory"];
       },
-      { desc: "list downloadable files" }
+      { desc: "list downloadable files" },
     )
     .register(
       "cat",
@@ -644,7 +717,7 @@ export function registerDefaultCommands({
           resolveFileFromPath(
             args[0] || "",
             model.getCwdParts(),
-            resolveFile
+            resolveFile,
           ) || resolveFile(args[0] || "");
         if (!target) return ["usage: cat <filename>", "try: ls"];
         if (!target.text) {
@@ -662,7 +735,7 @@ export function registerDefaultCommands({
           ];
         }
       },
-      { desc: "print a text file from /files" }
+      { desc: "print a text file from /files" },
     )
     .register(
       "open",
@@ -671,13 +744,13 @@ export function registerDefaultCommands({
           resolveFileFromPath(
             args[0] || "",
             model.getCwdParts(),
-            resolveFile
+            resolveFile,
           ) || resolveFile(args[0] || "");
         if (!target) return ["usage: open <filename>", "try: ls"];
         window.open(target.path, "_blank", "noopener,noreferrer");
         return [`opening ${target.path} in a new tab...`];
       },
-      { desc: "open file in browser tab" }
+      { desc: "open file in browser tab" },
     )
     .register(
       "download",
@@ -686,7 +759,7 @@ export function registerDefaultCommands({
           resolveFileFromPath(
             args[0] || "",
             model.getCwdParts(),
-            resolveFile
+            resolveFile,
           ) || resolveFile(args[0] || "");
         if (!target) return ["usage: download <filename>", "try: ls"];
         const link = document.createElement("a");
@@ -697,7 +770,7 @@ export function registerDefaultCommands({
         document.body.removeChild(link);
         return [`downloading ${target.name}...`];
       },
-      { desc: "download file from /files" }
+      { desc: "download file from /files" },
     )
     .register(
       "verify",
@@ -706,7 +779,7 @@ export function registerDefaultCommands({
           resolveFileFromPath(
             args[0] || "",
             model.getCwdParts(),
-            resolveFile
+            resolveFile,
           ) || resolveFile(args[0] || "");
         if (!target) return ["usage: verify <filename>", "try: ls"];
         try {
@@ -731,7 +804,7 @@ export function registerDefaultCommands({
           ];
         }
       },
-      { desc: "show SHA256 for a file" }
+      { desc: "show SHA256 for a file" },
     )
     .register(
       "grep",
@@ -740,7 +813,7 @@ export function registerDefaultCommands({
         if (!term) return ["usage: grep <term>"];
         const regex = new RegExp(
           term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-          "i"
+          "i",
         );
         const matches: string[] = [];
         for (const file of listTextFiles()) {
@@ -752,7 +825,7 @@ export function registerDefaultCommands({
                 matches.push(
                   `${file.name}:${(index + 1)
                     .toString()
-                    .padStart(3, " ")}: ${line.trim()}`
+                    .padStart(3, " ")}: ${line.trim()}`,
                 );
               }
             });
@@ -767,7 +840,7 @@ export function registerDefaultCommands({
               matches.push(
                 `blog/${entry.slug}:${(index + 1)
                   .toString()
-                  .padStart(3, " ")}: ${line.trim()}`
+                  .padStart(3, " ")}: ${line.trim()}`,
               );
             }
           });
@@ -779,7 +852,7 @@ export function registerDefaultCommands({
               matches.push(
                 `log/${entry.slug}:${(index + 1)
                   .toString()
-                  .padStart(3, " ")}: ${line.trim()}`
+                  .padStart(3, " ")}: ${line.trim()}`,
               );
             }
           });
@@ -799,20 +872,20 @@ export function registerDefaultCommands({
         }
         return truncated;
       },
-      { desc: "search text files, blog posts, logs, and case studies" }
+      { desc: "search text files, blog posts, logs, and case studies" },
     )
     .register(
       "copy",
       async ({ args }) => {
         const field = (args[0] || "").toLowerCase();
         const entry = contactEntries.find(
-          (item) => item.label.toLowerCase() === field
+          (item) => item.label.toLowerCase() === field,
         );
         if (!entry) return ["usage: copy email|github"];
         await copyToClipboard(entry.value);
         return [`copied ${entry.label} to clipboard`];
       },
-      { desc: "copy contact info" }
+      { desc: "copy contact info" },
     )
     .register(
       "faq",
@@ -826,14 +899,14 @@ export function registerDefaultCommands({
           ],
         ];
       },
-      { desc: "interactive FAQ" }
+      { desc: "interactive FAQ" },
     )
     .register(
       "logs",
       ({ args }) => {
         const sub = (args[0] || "list").toLowerCase();
 
-          if (sub === "list") {
+        if (sub === "list") {
           const entries = logsIndex.getAll();
           if (!entries.length) return ["no logs yet"];
           return [
@@ -843,7 +916,9 @@ export function registerDefaultCommands({
                 items: entries.map((entry) => ({
                   date: entry.date || "",
                   note: entry.title,
-                  body: [entry.summary, entry.body].filter(Boolean).join("\n\n"),
+                  body: [entry.summary, entry.body]
+                    .filter(Boolean)
+                    .join("\n\n"),
                   slug: entry.slug,
                   kind: "log",
                 })),
@@ -866,7 +941,9 @@ export function registerDefaultCommands({
                   {
                     date: entry.date || "",
                     note: entry.title,
-                    body: [entry.summary, entry.body].filter(Boolean).join("\n\n"),
+                    body: [entry.summary, entry.body]
+                      .filter(Boolean)
+                      .join("\n\n"),
                     slug: entry.slug,
                     kind: "log",
                   },
@@ -893,37 +970,38 @@ export function registerDefaultCommands({
             (hit) =>
               `  ${hit.slug.padEnd(18)} (${hit.score}) ${hit.title}${
                 hit.summary ? ` — ${hit.summary}` : ""
-              }`
+              }`,
           );
           return ["logs search results:", ...lines];
         }
 
-        return ["usage: logs list | logs read <slug|title> | logs search <query>"];
+        return [
+          "usage: logs list | logs read <slug|title> | logs search <query>",
+        ];
       },
-      { desc: "work logs list/read/search", subcommands: ["list", "read", "search"] }
+      {
+        desc: "work logs list/read/search",
+        subcommands: ["list", "read", "search"],
+      },
     )
     .register("whoami", whoamiHandler, { desc: "show profile card" })
-    .register(
-      "display",
-      displayFontHandler,
-      {
-        desc: "display settings (font)",
-        subcommands: ["font"],
-        subcommandSuggestions: ({ parts, hasTrailingSpace }) => {
-          const first = (parts[1] || "").toLowerCase();
-          if (first && first !== "font") return [];
+    .register("display", displayFontHandler, {
+      desc: "display settings (font)",
+      subcommands: ["font"],
+      subcommandSuggestions: ({ parts, hasTrailingSpace }) => {
+        const first = (parts[1] || "").toLowerCase();
+        if (first && first !== "font") return [];
 
-          if (!fontController) return [];
-          const fonts = fontController.listFonts();
-          const prefix = (parts[2] || "").toLowerCase();
-          const matches = fonts
-            .map((f: TerminalFontMeta) => f.id)
-            .filter((id: string) => id.toLowerCase().startsWith(prefix));
+        if (!fontController) return [];
+        const fonts = fontController.listFonts();
+        const prefix = (parts[2] || "").toLowerCase();
+        const matches = fonts
+          .map((f: TerminalFontMeta) => f.id)
+          .filter((id: string) => id.toLowerCase().startsWith(prefix));
 
-          return matches.map((id) => `font ${id}`);
-        },
-      }
-    )
+        return matches.map((id) => `font ${id}`);
+      },
+    })
     .register("finger", whoamiHandler, {
       desc: "alias for whoami",
     })
@@ -935,7 +1013,7 @@ export function registerDefaultCommands({
         window.open(target.path, "_blank", "noopener,noreferrer");
         return [`opening ${target.name}...`];
       },
-      { desc: "open resume.pdf in new tab" }
+      { desc: "open resume.pdf in new tab" },
     )
     .register(
       "man",
@@ -945,7 +1023,9 @@ export function registerDefaultCommands({
           pwd: ["print current directory (virtual)"],
           ls: ["list files from /files", "ls"],
           cat: ["cat <file> — print text files only"],
-          grep: ["grep <term> — search case studies + text files + blog/log posts"],
+          grep: [
+            "grep <term> — search case studies + text files + blog/log posts",
+          ],
           open: ["open <file> — open in new tab"],
           download: ["download <file> — trigger browser download"],
           verify: [
@@ -989,7 +1069,7 @@ export function registerDefaultCommands({
           "usage: man <command>",
         ];
       },
-      { desc: "man <command>" }
+      { desc: "man <command>" },
     )
     .register("history", historyHandler, {
       desc: "show or clear command history (history -c)",
@@ -1002,7 +1082,7 @@ export function registerDefaultCommands({
         setLinesFromModel();
         return [];
       },
-      { desc: "clear the screen" }
+      { desc: "clear the screen" },
     )
     .register(
       "offline",
@@ -1029,6 +1109,71 @@ export function registerDefaultCommands({
       {
         desc: "offline status | refresh cache | disable (clear sw/cache/IndexedDB)",
         subcommands: ["status", "refresh", "disable"],
-      }
-    );
+      },
+    )
+    .register("assumptions", async () => {
+      return [
+        `
+      I don’t believe in “rockstar engineers”.
+
+      I believe:
+      - most problems are underspecified
+      - most failures come from bad framing, not bad code
+      - speed without auditability is technical debt with interest
+
+      If you expect instant answers, I’m not a fit.
+      If you expect careful systems that survive contact with reality, ⤶
+      `,
+        [
+          createTextSegment(" 📞 "),
+          createCommandSegment("book", "Face to Face", "Open booking calendar"),
+        ],
+      ];
+    })
+    .register("constraints", async () => {
+      return [
+        `
+      Constraints I operate under (by choice):
+
+      - I don’t ship code I can’t explain or unwind
+      - I bias toward boring primitives over clever abstractions
+      - I assume systems will be misused
+
+      This makes me slower on day 1
+      and faster on day 100.
+      `,
+      ];
+    })
+    .register("philosophy", async () => {
+      return [
+        `
+      Autonomy without accountability is just automation debt.
+
+      Every agent should:
+      - explain itself
+      - show its work
+      - accept being stopped
+
+      If that sounds slow, I’m not your engineer.
+      `,
+      ];
+    })
+    .register("bias", async () => {
+      return [
+        `
+          I assume systems will fail.
+
+          I design for:
+            - partial information
+            - bad inputs
+            - silent errors
+            - human fatigue
+
+          This makes me slower at demos
+          and faster in production.
+      `,
+      ];
+    });
+
+  // Easter Eggs
 }

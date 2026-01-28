@@ -132,12 +132,8 @@ export function BookingOverlay({ open, onClose, email }: BookingOverlayProps) {
       <div className="booking-panel">
         <div className="booking-head">
           <div>
-            <p className="booking-eyebrow">Book a call</p>
+            <p className="booking-eyebrow">reserve a 1-on-1 meeting</p>
             <h2 className="booking-title">Pick a time</h2>
-            <p className="booking-sub">
-              Email: {" "}
-              <a href={`mailto:${email}`}>Email</a>
-            </p>
           </div>
           <button
             type="button"
