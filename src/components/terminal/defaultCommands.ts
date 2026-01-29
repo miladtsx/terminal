@@ -14,12 +14,15 @@ import {
   SuggestedCommand,
 } from "@types";
 import {
+  buildAvatarSegment,
   copyToClipboard,
   disableOffline,
   getOfflineStatus,
   refreshOfflineResources,
+  findTheme,
+  listThemes,
+  matchTheme,
 } from "@utils";
-import { findTheme, listThemes, matchTheme } from "@utils";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
@@ -682,27 +685,35 @@ export function registerDefaultCommands({
     }
   };
 
-  const whoamiHandler = () => [
-    "Profile:",
-    "  Name: TSX",
-    "  Role: Technical Founder/Software Engineer",
-    "  Focus: Idea to Product, Automation, Security",
-    "  Availability: Open to interesting ideas, and consulting",
-    "  Links:",
-    ...contactEntries.map(
-      (entry) => `    ${entry.displayLabel ?? entry.label}: ${entry.value}`,
-    ),
-  ];
+  const whoamiHandler = () => {
+    const lines = [
+      "Profile:",
+      "  Name: TSX",
+      "  Role: Technical Founder/Software Engineer",
+      "  Focus: Idea to Product, Automation, Security",
+      "  Availability: Open to interesting ideas, and consulting",
+      "  Links:",
+      ...contactEntries.map(
+        (entry) => `    ${entry.displayLabel ?? entry.label}: ${entry.value}`,
+      ),
+    ];
+    return [[buildAvatarSegment(lines, { label: "Milad", meta: "profile" })], ""];
+  };
 
   registry
     .register("help", helpHandler, { desc: "show commands" })
     .register("?", helpHandler, { desc: "show commands (alias)" })
     .register(
       "about",
-      () =>
-        props.aboutLines || [
+      () => {
+        const aboutLines = props.aboutLines || [
           "I help teams avoid building systems that work in demos but fail in production.",
-        ],
+        ];
+        return [
+          [buildAvatarSegment(aboutLines, { label: "Milad", meta: "about" })],
+          "",
+        ];
+      },
       { desc: "short bio" },
     )
     .register(
@@ -1283,9 +1294,6 @@ export function registerDefaultCommands({
         },
       },
     )
-    .register("finger", whoamiHandler, {
-      desc: "alias for whoami",
-    })
     .register(
       "resume",
       () => {

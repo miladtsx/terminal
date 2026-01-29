@@ -10,6 +10,7 @@ import {
   TerminalLineProps,
   MarkdownSegment,
   WorkSegment,
+  AvatarSegment,
 } from "@types";
 
 function CopyIcon({ active }: { active: boolean }) {
@@ -95,6 +96,36 @@ function CopyButton({
   );
 }
 
+function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
+  return (
+    <span className="t-avatarMessage">
+      <span className="t-avatarPhoto" aria-hidden="true">
+        <img
+          src={segment.image}
+          alt={segment.label ? `${segment.label} avatar` : "avatar"}
+        />
+      </span>
+      <span className="t-avatarContent">
+        {(segment.label || segment.meta) ? (
+          <span className="t-avatarHead">
+            {segment.label ? (
+              <span className="t-avatarLabel">{segment.label}</span>
+            ) : null}
+            {segment.meta ? (
+              <span className="t-avatarMeta">{segment.meta}</span>
+            ) : null}
+          </span>
+        ) : null}
+        {segment.lines.map((line, lineIdx) => (
+          <span key={`avatar-line-${lineIdx}`} className="t-avatarLine">
+            {line}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
 function renderSegment(
   segment: LineSegment,
   key: string,
@@ -103,6 +134,8 @@ function renderSegment(
   switch (segment.type) {
     case "text":
       return <span key={key}>{segment.text}</span>;
+    case "avatar":
+      return <AvatarMessageSegment key={key} segment={segment as AvatarSegment} />;
     case "command": {
       const attrs = segment as CommandSegment;
       const ariaLabel = attrs.ariaLabel || `Run ${attrs.command}`;

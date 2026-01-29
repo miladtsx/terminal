@@ -15,14 +15,16 @@ import {
   TerminalState,
   CommandOutput,
   LineSegment,
+  AvatarSegment,
 } from "@types";
 import {
+  buildAvatarSegment,
   createTypeSfx,
   getGreeting,
   humanDelay,
+  listThemes,
   parseShareCommandsFromLocation,
 } from "@utils";
-import { listThemes } from "@utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
@@ -338,6 +340,15 @@ I fix, harden, and scale the systems you’re afraid to touch.
         suggested,
       )();
 
+      if (startLines.length && typeof startLines[0] === "string") {
+        startLines[0] = [
+          buildAvatarSegment([startLines[0]], {
+            label: "Milad",
+            meta: "Senior Backend & Systems Reliability Engineer",
+          }),
+        ];
+      }
+
       if (!startLines.length) {
         setShowIntroInput(true);
         focusInput();
@@ -351,6 +362,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
             if (segment.type === "text") return segment.text;
             if (segment.type === "command") return segment.label;
             if (segment.type === "copy") return segment.label || segment.value;
+            if (segment.type === "avatar") return segment.lines.join(" ");
             return "";
           })
           .join("");
@@ -376,6 +388,49 @@ I fix, harden, and scale the systems you’re afraid to touch.
             return label.length
               ? [{ ...segment, label }, label.length]
               : [null, 0];
+          }
+          case "avatar": {
+            const avatar = segment as AvatarSegment;
+            if (!avatar.lines.length) return [null, 0];
+            let remainingChars = remaining;
+            const outLines: string[] = [];
+            let consumedChars = 0;
+
+            for (
+              let idx = 0;
+              idx < avatar.lines.length && remainingChars > 0;
+              idx++
+            ) {
+              const line = avatar.lines[idx];
+              const hasSeparator = idx < avatar.lines.length - 1;
+              const lineLen = line.length;
+              const totalLen = lineLen + (hasSeparator ? 1 : 0);
+
+              if (remainingChars <= lineLen) {
+                outLines.push(line.slice(0, remainingChars));
+                consumedChars += remainingChars;
+                remainingChars = 0;
+                break;
+              }
+
+              outLines.push(line);
+              consumedChars += lineLen;
+              remainingChars -= lineLen;
+
+              if (hasSeparator && remainingChars > 0) {
+                consumedChars += 1;
+                remainingChars -= 1;
+              }
+            }
+
+            if (!outLines.length) return [null, 0];
+            return [
+              {
+                ...avatar,
+                lines: outLines,
+              },
+              consumedChars,
+            ];
           }
           default: {
             // For rich blocks (faq/log/markdown), only show when fully revealed

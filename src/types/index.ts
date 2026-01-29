@@ -92,6 +92,13 @@ export type WorkSegment = {
   type: "work";
   items: SampleWork[];
 };
+
+export type AvatarSegment = {
+  type: "avatar";
+  image: string;
+  lines: string[];
+  label?: string;
+  meta?: string;
 };
 
 export type MarkdownSegment = {
@@ -107,7 +114,8 @@ export type LineSegment =
   | FaqSegment
   | LogSegment
   | MarkdownSegment
-  | WorkSegment;
+  | WorkSegment
+  | AvatarSegment;
 export type TerminalLine = LineSegment[];
 export type TerminalLineInput = string | TerminalLine;
 
