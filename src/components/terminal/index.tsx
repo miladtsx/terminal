@@ -6,7 +6,13 @@ import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
 import { TerminalProps } from "@types";
-import { useUiStore, useShallow } from "@stores/uiStore";
+import {
+  FONT_SIZE_MAX,
+  FONT_SIZE_MIN,
+  FONT_SIZE_STEP,
+  useUiStore,
+  useShallow,
+} from "@stores/uiStore";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
@@ -52,6 +58,10 @@ export default function Terminal(props: TerminalProps) {
       id: state.fontLoading.id,
       label: state.fontLoading.label,
     })),
+  );
+  const terminalFontSize = useUiStore((state) => state.terminalFontSize);
+  const setTerminalFontSize = useUiStore(
+    (state) => state.setTerminalFontSize,
   );
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
@@ -201,6 +211,24 @@ export default function Terminal(props: TerminalProps) {
     };
   }, [closeContextMenu]);
 
+  const adjustFontSize = useCallback(
+    (delta: number) => {
+      const nextSize = Math.min(
+        FONT_SIZE_MAX,
+        Math.max(FONT_SIZE_MIN, terminalFontSize + delta),
+      );
+      if (nextSize === terminalFontSize) return;
+      setTerminalFontSize(nextSize);
+    },
+    [terminalFontSize, setTerminalFontSize],
+  );
+  const rootStyle = useMemo<React.CSSProperties>(
+    () => ({ fontSize: `${terminalFontSize}px` }),
+    [terminalFontSize],
+  );
+  const canDecrease = terminalFontSize > FONT_SIZE_MIN;
+  const canIncrease = terminalFontSize < FONT_SIZE_MAX;
+
   const suggestStyle: React.CSSProperties = {
     margin: "4px 0 8px",
     padding: "4px 6px",
@@ -225,6 +253,7 @@ export default function Terminal(props: TerminalProps) {
   return (
     <div
       className={"t-root" + (ready ? " is-ready" : "")}
+      style={rootStyle}
       onMouseDown={handleMouseDown}
       onContextMenu={handleContextMenu}
       role="application"
@@ -240,6 +269,26 @@ export default function Terminal(props: TerminalProps) {
         </div>
       ) : null}
       <div className="t-wrap" ref={wrapScrollRef}>
+        <div className="t-fontSizeControls" aria-label="Adjust font size">
+          <button
+            type="button"
+            className="t-fontSizeButton"
+            aria-label="Decrease font size"
+            onClick={() => adjustFontSize(-FONT_SIZE_STEP)}
+            disabled={!canDecrease}
+          >
+            -
+          </button>
+          <button
+            type="button"
+            className="t-fontSizeButton"
+            aria-label="Increase font size"
+            onClick={() => adjustFontSize(FONT_SIZE_STEP)}
+            disabled={!canIncrease}
+          >
+            +
+          </button>
+        </div>
         <pre className="t-output" aria-live="polite">
           {lines.map((line, index) => {
             const isIntroLine =
