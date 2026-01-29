@@ -589,6 +589,152 @@
     margin: 10px 0;
   }
 
+  .t-work {
+    margin: 10px 0 14px;
+  }
+
+  .t-workGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .t-workCard {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+    background: linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--surface) 80%, var(--accent) 10%),
+      color-mix(in srgb, var(--surface) 90%, #000 5%)
+    );
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+    transition: transform 160ms ease, border-color 160ms ease,
+      box-shadow 160ms ease, background 160ms ease;
+  }
+
+  .t-workCard:hover,
+  .t-workCard:focus-visible {
+    border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.32);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  .t-workTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .t-workTagsBottom {
+    margin-top: auto;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .t-workTag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+    font-size: 12px;
+    letter-spacing: 0.1px;
+    color: color-mix(in srgb, var(--text) 86%, var(--accent) 20%);
+  }
+
+  .t-workIntro {
+    color: color-mix(in srgb, var(--accent) 72%, var(--text) 28%);
+    font-size: 13px;
+    letter-spacing: 0.15px;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .t-workModalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, #000 70%, var(--bg) 30%);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    z-index: 20;
+  }
+
+  .t-workModal {
+    width: min(760px, 92vw);
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--surface) 92%, var(--accent) 8%),
+      color-mix(in srgb, var(--surface) 86%, #000 8%)
+    );
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+    border-radius: 14px;
+    box-shadow: 0 22px 44px rgba(0, 0, 0, 0.4);
+    padding: 16px 18px 18px;
+    color: var(--text);
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .t-workModalHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .t-workModalEyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 11px;
+    color: color-mix(in srgb, var(--accent) 75%, var(--text) 25%);
+    margin-bottom: 4px;
+  }
+
+  .t-workModalTitle {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .t-workModalIntro {
+    margin-top: 4px;
+    color: color-mix(in srgb, var(--accent) 78%, var(--text) 22%);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .t-workModalClose {
+    all: unset;
+    cursor: pointer;
+    font-size: 20px;
+    color: color-mix(in srgb, var(--text) 80%, var(--accent) 30%);
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 140ms ease, color 140ms ease;
+  }
+
+  .t-workModalClose:hover,
+  .t-workModalClose:focus-visible {
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: var(--text);
+    outline: none;
+  }
+
 
   .t-copyButton {
     display: inline-flex;

@@ -9,6 +9,7 @@ import {
   LineSegment,
   TerminalLineProps,
   MarkdownSegment,
+  WorkSegment,
 } from "@types";
 
 function CopyIcon({ active }: { active: boolean }) {
@@ -136,6 +137,11 @@ function renderSegment(
     case "markdown": {
       return <MarkdownBlock key={key} segment={segment as MarkdownSegment} />;
     }
+    case "work": {
+      return (
+        <WorkGrid key={key} segment={segment as WorkSegment} />
+      );
+    }
     default:
       return null;
   }
@@ -235,6 +241,101 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function WorkGrid({ segment }: { segment: WorkSegment }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const items = segment.items || [];
+
+  const openItem = openIndex !== null ? items[openIndex] : null;
+
+  useEffect(() => {
+    if (openIndex === null) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpenIndex(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openIndex]);
+
+  const detailMarkdown =
+    openItem &&
+    [
+      openItem.problem ? `### Problem\n${openItem.problem}` : null,
+      openItem.approach ? `### Approach\n${openItem.approach}` : null,
+      openItem.result ? `### Result\n${openItem.result}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+  return (
+    <div className="t-work">
+      <div className="t-workGrid">
+        {items.map((item, idx) => (
+          <button
+            key={idx}
+            type="button"
+            className="t-workCard"
+            onClick={() => setOpenIndex(idx)}
+            aria-label={`Open details for ${item.title}`}
+          >
+            <div className="t-workIntro">{item.intro || item.title}</div>
+            {item.tags && item.tags.length ? (
+              <div className="t-workTags t-workTagsBottom" aria-hidden="true">
+                {item.tags.map((tag, tagIdx) => (
+                  <span key={tagIdx} className="t-workTag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </button>
+        ))}
+      </div>
+
+      {openItem ? (
+        <div
+          className="t-workModalBackdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${openItem.title} details`}
+          onClick={() => setOpenIndex(null)}
+        >
+          <div
+            className="t-workModal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="t-workModalHead">
+              <div>
+                <div className="t-workModalEyebrow">Case study</div>
+                <div className="t-workModalTitle">{openItem.title}</div>
+                {openItem.intro ? (
+                  <div className="t-workModalIntro">{openItem.intro}</div>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                className="t-workModalClose"
+                onClick={() => setOpenIndex(null)}
+                aria-label="Close case study"
+              >
+                ×
+              </button>
+            </div>
+            <MarkdownBlock
+              segment={{
+                type: "markdown",
+                title: undefined,
+                markdown: detailMarkdown || "Details coming soon.",
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

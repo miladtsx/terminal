@@ -8,7 +8,7 @@ export interface TerminalProps {
   prompt?: string;
   suggestedCommands?: string[];
   contact?: ContactInfo;
-  caseStudies?: CaseStudy[];
+  sampleWorks?: SampleWork[];
   aboutLines?: string[];
   onBookCall?: () => void;
   appearanceController?: AppearanceController;
@@ -88,6 +88,12 @@ export type LogSegment = {
   items: LogItem[];
 };
 
+export type WorkSegment = {
+  type: "work";
+  items: SampleWork[];
+};
+};
+
 export type MarkdownSegment = {
   type: "markdown";
   title?: string;
@@ -100,7 +106,8 @@ export type LineSegment =
   | CopySegment
   | FaqSegment
   | LogSegment
-  | MarkdownSegment;
+  | MarkdownSegment
+  | WorkSegment;
 export type TerminalLine = LineSegment[];
 export type TerminalLineInput = string | TerminalLine;
 
@@ -108,9 +115,13 @@ export type ContactInfo = {
   email: string;
 };
 
-export type CaseStudy = {
+export type SampleWork = {
   title: string;
   desc: string;
+  tags?: string[];
+  problem?: string;
+  approach?: string;
+  result?: string;
 };
 
 export type NotificationOverlayProps = {

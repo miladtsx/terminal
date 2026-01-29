@@ -11,6 +11,7 @@ import {
   OfflineStatus,
   TerminalFontMeta,
   TerminalColorMeta,
+  SuggestedCommand,
 } from "@types";
 import {
   copyToClipboard,
@@ -18,21 +19,16 @@ import {
   getOfflineStatus,
   refreshOfflineResources,
 } from "@utils";
-import {
-  findTheme,
-  listThemes,
-  matchTheme,
-} from "@utils";
+import { findTheme, listThemes, matchTheme } from "@utils";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
 
-export const DEFAULT_SUGGESTED_COMMANDS = [
-  // "use-cases",
-  // "logs",
-  // "work",
+type CommandButton = SuggestedCommand;
+
+export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
+  { command: "work", label: "Work Experiences" },
   "contact",
-  // "blog",
 ];
 
 const createTextSegment = (text: string): TextSegment => ({
@@ -57,13 +53,17 @@ const createCopySegment = (value: string, label?: string): CopySegment => ({
   label,
 });
 
-const buildCommandButtonLine = (commands: string[]): LineSegment[] => {
+const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
   const segments: LineSegment[] = [createTextSegment("  ")];
   commands.forEach((command, index) => {
     if (index) {
       segments.push(createTextSegment(" · "));
     }
-    segments.push(createCommandSegment(command));
+    const cmd = typeof command === "string" ? command : command.command;
+    const label = typeof command === "string" ? undefined : command.label;
+    const ariaLabel =
+      typeof command === "string" ? undefined : (command.ariaLabel ?? label);
+    segments.push(createCommandSegment(cmd, label, ariaLabel));
   });
   return segments;
 };
@@ -122,7 +122,7 @@ function resolveFileFromPath(
 
 export function formatCommandToButton(
   prefixPrompt: string,
-  commands: string[],
+  commands: CommandButton[],
 ) {
   return (): TerminalLineInput[] => {
     const list = commands;
@@ -148,8 +148,7 @@ const FAQ_ITEMS = [
   },
   {
     question: "How quickly can we start?",
-    answer:
-      "Usually within 1–2 weeks. Short kickoff, thin slice, then weekly checkpoints.",
+    answer: "30 minutes quick intro within 24 hours. Then weekly checkpoints.",
   },
   {
     question: "Do you work async?",
@@ -270,16 +269,92 @@ export function registerDefaultCommands({
 
   const themes = listThemes();
 
-  const caseStudies = props.caseStudies || [
+  const caseStudies = props.sampleWorks || [
     {
-      title: "System Hardening",
-      desc: "Reduced incidents, improved deploy safety.",
+      intro: "About to pay 50k for basics.",
+      title: "In-House Instead of a $50K Vendor",
+      desc: "Took on smart contract work myself and saved the team a quoted ~$50K outsourcing bill.",
+      tags: ["cost", "ownership", "web3"],
+      problem:
+        "The team needed a point-allocation smart contract system and was about to outsource it to an external provider quoting around $50K.",
+      approach:
+        "Switched hats from backend to smart contracts, designed the allocation logic with the team, implemented and tested the contracts, and integrated them with the existing backend and frontend flows.",
+      result:
+        "Delivered the required on-chain point system in-house, avoided the ~$50K outsourcing cost, kept full control of the codebase, and removed a dependency on external vendors.",
     },
     {
-      title: "Payments/Entitlements",
-      desc: "Built reliable gating + subscription rails.",
+      intro: "Stop spending before proving idea works.",
+      title:
+        "Investor-Ready Mock MVP in 10 Days for <$300 (Saved Founder ~$10K+ in Agency Fees)",
+      desc: "Shipped investor-ready MVPs in 10 days so founders could pitch without burning cash.",
+      tags: ["mvp", "founder"],
+      problem:
+        "Early-stage founders needed working demos for fundraising but risked burning capital on slow, expensive outsourced builds.",
+      approach:
+        "Ran lean discovery with each founder, scoped only the critical user flows, built thin vertical slices with typed backends and reusable components, and wired in basic analytics to show traction.",
+      result:
+        "Delivered demo-ready MVP in 10 days, giving founders something concrete to pitch with and avoiding an estimated ~$10K+ for project outsourcing costs.",
     },
-    { title: "Automation", desc: "Agentic workflows, less ops toil." },
+    {
+      intro: "Cloud bill growing faster than revenue.",
+      title: "Cloud bill down 60%",
+      desc: "Without slowing users or any compromise.",
+      tags: ["cost", "reliability"],
+      problem:
+        "Runaway AWS and node provider costs from always-on services and unsharded workloads.",
+      approach:
+        "Audited traffic, split workloads into serverless and spot pools, rewrote hot paths to async queues, and enforced autoscaling SLOs with canaries.",
+      result:
+        "Reduced monthly bill by ~60%, improved p95 latency by ~18%, and kept on-call noise down via canary gates.",
+    },
+    {
+      intro: "Production money at risk from bugs.",
+      title: "Protected ~$4M On-Chain",
+      desc: "Safeguarded ~$4M in user funds over 3 years with zero incidents.",
+      tags: ["security", "finance"],
+      problem:
+        "Protocol had growing TVL and fragmented monitoring; regressions and bugs could slip into production unnoticed.",
+      approach:
+        "Hardened CI with invariant tests, integrated formal checks where feasible, and wired alerting around critical contract events and gas spikes.",
+      result:
+        "Zero security incidents over 36 months; shipped upgrades without downtime and kept gas usage within budget.",
+    },
+    {
+      intro: "Users arrive, servers panic and crash.",
+      title: "Game Backend 20x Players",
+      desc: "Supported 20x more concurrent players and raised reliability from ~65% to 92%.",
+      tags: ["scale", "reliability", "gaming"],
+      problem:
+        "Realtime servers fell over beyond ~100 concurrent players; packet drops and match queues stalled under load.",
+      approach:
+        "Refactored the event pipeline to use UDP and compact protobufs, added room sharding, and introduced circuit-breaker retries for matchmaking.",
+      result:
+        "Supported 2,000+ concurrent players, dropped packet loss below 0.5%, and raised successful match starts to 92%.",
+    },
+    {
+      intro: "Customers quitting because every click costs.",
+      title: "Gas Fees Cut by ~99%",
+      desc: "Made key user actions ~99% cheaper in gas, reducing drop-off.",
+      tags: ["cost", "web3"],
+      problem:
+        "Users were abandoning flows due to unpredictable L1 gas costs and complex multi-call flows.",
+      approach:
+        "Introduced batched relays, compressed calldata, and moved verification into a zk-rollup path with fallback to L1.",
+      result:
+        "Average gas per successful transaction fell by ~99%; completion rate climbed and support tickets about gas issues shrank.",
+    },
+    {
+      intro: "Security team drowning in repetitive checks.",
+      title: "Security Ops Automation",
+      desc: "Freed ~3 hours/day of analyst time and improved visibility into threats.",
+      tags: ["security", "automation", "efficiency"],
+      problem:
+        "Analysts manually scraped alerts and logs daily, missing correlations and burning time on repetitive checks.",
+      approach:
+        "Centralized feeds, added rule-based triage plus LLM-assisted summaries, and pushed high-signal alerts into Slack with playbook links.",
+      result:
+        "Cut manual review by ~3 hours per day and raised true-positive alert handling speed.",
+    },
   ];
 
   const contactEntries = [
@@ -294,7 +369,8 @@ export function registerDefaultCommands({
 
   const formatSuggestedLines = formatCommandToButton(
     "Suggested commands:",
-    props.suggestedCommands ?? DEFAULT_SUGGESTED_COMMANDS,
+    (props.suggestedCommands as CommandButton[] | undefined) ??
+      DEFAULT_SUGGESTED_COMMANDS,
   );
 
   const historyHandler = async ({ args, model }: CommandHandlerContext) => {
@@ -446,15 +522,15 @@ export function registerDefaultCommands({
     }
 
     const targetId = action === "set" ? tokens[1] || "" : action;
-    if (!targetId)
-      return ["usage: display color <id>", ...formatColorList()];
+    if (!targetId) return ["usage: display color <id>", ...formatColorList()];
 
     const normalized = normalizeColorId(targetId);
     const option = colorController
       .listColors()
       .find((item) => item.id.toLowerCase() === normalized.toLowerCase());
 
-    if (!option) return [`unknown color: ${targetId}`, "try: display color list"];
+    if (!option)
+      return [`unknown color: ${targetId}`, "try: display color list"];
 
     try {
       await colorController.setColor(option.id);
@@ -493,7 +569,8 @@ export function registerDefaultCommands({
   };
 
   const formatColorList = () => {
-    if (!colorController) return ["display color is unavailable in this build."];
+    if (!colorController)
+      return ["display color is unavailable in this build."];
 
     const current = colorController.getCurrentColor();
     const items = colorController.listColors();
@@ -620,11 +697,6 @@ export function registerDefaultCommands({
   registry
     .register("help", helpHandler, { desc: "show commands" })
     .register("?", helpHandler, { desc: "show commands (alias)" })
-    .register("use-cases", ()=>{
-
-    }, {
-      desc: "See how agentic systems fail safely",
-    })
     .register(
       "about",
       () =>
@@ -815,7 +887,7 @@ export function registerDefaultCommands({
         lines.push("");
         return lines;
       },
-      { desc: "how to reach me" },
+      { desc: "reach out to me" },
     )
     .register(
       "book",
@@ -825,21 +897,22 @@ export function registerDefaultCommands({
           Boolean,
         ) as TerminalLineInput[];
       },
-      { desc: "open booking calendar" },
+      { desc: "book a meeting" },
     )
     .register(
       "work",
       () => {
-        const lines = ["Previous works:"];
-        caseStudies.forEach((item, index) => {
-          lines.push(`  ${index + 1}. ${item.title}`);
-          lines.push(`     ${item.desc}`);
-        });
-        lines.push(
+        return [
           "",
-          "hint: open links from your main site if you want richer content.",
-        );
-        return lines;
+          "Click any case study to see how I help businesses",
+          "",
+          [
+            {
+              type: "work",
+              items: caseStudies,
+            },
+          ],
+        ];
       },
       { desc: "selected projects" },
     )
@@ -1152,61 +1225,64 @@ export function registerDefaultCommands({
       },
     )
     .register("whoami", whoamiHandler, { desc: "show profile card" })
+    .register("theme", themeHandler, {
+      desc: "apply a bundled theme (font + color)",
+      subcommands: ["list", "current", ...themes.map((pack) => pack.id)],
+      subcommandSuggestions: ({ prefix, parts }) => {
+        const token = (parts[1] || prefix || "").toLowerCase();
+        if (!token) return ["list", "current", ...themes.map((p) => p.id)];
+        return themes
+          .map((pack) => pack.id)
+          .filter((id) => id.toLowerCase().startsWith(token));
+      },
+    })
     .register(
-      "theme",
-      themeHandler,
+      "display",
+      async (ctx) => {
+        const scope = (ctx.args[0] || "").toLowerCase();
+        if (!scope || scope === "font") {
+          return displayFontHandler({
+            ...ctx,
+            args: scope ? ctx.args.slice(1) : ctx.args,
+          });
+        }
+        if (scope === "color") {
+          return displayColorHandler({ ...ctx, args: ctx.args.slice(1) });
+        }
+        return ["usage: display font|color [list|current|<id>]"];
+      },
       {
-        desc: "apply a bundled theme (font + color)",
-        subcommands: ["list", "current", ...themes.map((pack) => pack.id)],
-        subcommandSuggestions: ({ prefix, parts }) => {
-          const token = (parts[1] || prefix || "").toLowerCase();
-          if (!token) return ["list", "current", ...themes.map((p) => p.id)];
-          return themes
-            .map((pack) => pack.id)
-            .filter((id) => id.toLowerCase().startsWith(token));
+        desc: "display settings (font/color)",
+        subcommands: ["font", "color"],
+        subcommandSuggestions: ({ parts }) => {
+          const first = (parts[1] || "").toLowerCase();
+
+          if (!first) return ["font", "color"];
+
+          if (first === "font") {
+            if (!fontController) return [];
+            const prefix = (parts[2] || "").toLowerCase();
+            return fontController
+              .listFonts()
+              .map((f: TerminalFontMeta) => f.id)
+              .filter((id: string) => id.toLowerCase().startsWith(prefix))
+              .map((id) => `font ${id}`);
+          }
+
+          if (first === "color") {
+            if (!colorController) return [];
+            const prefix = (parts[2] || "").toLowerCase();
+            return colorController
+              .listColors()
+              .map((t: TerminalColorMeta) => t.id)
+              .filter((id: string) => id.toLowerCase().startsWith(prefix))
+              .map((id) => `color ${id}`);
+          }
+
+          return [];
         },
       },
     )
-    .register("display", async (ctx) => {
-      const scope = (ctx.args[0] || "").toLowerCase();
-      if (!scope || scope === "font") {
-        return displayFontHandler({ ...ctx, args: scope ? ctx.args.slice(1) : ctx.args });
-      }
-      if (scope === "color") {
-        return displayColorHandler({ ...ctx, args: ctx.args.slice(1) });
-      }
-      return ["usage: display font|color [list|current|<id>]"]; 
-    }, {
-      desc: "display settings (font/color)",
-      subcommands: ["font", "color"],
-      subcommandSuggestions: ({ parts }) => {
-        const first = (parts[1] || "").toLowerCase();
-
-        if (!first) return ["font", "color"];
-
-        if (first === "font") {
-          if (!fontController) return [];
-          const prefix = (parts[2] || "").toLowerCase();
-          return fontController
-            .listFonts()
-            .map((f: TerminalFontMeta) => f.id)
-            .filter((id: string) => id.toLowerCase().startsWith(prefix))
-            .map((id) => `font ${id}`);
-        }
-
-        if (first === "color") {
-          if (!colorController) return [];
-          const prefix = (parts[2] || "").toLowerCase();
-          return colorController
-            .listColors()
-            .map((t: TerminalColorMeta) => t.id)
-            .filter((id: string) => id.toLowerCase().startsWith(prefix))
-            .map((id) => `color ${id}`);
-        }
-
-        return [];
-      },
-    })
     .register("finger", whoamiHandler, {
       desc: "alias for whoami",
     })
