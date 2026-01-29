@@ -4,9 +4,14 @@ import { TerminalModel } from "@components/terminal/terminalModel";
 import type { TerminalFontController, TerminalFontOption } from "@utils";
 import type { TerminalColorController, TerminalColorOption } from "@utils";
 
+export interface CommandButton {
+  command: string;
+  label?: string;
+}
+
 export interface TerminalProps {
   prompt?: string;
-  suggestedCommands?: string[];
+  suggestedCommands?: CommandButton[];
   contact?: ContactInfo;
   sampleWorks?: SampleWork[];
   aboutLines?: string[];

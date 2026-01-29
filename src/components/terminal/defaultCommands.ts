@@ -11,7 +11,7 @@ import {
   OfflineStatus,
   TerminalFontMeta,
   TerminalColorMeta,
-  SuggestedCommand,
+  CommandButton,
 } from "@types";
 import {
   buildAvatarSegment,
@@ -27,11 +27,9 @@ import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
 
-type CommandButton = SuggestedCommand;
-
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "work", label: "Work Experiences" },
-  "contact",
+  { command: "contact" },
 ];
 
 const createTextSegment = (text: string): TextSegment => ({
@@ -58,14 +56,13 @@ const createCopySegment = (value: string, label?: string): CopySegment => ({
 
 const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
   const segments: LineSegment[] = [createTextSegment("  ")];
-  commands.forEach((command, index) => {
+  commands.forEach((c, index) => {
     if (index) {
       segments.push(createTextSegment(" · "));
     }
-    const cmd = typeof command === "string" ? command : command.command;
-    const label = typeof command === "string" ? undefined : command.label;
-    const ariaLabel =
-      typeof command === "string" ? undefined : (command.ariaLabel ?? label);
+    const cmd = c.command;
+    const label = c.label ? c.label : c.command;
+    const ariaLabel = label;
     segments.push(createCommandSegment(cmd, label, ariaLabel));
   });
   return segments;
