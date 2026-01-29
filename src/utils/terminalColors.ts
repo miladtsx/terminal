@@ -20,6 +20,9 @@ export type TerminalColorOption = {
   caret: string;
   chipBg?: string;
   chipHoverBg?: string;
+  chipColor?: string;
+  chipHoverColor?: string;
+  chipActiveShadow?: string;
 };
 
 export type TerminalColorController = {
@@ -371,6 +374,18 @@ const applyTheme = (theme: TerminalColorOption) => {
     theme.tone === "light"
       ? "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.08)"
       : "inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)",
+  );
+  root.style.setProperty("--chip-color", theme.chipColor || theme.text);
+  root.style.setProperty(
+    "--chip-hover-color",
+    theme.chipHoverColor || theme.accent || theme.text,
+  );
+  root.style.setProperty(
+    "--chip-active-shadow",
+    theme.chipActiveShadow ||
+      (theme.tone === "light"
+        ? "inset 0 1px 2px rgba(0, 0, 0, 0.38)"
+        : "inset 0 1px 2px rgba(0, 0, 0, 0.7)"),
   );
   const suggestBg =
     theme.tone === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(0, 0, 0, 0.6)";

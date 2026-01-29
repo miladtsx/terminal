@@ -17,6 +17,7 @@
     --selection: rgba(141, 208, 255, 0.3);
     --selection-text: #0b101a;
     --caret: #eaf1fb;
+    --chip-color: #dbe6f4;
     --chip-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.25));
     --chip-border: rgba(255, 255, 255, 0.22);
     --chip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.6);
@@ -181,22 +182,15 @@
     margin: 0 1px;
     cursor: pointer;
 
-    color: #dbe6f4;
+    color: var(--chip-color, #dbe6f4);
     text-decoration: none;
     letter-spacing: 0.2px;
 
-    background:
-      linear-gradient(180deg,
-        rgba(255, 255, 255, 0.18),
-        rgba(255, 255, 255, 0.02) 45%,
-        rgba(0, 0, 0, 0.25));
+    background: var(--chip-bg);
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    border: 1px solid var(--chip-border);
 
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.55),
-      0 1px 2px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--chip-shadow);
 
     transition:
       background 160ms ease,
@@ -223,20 +217,15 @@
   /* hover = polished, not glowing */
   .t-commandLink:hover,
   .t-commandLink:focus-visible {
-    color: #f2f6fb;
-    background:
-      linear-gradient(180deg,
-        rgba(255, 255, 255, 0.28),
-        rgba(255, 255, 255, 0.06) 45%,
-        rgba(0, 0, 0, 0.35));
+    color: var(--chip-hover-color, #fbf2f2);
+    background: var(--chip-hover-bg);
     transform: translateY(-0.5px);
   }
 
   /* pressed */
   .t-commandLink:active {
     transform: translateY(0.5px);
-    box-shadow:
-      inset 0 1px 2px rgba(0, 0, 0, 0.7);
+    box-shadow: var(--chip-active-shadow, inset 0 1px 2px rgba(0, 0, 0, 0.7));
   }
 
   /* theme-aware overrides for the terminal shell */
@@ -264,23 +253,6 @@
 
   .t-input::placeholder {
     color: var(--muted);
-  }
-
-  .t-commandLink {
-    color: var(--text);
-    background: var(--chip-bg);
-    border-color: var(--chip-border);
-    box-shadow: var(--chip-shadow);
-  }
-
-  .t-commandLink:hover,
-  .t-commandLink:focus-visible {
-    color: var(--chip-hover-color);
-    background: var(--chip-hover-bg);
-  }
-
-  .t-commandLink:active {
-    box-shadow: var(--chip-active-shadow);
   }
 
   .t-faqSummary,
