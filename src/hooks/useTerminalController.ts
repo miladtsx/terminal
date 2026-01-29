@@ -325,13 +325,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
-        `
-Your backend mostly works—until it breaks at the worst moment.
-
-Do you want another quick patch, or to build it right the first time?
-
-I fix, harden, and scale the systems you’re afraid to touch.
-`,
+        `I keep your backend from failing when it matters most.
+        `,
         suggested,
       )();
 
