@@ -272,6 +272,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
   const typingTimersRef = useRef<number[]>([]);
   const introTimersRef = useRef<number[]>([]);
+  const introTypingRef = useRef(false);
   const [introStartLineRange, setIntroStartLineRange] = useState<{
     start: number;
     count: number;
@@ -287,6 +288,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const cancelIntroTyping = useCallback(() => {
     introTimersRef.current.forEach((id) => clearTimeout(id));
     introTimersRef.current = [];
+    if (!introTypingRef.current) {
+      return;
+    }
+    introTypingRef.current = false;
     setIntroStartLineRange(null);
     setIntroStartVisible(false);
     setShowIntroInput(true);
@@ -296,6 +301,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     const model = modelRef.current;
     if (!model) return;
 
+    introTypingRef.current = true;
     const greeting = getGreeting();
     const typingDuration = 1000;
     const perChar = typingDuration / Math.max(greeting.length, 1);
@@ -433,6 +439,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
           count: startLines.length,
         });
         setIntroStartVisible(false);
+        introTypingRef.current = false;
         requestAnimationFrame(() => {
           setIntroStartVisible(true);
           setShowIntroInput(true);
