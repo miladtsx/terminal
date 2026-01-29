@@ -10,13 +10,18 @@ import {
   RegisterDefaultsArgs,
   OfflineStatus,
   TerminalFontMeta,
-  TerminalThemeMeta,
+  TerminalColorMeta,
 } from "@types";
 import {
   copyToClipboard,
   disableOffline,
   getOfflineStatus,
   refreshOfflineResources,
+} from "@utils";
+import {
+  findTheme,
+  listThemes,
+  matchTheme,
 } from "@utils";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
@@ -258,10 +263,12 @@ export function registerDefaultCommands({
   appearanceController,
 }: RegisterDefaultsArgs) {
   const fontController = appearanceController?.font;
-  const themeController = appearanceController?.theme;
+  const colorController = appearanceController?.color;
   const contact = props.contact || {
     email: "miladtsx+terminal@gmail.com",
   };
+
+  const themes = listThemes();
 
   const caseStudies = props.caseStudies || [
     {
@@ -414,48 +421,49 @@ export function registerDefaultCommands({
     }
   };
 
-  const normalizeThemeId = (value: string) => {
+  const normalizeColorId = (value: string) => {
     return value.toLowerCase();
   };
 
-  const displayThemeHandler = async ({ args }: CommandHandlerContext) => {
+  const displayColorHandler = async ({ args }: CommandHandlerContext) => {
     const tokens = [...args];
-    if (tokens[0]?.toLowerCase() === "theme") tokens.shift();
+    if (tokens[0]?.toLowerCase() === "color") tokens.shift();
 
-    if (!themeController) {
-      return ["display theme unavailable: theme controller not initialized."];
+    if (!colorController) {
+      return ["display color unavailable: color controller not initialized."];
     }
 
     const action = (tokens[0] || "list").toLowerCase();
 
-    if (action === "list") return formatThemeList();
+    if (action === "list") return formatColorList();
     if (action === "current") {
-      const current = themeController.getCurrentTheme();
+      const current = colorController.getCurrentColor();
       return [
-        "current theme:",
+        "current color:",
         `  ${current.label} (${current.id}) — ${current.group}`,
         current.description ? `  ${current.description}` : "",
       ].filter(Boolean);
     }
 
     const targetId = action === "set" ? tokens[1] || "" : action;
-    if (!targetId) return ["usage: display theme <id>", ...formatThemeList()];
+    if (!targetId)
+      return ["usage: display color <id>", ...formatColorList()];
 
-    const normalized = normalizeThemeId(targetId);
-    const option = themeController
-      .listThemes()
+    const normalized = normalizeColorId(targetId);
+    const option = colorController
+      .listColors()
       .find((item) => item.id.toLowerCase() === normalized.toLowerCase());
 
-    if (!option) return [`unknown theme: ${targetId}`, "try: display theme list"];
+    if (!option) return [`unknown color: ${targetId}`, "try: display color list"];
 
     try {
-      await themeController.setTheme(option.id);
+      await colorController.setColor(option.id);
       return [
-        `theme set to ${option.label}`,
+        `color set to ${option.label}`,
         option.description ? option.description : "",
       ].filter(Boolean);
     } catch (error) {
-      return [`failed to set theme: ${(error as Error).message}`];
+      return [`failed to set color: ${(error as Error).message}`];
     }
   };
 
@@ -484,17 +492,17 @@ export function registerDefaultCommands({
     ];
   };
 
-  const formatThemeList = () => {
-    if (!themeController) return ["display theme is unavailable in this build."];
+  const formatColorList = () => {
+    if (!colorController) return ["display color is unavailable in this build."];
 
-    const current = themeController.getCurrentTheme();
-    const items = themeController.listThemes();
+    const current = colorController.getCurrentColor();
+    const items = colorController.listColors();
     const longest = items.reduce(
-      (len: number, item: TerminalThemeMeta) => Math.max(len, item.id.length),
+      (len: number, item: TerminalColorMeta) => Math.max(len, item.id.length),
       0,
     );
 
-    const byGroup: Record<string, TerminalThemeMeta[]> = {};
+    const byGroup: Record<string, TerminalColorMeta[]> = {};
     items.forEach((item) => {
       byGroup[item.group] = byGroup[item.group] || [];
       byGroup[item.group].push(item);
@@ -503,20 +511,98 @@ export function registerDefaultCommands({
     const lines: string[] = [];
     ["dark", "light"].forEach((group) => {
       if (!byGroup[group]) return;
-      lines.push(`${group} themes:`);
-      byGroup[group].forEach((theme) => {
-        const active = theme.id === current.id ? " (current)" : "";
-        const desc = theme.description ? ` — ${theme.description}` : "";
+      lines.push(`${group} colors:`);
+      byGroup[group].forEach((color) => {
+        const active = color.id === current.id ? " (current)" : "";
+        const desc = color.description ? ` — ${color.description}` : "";
         lines.push(
-          `  ${theme.id.padEnd(longest)}  ${theme.label}${active}${desc}`,
+          `  ${color.id.padEnd(longest)}  ${color.label}${active}${desc}`,
         );
       });
       lines.push("");
     });
 
-    lines.push("set: display theme <id>");
-    lines.push("show current: display theme current");
+    lines.push("set: display color <id>");
+    lines.push("show current: display color current");
     return lines;
+  };
+
+  const formatThemeList = () => {
+    if (!colorController || !fontController) {
+      return ["themes are unavailable in this build."];
+    }
+
+    const currentColor = colorController.getCurrentColor();
+    const currentFont = fontController.getCurrentFont();
+    const currentTheme = matchTheme(currentColor.id, currentFont.id);
+    const longest = themes.reduce(
+      (len, pack) => Math.max(len, pack.id.length),
+      0,
+    );
+
+    const rows = themes.map((pack) => {
+      const active = currentTheme?.id === pack.id ? " (current)" : "";
+      const desc = pack.description ? ` — ${pack.description}` : "";
+      return `  ${pack.id.padEnd(longest)}  ${pack.label}${active}${desc}`;
+    });
+
+    return [
+      "themes:",
+      ...rows,
+      "",
+      "set: theme <id>",
+      "show current: theme current",
+      "tip: fine tune with display font/color",
+    ];
+  };
+
+  const themeHandler = async ({ args }: CommandHandlerContext) => {
+    if (!colorController || !fontController) {
+      return ["themes are unavailable: appearance controller not ready."];
+    }
+
+    const action = (args[0] || "list").toLowerCase();
+    if (action === "list") return formatThemeList();
+    if (action === "current") {
+      const activeTheme = matchTheme(
+        colorController.getCurrentColor().id,
+        fontController.getCurrentFont().id,
+      );
+      if (!activeTheme) {
+        return [
+          "current theme:",
+          `  color: ${colorController.getCurrentColor().id}`,
+          `  font: ${fontController.getCurrentFont().id}`,
+          "  (custom mix)",
+        ];
+      }
+      return [
+        "current theme:",
+        `  ${activeTheme.label} (${activeTheme.id})`,
+        `  color: ${activeTheme.colorId}`,
+        `  font: ${activeTheme.fontId}`,
+        activeTheme.description ? `  ${activeTheme.description}` : "",
+      ].filter(Boolean);
+    }
+
+    const targetId = action === "set" ? args[1] || "" : action;
+    if (!targetId) return ["usage: theme <id>", ...formatThemeList()];
+
+    const pack = findTheme(targetId);
+    if (!pack) return [`unknown theme: ${targetId}`, ...formatThemeList()];
+
+    try {
+      await colorController.setColor(pack.colorId);
+      await fontController.setFont(pack.fontId);
+      return [
+        `theme set to ${pack.label}`,
+        `  color: ${pack.colorId}`,
+        `  font: ${pack.fontId}`,
+        pack.description ? `  ${pack.description}` : "",
+      ].filter(Boolean);
+    } catch (error) {
+      return [`failed to set theme: ${(error as Error).message}`];
+    }
   };
 
   const whoamiHandler = () => [
@@ -1066,22 +1152,37 @@ export function registerDefaultCommands({
       },
     )
     .register("whoami", whoamiHandler, { desc: "show profile card" })
+    .register(
+      "theme",
+      themeHandler,
+      {
+        desc: "apply a bundled theme (font + color)",
+        subcommands: ["list", "current", ...themes.map((pack) => pack.id)],
+        subcommandSuggestions: ({ prefix, parts }) => {
+          const token = (parts[1] || prefix || "").toLowerCase();
+          if (!token) return ["list", "current", ...themes.map((p) => p.id)];
+          return themes
+            .map((pack) => pack.id)
+            .filter((id) => id.toLowerCase().startsWith(token));
+        },
+      },
+    )
     .register("display", async (ctx) => {
       const scope = (ctx.args[0] || "").toLowerCase();
       if (!scope || scope === "font") {
         return displayFontHandler({ ...ctx, args: scope ? ctx.args.slice(1) : ctx.args });
       }
-      if (scope === "theme") {
-        return displayThemeHandler({ ...ctx, args: ctx.args.slice(1) });
+      if (scope === "color") {
+        return displayColorHandler({ ...ctx, args: ctx.args.slice(1) });
       }
-      return ["usage: display font|theme [list|current|<id>]"]; 
+      return ["usage: display font|color [list|current|<id>]"]; 
     }, {
-      desc: "display settings (font/theme)",
-      subcommands: ["font", "theme"],
+      desc: "display settings (font/color)",
+      subcommands: ["font", "color"],
       subcommandSuggestions: ({ parts }) => {
         const first = (parts[1] || "").toLowerCase();
 
-        if (!first) return ["font", "theme"];
+        if (!first) return ["font", "color"];
 
         if (first === "font") {
           if (!fontController) return [];
@@ -1093,14 +1194,14 @@ export function registerDefaultCommands({
             .map((id) => `font ${id}`);
         }
 
-        if (first === "theme") {
-          if (!themeController) return [];
+        if (first === "color") {
+          if (!colorController) return [];
           const prefix = (parts[2] || "").toLowerCase();
-          return themeController
-            .listThemes()
-            .map((t: TerminalThemeMeta) => t.id)
+          return colorController
+            .listColors()
+            .map((t: TerminalColorMeta) => t.id)
             .filter((id: string) => id.toLowerCase().startsWith(prefix))
-            .map((id) => `theme ${id}`);
+            .map((id) => `color ${id}`);
         }
 
         return [];
@@ -1160,9 +1261,14 @@ export function registerDefaultCommands({
             "display font list — show available fonts",
             "display font current — show active font",
             "display font <id> — switch terminal font",
-            "display theme list — show dark/light themes",
-            "display theme current — show active theme",
-            "display theme <id> — switch background + text colors",
+            "display color list — show dark/light colors",
+            "display color current — show active color",
+            "display color <id> — switch terminal colors",
+          ],
+          theme: [
+            "theme list — show bundled font+color presets",
+            "theme current — show active preset (or custom)",
+            "theme <id> — apply preset (updates font + theme)",
           ],
         };
 

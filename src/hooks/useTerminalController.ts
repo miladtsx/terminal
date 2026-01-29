@@ -22,6 +22,7 @@ import {
   humanDelay,
   parseShareCommandsFromLocation,
 } from "@utils";
+import { listThemes } from "@utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
@@ -41,10 +42,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const sharedCommandsRef = useRef<string[] | null>(
     parsedShareCommands.length ? parsedShareCommands : null,
   );
+  const themes = useMemo(() => listThemes(), []);
   const fontControllerRef = useRef(props.appearanceController?.font);
-  const themeControllerRef = useRef(props.appearanceController?.theme);
+  const colorControllerRef = useRef(props.appearanceController?.color);
   const previewBaseRef = useRef<string | null>(null);
-  const previewThemeBaseRef = useRef<string | null>(null);
+  const previewColorBaseRef = useRef<string | null>(null);
+  const themePreviewingRef = useRef(false);
 
   const [state, setState] = useState<TerminalState>({
     ready: false,
@@ -97,8 +100,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     if (options?.revertPreview !== false) {
       void fontControllerRef.current?.resetPreview?.();
       previewBaseRef.current = null;
-      void themeControllerRef.current?.resetPreview?.();
-      previewThemeBaseRef.current = null;
+      void colorControllerRef.current?.resetPreview?.();
+      previewColorBaseRef.current = null;
+      themePreviewingRef.current = false;
     }
 
     setState((prev) => ({
@@ -171,10 +175,21 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     return match ? match[1] : null;
   }, []);
 
-  const extractDisplayThemeId = useCallback((input: string): string | null => {
-    const match = input.trim().match(/^display\s+theme\s+([^\s]+)$/i);
+  const extractDisplayColorId = useCallback((input: string): string | null => {
+    const match = input.trim().match(/^display\s+color\s+([^\s]+)$/i);
     return match ? match[1] : null;
   }, []);
+
+  const extractThemeId = useCallback((input: string): string | null => {
+    const match = input.trim().match(/^theme\s+(?:set\s+)?([^\s]+)$/i);
+    return match ? match[1] : null;
+  }, []);
+
+  const findThemeById = useCallback(
+    (id: string) =>
+      themes.find((t) => t.id.toLowerCase() === id.trim().toLowerCase()),
+    [themes],
+  );
 
   const previewFontFromInput = useCallback(
     (input: string) => {
@@ -199,27 +214,60 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     [extractDisplayFontId],
   );
 
-  const previewThemeFromInput = useCallback(
+  const previewColorFromInput = useCallback(
     (input: string) => {
-      const themeId = extractDisplayThemeId(input);
-      if (!themeId) {
-        if (previewThemeBaseRef.current) {
-          void themeControllerRef.current?.resetPreview?.();
+      const colorId = extractDisplayColorId(input);
+      if (!colorId) {
+        if (previewColorBaseRef.current) {
+          void colorControllerRef.current?.resetPreview?.();
         }
-        previewThemeBaseRef.current = null;
+        previewColorBaseRef.current = null;
         return;
       }
 
-      if (!previewThemeBaseRef.current) {
-        const current = themeControllerRef.current?.getCurrentTheme();
-        previewThemeBaseRef.current = current?.id ?? null;
+      if (!previewColorBaseRef.current) {
+        const current = colorControllerRef.current?.getCurrentColor();
+        previewColorBaseRef.current = current?.id ?? null;
       }
 
-      void themeControllerRef.current?.previewTheme(themeId).catch(() => {
+      void colorControllerRef.current?.previewColor(colorId).catch(() => {
         /* ignore preview failures */
       });
     },
-    [extractDisplayThemeId],
+    [extractDisplayColorId],
+  );
+
+  const previewThemeFromInput = useCallback(
+    (input: string) => {
+      const themeId = extractThemeId(input);
+      if (!themeId) {
+        if (themePreviewingRef.current) {
+          void fontControllerRef.current?.resetPreview?.();
+          void colorControllerRef.current?.resetPreview?.();
+          themePreviewingRef.current = false;
+        }
+        return;
+      }
+
+      const pack = findThemeById(themeId);
+      if (!pack) {
+        if (themePreviewingRef.current) {
+          void fontControllerRef.current?.resetPreview?.();
+          void colorControllerRef.current?.resetPreview?.();
+          themePreviewingRef.current = false;
+        }
+        return;
+      }
+
+      themePreviewingRef.current = true;
+      void colorControllerRef.current?.previewColor(pack.colorId).catch(() => {
+        /* ignore preview failures */
+      });
+      void fontControllerRef.current?.previewFont(pack.fontId).catch(() => {
+        /* ignore preview failures */
+      });
+    },
+    [extractThemeId, findThemeById],
   );
 
   const typingTimersRef = useRef<number[]>([]);
@@ -413,6 +461,10 @@ I fix, harden, and scale the systems you’re afraid to touch.
     async (raw: string) => {
       const cmd = (raw || "").trim();
       if (!cmd) return;
+
+      if (themePreviewingRef.current) {
+        themePreviewingRef.current = false;
+      }
 
       const model = modelRef.current;
       const registry = registryRef.current;
@@ -628,12 +680,19 @@ I fix, harden, and scale the systems you’re afraid to touch.
           return;
         }
 
-        if (previewBaseRef.current || previewThemeBaseRef.current) {
+        if (
+          previewBaseRef.current ||
+          previewColorBaseRef.current ||
+          themePreviewingRef.current
+        ) {
           event.preventDefault();
           void fontControllerRef.current?.resetPreview?.();
           previewBaseRef.current = null;
-          void themeControllerRef.current?.resetPreview?.();
-          previewThemeBaseRef.current = null;
+          void colorControllerRef.current?.resetPreview?.();
+          previewColorBaseRef.current = null;
+          if (themePreviewingRef.current) {
+            themePreviewingRef.current = false;
+          }
           return;
         }
       }
@@ -666,6 +725,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
               (prev.tabIndex - 1 + matches.length) % matches.length;
             const nextInput = matches[nextIndex];
             previewFontFromInput(nextInput);
+            previewColorFromInput(nextInput);
             previewThemeFromInput(nextInput);
             return {
               ...prev,
@@ -694,6 +754,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
             const nextIndex = (prev.tabIndex + 1) % matches.length;
             const nextInput = matches[nextIndex];
             previewFontFromInput(nextInput);
+            previewColorFromInput(nextInput);
             previewThemeFromInput(nextInput);
             return {
               ...prev,
@@ -728,6 +789,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
               tabVisible: false,
             }));
             previewFontFromInput(only.trim());
+            previewColorFromInput(only.trim());
             previewThemeFromInput(only.trim());
             return;
           }
@@ -741,6 +803,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
             input: suggestionResult.matches[0],
           }));
           previewFontFromInput(suggestionResult.matches[0]);
+          previewColorFromInput(suggestionResult.matches[0]);
           previewThemeFromInput(suggestionResult.matches[0]);
           return;
         }
@@ -754,6 +817,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
             tabVisible: true,
           }));
           previewFontFromInput(tabMatches[next]);
+          previewColorFromInput(tabMatches[next]);
           previewThemeFromInput(tabMatches[next]);
         }
         return;
@@ -771,6 +835,9 @@ I fix, harden, and scale the systems you’re afraid to touch.
       runCommand,
       setLinesFromModel,
       state,
+      previewFontFromInput,
+      previewColorFromInput,
+      previewThemeFromInput,
     ],
   );
 
@@ -816,10 +883,16 @@ I fix, harden, and scale the systems you’re afraid to touch.
           tabVisible: true,
         };
       });
-      previewFontFromInput(value);
       previewThemeFromInput(value);
+      previewColorFromInput(value);
+      previewFontFromInput(value);
     },
-    [buildSuggestions, previewFontFromInput, previewThemeFromInput],
+    [
+      buildSuggestions,
+      previewThemeFromInput,
+      previewColorFromInput,
+      previewFontFromInput,
+    ],
   );
 
   useEffect(() => {
@@ -838,7 +911,7 @@ I fix, harden, and scale the systems you’re afraid to touch.
     if (!hasInitializedRef.current) {
       const appearanceController = initialPropsRef.current.appearanceController
         ? {
-            theme: initialPropsRef.current.appearanceController?.theme,
+            color: initialPropsRef.current.appearanceController?.color,
             font: initialPropsRef.current.appearanceController?.font,
           }
         : undefined;

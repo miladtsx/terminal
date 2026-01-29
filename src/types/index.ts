@@ -2,7 +2,7 @@ import type { KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from "react";
 import { CommandRegistry } from "@components/terminal/commandRegistry";
 import { TerminalModel } from "@components/terminal/terminalModel";
 import type { TerminalFontController, TerminalFontOption } from "@utils";
-import type { TerminalThemeController, TerminalThemeOption } from "@utils";
+import type { TerminalColorController, TerminalColorOption } from "@utils";
 
 export interface TerminalProps {
   prompt?: string;
@@ -16,7 +16,7 @@ export interface TerminalProps {
 
 export type AppearanceController = {
   font?: TerminalFontController;
-  theme?: TerminalThemeController;
+  color?: TerminalColorController;
 };
 
 export type TerminalState = {
@@ -143,7 +143,7 @@ export type RegisterDefaultsArgs = {
 };
 
 export type TerminalFontMeta = TerminalFontOption;
-export type TerminalThemeMeta = TerminalThemeOption;
+export type TerminalColorMeta = TerminalColorOption;
 
 export type SubcommandSuggestContext = {
   prefix: string;

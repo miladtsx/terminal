@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
-import { useTerminalThemes } from "@hooks/useTerminalThemes";
+import { useTerminalColors } from "@hooks/useTerminalColors";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
@@ -10,10 +10,10 @@ import { useUiStore, useShallow } from "@stores/uiStore";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
-  const themeController = useTerminalThemes();
+  const colorController = useTerminalColors();
   const appearanceController = useMemo(
-    () => ({ font: fontController, theme: themeController }),
-    [fontController, themeController],
+    () => ({ font: fontController, color: colorController }),
+    [fontController, colorController],
   );
   const {
     ready,
