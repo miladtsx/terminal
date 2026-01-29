@@ -269,26 +269,6 @@ export default function Terminal(props: TerminalProps) {
         </div>
       ) : null}
       <div className="t-wrap" ref={wrapScrollRef}>
-        <div className="t-fontSizeControls" aria-label="Adjust font size">
-          <button
-            type="button"
-            className="t-fontSizeButton"
-            aria-label="Decrease font size"
-            onClick={() => adjustFontSize(-FONT_SIZE_STEP)}
-            disabled={!canDecrease}
-          >
-            -
-          </button>
-          <button
-            type="button"
-            className="t-fontSizeButton"
-            aria-label="Increase font size"
-            onClick={() => adjustFontSize(FONT_SIZE_STEP)}
-            disabled={!canIncrease}
-          >
-            +
-          </button>
-        </div>
         <pre className="t-output" aria-live="polite">
           {lines.map((line, index) => {
             const isIntroLine =
@@ -405,6 +385,26 @@ export default function Terminal(props: TerminalProps) {
               : "Autobot transformation online. Expect cinematic mode."}
           </div>
         ) : null}
+      </div>
+      <div className="t-fontSizeControls" aria-label="Adjust font size">
+        <button
+          type="button"
+          className="t-fontSizeButton"
+          aria-label="Decrease font size"
+          onClick={() => adjustFontSize(-FONT_SIZE_STEP)}
+          disabled={!canDecrease}
+        >
+          -
+        </button>
+        <button
+          type="button"
+          className="t-fontSizeButton"
+          aria-label="Increase font size"
+          onClick={() => adjustFontSize(FONT_SIZE_STEP)}
+          disabled={!canIncrease}
+        >
+          +
+        </button>
       </div>
     </div>
   );
