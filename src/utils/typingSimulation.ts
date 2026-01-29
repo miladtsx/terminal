@@ -64,3 +64,53 @@ export function humanDelay(prev: string, ch: string) {
 
   return Math.max(30, base + jitter + pause);
 }
+
+type TypingSequenceOptions = {
+  /**
+   * callback invoked after each character finishes typing
+   */
+  onChar: (typed: string, ch: string, index: number) => void;
+  /**
+   * optional delay multiplier so callers can speed up/slow down the typing cadence.
+   */
+  multiplier?: number;
+  /**
+   * optional offset before the first character is scheduled.
+   */
+  startDelay?: number;
+  /**
+   * override the function that computes delay between characters.
+   */
+  delayFn?: (prev: string, ch: string) => number;
+};
+
+type TypingSequenceResult = {
+  timers: number[];
+  duration: number;
+};
+
+export function simulateTypingSequence(
+  text: string,
+  options: TypingSequenceOptions,
+): TypingSequenceResult {
+  const { onChar, delayFn = humanDelay, multiplier = 1, startDelay = 0 } =
+    options;
+  const timers: number[] = [];
+  let elapsed = startDelay;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const prev = text.slice(0, i);
+    elapsed += delayFn(prev, ch) * multiplier;
+    const typed = text.slice(0, i + 1);
+    const timer = window.setTimeout(() => {
+      onChar(typed, ch, i);
+    }, Math.round(elapsed));
+    timers.push(timer);
+  }
+
+  return {
+    timers,
+    duration: elapsed,
+  };
+}

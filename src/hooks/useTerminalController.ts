@@ -24,6 +24,7 @@ import {
   humanDelay,
   listThemes,
   parseShareCommandsFromLocation,
+  simulateTypingSequence,
 } from "@utils";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
@@ -305,24 +306,18 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     introTypingRef.current = true;
     const greeting = getGreeting();
-    const typingDuration = 1000;
-    const perChar = typingDuration / Math.max(greeting.length, 1);
 
     model.pushLine("");
     setLinesFromModel();
 
-    const timers: number[] = [];
+    const typing = simulateTypingSequence(greeting, {
+      onChar: (typed) => {
+        model.setLine(0, typed);
+        setLinesFromModel();
+      },
+    });
 
-    for (let i = 0; i < greeting.length; i++) {
-      const timer = window.setTimeout(
-        () => {
-          model.setLine(0, greeting.slice(0, i + 1));
-          setLinesFromModel();
-        },
-        Math.round(perChar * (i + 1)),
-      );
-      timers.push(timer);
-    }
+    const timers: number[] = [...typing.timers];
 
     const suggested =
       initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
@@ -505,9 +500,10 @@ I fix, harden, and scale the systems you’re afraid to touch.
       extraTimers.push(finalizeTimer);
     };
 
+    const startBlockDelay = typing.duration + 80;
     const startBlockTimer = window.setTimeout(() => {
       typeIntroStartLines(timers);
-    }, typingDuration);
+    }, startBlockDelay);
 
     timers.push(startBlockTimer);
     introTimersRef.current = timers;
@@ -577,33 +573,20 @@ I fix, harden, and scale the systems you’re afraid to touch.
       setState((prev) => ({ ...prev, input: "" }));
       focusInput();
 
-      const timers: number[] = [];
       const { tick } = getTypeSfx();
-
-      let t = 0;
-
-      for (let i = 0; i < normalized.length; i++) {
-        const ch = normalized[i];
-        const prev = normalized.slice(0, i);
-        t += humanDelay(prev, ch);
-
-        const timer = window.setTimeout(() => {
-          setState((prev) => ({
-            ...prev,
-            input: normalized.slice(0, i + 1),
-          }));
+      const typing = simulateTypingSequence(normalized, {
+        onChar: (typed, ch) => {
+          setState((prev) => ({ ...prev, input: typed }));
           if (ch !== " ") tick();
-        }, t);
-        timers.push(timer);
-      }
+        },
+      });
 
       const finalTimer = window.setTimeout(() => {
         void runCommand(normalized);
         setState((prev) => ({ ...prev, input: "" }));
-      }, t);
+      }, typing.duration);
 
-      timers.push(finalTimer);
-      typingTimersRef.current = timers;
+      typingTimersRef.current = [...typing.timers, finalTimer];
     },
     [cancelTyping, focusInput, resetTabState, runCommand],
   );
