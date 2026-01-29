@@ -701,7 +701,8 @@ export function registerDefaultCommands({
         const aboutLines = props.aboutLines || [
           `I help you avoid building systems that work in demos but fail in production.
 
-I’m take your project from idea to production:
+
+I take your project from idea to production:
 
 idea → design → implement → feedback → security → launch → scale → monitoring ...
           `,
