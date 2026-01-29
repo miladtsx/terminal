@@ -1,10 +1,8 @@
 import type { KeyboardEvent as ReactKeyboardEvent, ChangeEvent } from "react";
 import { CommandRegistry } from "@components/terminal/commandRegistry";
 import { TerminalModel } from "@components/terminal/terminalModel";
-import type {
-  TerminalFontController,
-  TerminalFontOption,
-} from "../utils/terminalFonts";
+import type { TerminalFontController, TerminalFontOption } from "@utils";
+import type { TerminalThemeController, TerminalThemeOption } from "@utils";
 
 export interface TerminalProps {
   prompt?: string;
@@ -13,8 +11,13 @@ export interface TerminalProps {
   caseStudies?: CaseStudy[];
   aboutLines?: string[];
   onBookCall?: () => void;
-  fontController?: TerminalFontController;
+  appearanceController?: AppearanceController;
 }
+
+export type AppearanceController = {
+  font?: TerminalFontController;
+  theme?: TerminalThemeController;
+};
 
 export type TerminalState = {
   ready: boolean;
@@ -136,10 +139,11 @@ export type RegisterDefaultsArgs = {
   props: TerminalProps;
   model: TerminalModel;
   setLinesFromModel: (extraLines?: TerminalLineInput[]) => void;
-  fontController?: TerminalFontController;
+  appearanceController?: AppearanceController;
 };
 
 export type TerminalFontMeta = TerminalFontOption;
+export type TerminalThemeMeta = TerminalThemeOption;
 
 export type SubcommandSuggestContext = {
   prefix: string;
@@ -152,7 +156,9 @@ export type SubcommandSuggestContext = {
 export type CommandMeta = {
   desc?: string;
   subcommands?: string[];
-  subcommandSuggestions?: (ctx: SubcommandSuggestContext) => string[] | undefined;
+  subcommandSuggestions?: (
+    ctx: SubcommandSuggestContext,
+  ) => string[] | undefined;
 };
 
 export type CommandHandlerContext = {

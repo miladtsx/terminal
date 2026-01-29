@@ -5,15 +5,32 @@
 @layer base {
   :root {
     --bg: #04060a;
+    --bg-layer: radial-gradient(circle at 20% 20%, rgba(141, 208, 255, 0.08), transparent 36%),
+      radial-gradient(circle at 80% 10%, rgba(120, 164, 255, 0.06), transparent 30%),
+      #04060a;
+    --surface: #07080a;
     --text: #eaf1fb;
     --muted: #b9c5dc;
     --accent: #8dd0ff;
     --card: rgba(255, 255, 255, 0.04);
     --border: rgba(255, 255, 255, 0.08);
+    --selection: rgba(141, 208, 255, 0.3);
+    --selection-text: #0b101a;
+    --caret: #eaf1fb;
+    --chip-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.25));
+    --chip-border: rgba(255, 255, 255, 0.22);
+    --chip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.6);
+    --chip-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06) 45%, rgba(0, 0, 0, 0.35));
+    --chip-hover-color: #f2f6fb;
+    --chip-active-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+    --suggest-bg: rgba(0, 0, 0, 0.6);
+    --suggest-active-bg: rgba(141, 208, 255, 0.16);
+    --suggest-active-color: var(--accent);
     --radius: 14px;
     --shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
     --terminal-font: "Fira Code", "IBM Plex Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
-    color-scheme: dark;
+    --terminal-color-scheme: dark;
+    color-scheme: var(--terminal-color-scheme);
     --terminal-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect width='12' height='12' x='2' y='2' rx='2' ry='2' fill='%23eaf1fb' stroke='rgba(255,255,255,0.5)' stroke-width='2'/%3E%3C/svg%3E") 8 8, text;
   }
 
@@ -24,10 +41,7 @@
   }
 
   html {
-    background:
-      radial-gradient(circle at 20% 20%, rgba(141, 208, 255, 0.08), transparent 36%),
-      radial-gradient(circle at 80% 10%, rgba(120, 164, 255, 0.06), transparent 30%),
-      var(--bg);
+    background: var(--bg-layer, var(--bg));
     color: var(--text);
     font-family: theme("fontFamily.sans");
     line-height: 1.6;
@@ -52,8 +66,8 @@
   }
 
   ::selection {
-    background: rgba(141, 208, 255, 0.3);
-    color: #0b101a;
+    background: var(--selection);
+    color: var(--selection-text, #0b101a);
   }
 }
 
@@ -82,7 +96,7 @@
   .t-root {
     position: fixed;
     inset: 0;
-    background: #07080a;
+    background: var(--bg-layer, var(--surface));
     color: rgba(235, 245, 255, 0.92);
     opacity: 0;
     transition: opacity 420ms ease;
@@ -223,6 +237,96 @@
     transform: translateY(0.5px);
     box-shadow:
       inset 0 1px 2px rgba(0, 0, 0, 0.7);
+  }
+
+  /* theme-aware overrides for the terminal shell */
+  .t-root {
+    background: var(--bg-layer, var(--surface));
+    color: var(--text);
+  }
+
+  .t-output,
+  .t-contextMenu,
+  .t-contextMenuItem,
+  .t-contextHint,
+  .t-fontLoading {
+    color: var(--text);
+  }
+
+  .t-prompt {
+    color: var(--muted);
+  }
+
+  .t-input {
+    color: var(--text);
+    caret-color: var(--caret);
+  }
+
+  .t-input::placeholder {
+    color: var(--muted);
+  }
+
+  .t-commandLink {
+    color: var(--text);
+    background: var(--chip-bg);
+    border-color: var(--chip-border);
+    box-shadow: var(--chip-shadow);
+  }
+
+  .t-commandLink:hover,
+  .t-commandLink:focus-visible {
+    color: var(--chip-hover-color);
+    background: var(--chip-hover-bg);
+  }
+
+  .t-commandLink:active {
+    box-shadow: var(--chip-active-shadow);
+  }
+
+  .t-faqSummary,
+  .t-logSummary,
+  .t-logTitle,
+  .t-markdown,
+  .t-markdownBody,
+  .t-notice,
+  .t-notice-title,
+  .booking-title,
+  .booking-sub,
+  .booking-fallbackCard,
+  .booking-fallbackLinks a {
+    color: var(--text);
+  }
+
+  .t-faqItem.is-open .t-faqSummary,
+  .t-logDate,
+  .t-markdownTitle,
+  .t-markdownBody a,
+  .t-logShare,
+  .t-contextMenuItem small,
+  .t-contextHint,
+  .t-fontLoadingDot,
+  .booking-fallbackLinks a:hover,
+  .booking-fallbackLinks a:focus-visible {
+    color: var(--accent);
+  }
+
+  .t-faqAnswerInner,
+  .t-logEmpty,
+  .t-copyState,
+  .t-notice-eyebrow,
+  .booking-eyebrow,
+  .booking-sub,
+  .booking-fallbackLinks small,
+  .t-contextMenuItem small {
+    color: var(--muted);
+  }
+
+  .t-logShare,
+  .t-notice-close,
+  .t-contextMenuItem.system,
+  .booking-close,
+  .booking-fallbackLinks a {
+    border-color: var(--border);
   }
 
   @media (max-width: 640px) {

@@ -10,6 +10,7 @@ import {
   RegisterDefaultsArgs,
   OfflineStatus,
   TerminalFontMeta,
+  TerminalThemeMeta,
 } from "@types";
 import {
   copyToClipboard,
@@ -254,8 +255,10 @@ export function registerDefaultCommands({
   props,
   model,
   setLinesFromModel,
-  fontController,
+  appearanceController,
 }: RegisterDefaultsArgs) {
+  const fontController = appearanceController?.font;
+  const themeController = appearanceController?.theme;
   const contact = props.contact || {
     email: "miladtsx+terminal@gmail.com",
   };
@@ -372,16 +375,14 @@ export function registerDefaultCommands({
   const files = listFiles();
 
   const displayFontHandler = async ({ args }: CommandHandlerContext) => {
-    const scope = (args[0] || "").toLowerCase();
-    if (scope && scope !== "font") {
-      return ["usage: display font [list|current|<id>]"];
-    }
+    const tokens = [...args];
+    if (tokens[0]?.toLowerCase() === "font") tokens.shift();
 
     if (!fontController) {
       return ["display font unavailable: font controller not initialized."];
     }
 
-    const action = (args[1] || "list").toLowerCase();
+    const action = (tokens[0] || "list").toLowerCase();
 
     if (action === "list") return formatFontList();
     if (action === "current") {
@@ -393,7 +394,7 @@ export function registerDefaultCommands({
       ].filter(Boolean);
     }
 
-    const targetId = action === "set" ? args[2] || "" : action;
+    const targetId = action === "set" ? tokens[1] || "" : action;
     if (!targetId) return ["usage: display font <id>", ...formatFontList()];
 
     const option = fontController
@@ -410,6 +411,51 @@ export function registerDefaultCommands({
       ].filter(Boolean);
     } catch (error) {
       return [`failed to set font: ${(error as Error).message}`];
+    }
+  };
+
+  const normalizeThemeId = (value: string) => {
+    return value.toLowerCase();
+  };
+
+  const displayThemeHandler = async ({ args }: CommandHandlerContext) => {
+    const tokens = [...args];
+    if (tokens[0]?.toLowerCase() === "theme") tokens.shift();
+
+    if (!themeController) {
+      return ["display theme unavailable: theme controller not initialized."];
+    }
+
+    const action = (tokens[0] || "list").toLowerCase();
+
+    if (action === "list") return formatThemeList();
+    if (action === "current") {
+      const current = themeController.getCurrentTheme();
+      return [
+        "current theme:",
+        `  ${current.label} (${current.id}) — ${current.group}`,
+        current.description ? `  ${current.description}` : "",
+      ].filter(Boolean);
+    }
+
+    const targetId = action === "set" ? tokens[1] || "" : action;
+    if (!targetId) return ["usage: display theme <id>", ...formatThemeList()];
+
+    const normalized = normalizeThemeId(targetId);
+    const option = themeController
+      .listThemes()
+      .find((item) => item.id.toLowerCase() === normalized.toLowerCase());
+
+    if (!option) return [`unknown theme: ${targetId}`, "try: display theme list"];
+
+    try {
+      await themeController.setTheme(option.id);
+      return [
+        `theme set to ${option.label}`,
+        option.description ? option.description : "",
+      ].filter(Boolean);
+    } catch (error) {
+      return [`failed to set theme: ${(error as Error).message}`];
     }
   };
 
@@ -436,6 +482,41 @@ export function registerDefaultCommands({
       "set: display font <id>",
       "show current: display font current",
     ];
+  };
+
+  const formatThemeList = () => {
+    if (!themeController) return ["display theme is unavailable in this build."];
+
+    const current = themeController.getCurrentTheme();
+    const items = themeController.listThemes();
+    const longest = items.reduce(
+      (len: number, item: TerminalThemeMeta) => Math.max(len, item.id.length),
+      0,
+    );
+
+    const byGroup: Record<string, TerminalThemeMeta[]> = {};
+    items.forEach((item) => {
+      byGroup[item.group] = byGroup[item.group] || [];
+      byGroup[item.group].push(item);
+    });
+
+    const lines: string[] = [];
+    ["dark", "light"].forEach((group) => {
+      if (!byGroup[group]) return;
+      lines.push(`${group} themes:`);
+      byGroup[group].forEach((theme) => {
+        const active = theme.id === current.id ? " (current)" : "";
+        const desc = theme.description ? ` — ${theme.description}` : "";
+        lines.push(
+          `  ${theme.id.padEnd(longest)}  ${theme.label}${active}${desc}`,
+        );
+      });
+      lines.push("");
+    });
+
+    lines.push("set: display theme <id>");
+    lines.push("show current: display theme current");
+    return lines;
   };
 
   const whoamiHandler = () => [
@@ -985,21 +1066,44 @@ export function registerDefaultCommands({
       },
     )
     .register("whoami", whoamiHandler, { desc: "show profile card" })
-    .register("display", displayFontHandler, {
-      desc: "display settings (font)",
-      subcommands: ["font"],
-      subcommandSuggestions: ({ parts, hasTrailingSpace }) => {
+    .register("display", async (ctx) => {
+      const scope = (ctx.args[0] || "").toLowerCase();
+      if (!scope || scope === "font") {
+        return displayFontHandler({ ...ctx, args: scope ? ctx.args.slice(1) : ctx.args });
+      }
+      if (scope === "theme") {
+        return displayThemeHandler({ ...ctx, args: ctx.args.slice(1) });
+      }
+      return ["usage: display font|theme [list|current|<id>]"]; 
+    }, {
+      desc: "display settings (font/theme)",
+      subcommands: ["font", "theme"],
+      subcommandSuggestions: ({ parts }) => {
         const first = (parts[1] || "").toLowerCase();
-        if (first && first !== "font") return [];
 
-        if (!fontController) return [];
-        const fonts = fontController.listFonts();
-        const prefix = (parts[2] || "").toLowerCase();
-        const matches = fonts
-          .map((f: TerminalFontMeta) => f.id)
-          .filter((id: string) => id.toLowerCase().startsWith(prefix));
+        if (!first) return ["font", "theme"];
 
-        return matches.map((id) => `font ${id}`);
+        if (first === "font") {
+          if (!fontController) return [];
+          const prefix = (parts[2] || "").toLowerCase();
+          return fontController
+            .listFonts()
+            .map((f: TerminalFontMeta) => f.id)
+            .filter((id: string) => id.toLowerCase().startsWith(prefix))
+            .map((id) => `font ${id}`);
+        }
+
+        if (first === "theme") {
+          if (!themeController) return [];
+          const prefix = (parts[2] || "").toLowerCase();
+          return themeController
+            .listThemes()
+            .map((t: TerminalThemeMeta) => t.id)
+            .filter((id: string) => id.toLowerCase().startsWith(prefix))
+            .map((id) => `theme ${id}`);
+        }
+
+        return [];
       },
     })
     .register("finger", whoamiHandler, {
@@ -1056,6 +1160,9 @@ export function registerDefaultCommands({
             "display font list — show available fonts",
             "display font current — show active font",
             "display font <id> — switch terminal font",
+            "display theme list — show dark/light themes",
+            "display theme current — show active theme",
+            "display theme <id> — switch background + text colors",
           ],
         };
 

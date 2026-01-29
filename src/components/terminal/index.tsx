@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
+import { useTerminalThemes } from "@hooks/useTerminalThemes";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
@@ -9,6 +10,11 @@ import { useUiStore, useShallow } from "@stores/uiStore";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
+  const themeController = useTerminalThemes();
+  const appearanceController = useMemo(
+    () => ({ font: fontController, theme: themeController }),
+    [fontController, themeController],
+  );
   const {
     ready,
     lines,
@@ -26,7 +32,10 @@ export default function Terminal(props: TerminalProps) {
     tabMatches,
     tabIndex,
     tabVisible,
-  } = useTerminalController({ ...props, fontController });
+  } = useTerminalController({
+    ...props,
+    appearanceController,
+  });
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -195,10 +204,10 @@ export default function Terminal(props: TerminalProps) {
   const suggestStyle: React.CSSProperties = {
     margin: "4px 0 8px",
     padding: "4px 6px",
-    background: "rgba(0, 0, 0, 0.6)",
-    border: "1px solid rgba(255, 255, 255, 0.12)",
+    background: "var(--suggest-bg, rgba(0, 0, 0, 0.6))",
+    border: "1px solid var(--border)",
     borderRadius: 6,
-    color: "#e8f0ff",
+    color: "var(--text)",
     fontFamily: "var(--terminal-font, 'IBM Plex Mono', monospace)",
     fontSize: 13,
     lineHeight: 1.45,
@@ -289,8 +298,8 @@ export default function Terminal(props: TerminalProps) {
                   idx === tabIndex
                     ? {
                       ...suggestItemStyle,
-                      background: "rgba(141, 208, 255, 0.16)",
-                      color: "#8dd0ff",
+                      background: "var(--suggest-active-bg, rgba(141, 208, 255, 0.16))",
+                      color: "var(--suggest-active-color, var(--accent))",
                     }
                     : suggestItemStyle
                 }
