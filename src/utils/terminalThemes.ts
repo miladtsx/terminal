@@ -37,193 +37,284 @@ const buildLayer = (base: string, a: string, b: string) =>
   `radial-gradient(circle at 18% 18%, ${a}, transparent 38%), radial-gradient(circle at 82% 12%, ${b}, transparent 32%), ${base}`;
 
 const THEME_OPTIONS: TerminalThemeOption[] = [
+  // =========================
+  // COLORFUL (light / dark)
+  // =========================
   {
-    id: "midnight",
-    label: "Midnight",
-    group: "dark",
-    tone: "dark",
-    description: "Deep navy contrast",
-    background: "#04060a",
-    layer: buildLayer("#04060a", "rgba(141,208,255,0.08)", "rgba(120,164,255,0.06)"),
-    surface: "#07080a",
-    text: "#eaf1fb",
-    muted: "#b9c5dc",
-    accent: "#8dd0ff",
-    border: "rgba(255, 255, 255, 0.12)",
-    card: "rgba(255, 255, 255, 0.05)",
-    shadow: "0 22px 70px rgba(0, 0, 0, 0.55)",
-    selection: "rgba(141, 208, 255, 0.28)",
-    caret: "#eaf1fb",
-    chipBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.25))",
-    chipHoverBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06) 45%, rgba(0, 0, 0, 0.35))",
-  },
-  {
-    id: "aurora",
-    label: "Aurora (gradient)",
-    group: "dark",
-    tone: "dark",
-    description: "Teal violet gradient",
-    background: "#061024",
-    layer:
-      "linear-gradient(145deg, #0c1a35 0%, #0b2330 25%, #0c2c2f 50%, #13203c 75%, #130f27 100%)",
-    surface: "#0b1429",
-    text: "#e6f4ff",
-    muted: "#c6d5eb",
-    accent: "#6bf2d2",
-    border: "rgba(255, 255, 255, 0.14)",
-    card: "rgba(255, 255, 255, 0.06)",
-    shadow: "0 26px 80px rgba(4, 10, 24, 0.6)",
-    selection: "rgba(107, 242, 210, 0.24)",
-    caret: "#e6f4ff",
-    chipBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02) 48%, rgba(0, 0, 0, 0.22))",
-    chipHoverBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.06) 48%, rgba(0, 0, 0, 0.32))",
-  },
-  {
-    id: "dreamland",
-    label: "Dreamland",
-    group: "dark",
-    tone: "dark",
-    description: "Candy aurora glow",
-    background: "#0b0a14",
-    layer:
-      "radial-gradient(120% 140% at 10% 20%, rgba(255, 176, 214, 0.25), transparent 42%)," +
-      "radial-gradient(110% 120% at 82% 18%, rgba(116, 199, 255, 0.28), transparent 40%)," +
-      "radial-gradient(120% 120% at 48% 78%, rgba(126, 255, 199, 0.22), transparent 45%)," +
-      "#0b0a14",
-    surface: "#0e0d1a",
-    text: "#fdfaff",
-    muted: "#d2cee6",
-    accent: "#ffb86c",
-    border: "rgba(255, 255, 255, 0.16)",
-    card: "rgba(255, 255, 255, 0.08)",
-    shadow: "0 26px 80px rgba(7, 6, 18, 0.62)",
-    selection: "rgba(255, 184, 108, 0.24)",
-    caret: "#fdfaff",
-    chipBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 45%, rgba(0, 0, 0, 0.28))",
-    chipHoverBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08) 45%, rgba(0, 0, 0, 0.36))",
-  },
-  {
-    id: "paper",
-    label: "Paper",
+    id: "colorful_light",
+    label: "Colorful Light",
     group: "light",
     tone: "light",
-    description: "Calm off-white ink",
-    background: "#f7f9fc",
-    layer: buildLayer("#f7f9fc", "rgba(48, 108, 196, 0.12)", "rgba(23, 96, 161, 0.08)"),
-    surface: "#f9fafb",
-    text: "#0f172a",
-    muted: "#334155",
-    accent: "#245f9e",
-    border: "rgba(15, 23, 42, 0.12)",
+    description: "Warm luminous paper + high-contrast ink",
+    background: "#fff7e8",
+    layer: buildLayer(
+      "#fff7e8",
+      "rgba(255, 179, 71, 0.26)",
+      "rgba(255, 120, 180, 0.14)",
+    ),
+    surface: "#fffaf2",
+    text: "#1b1207",
+    muted: "#4b3a2a",
+    accent: "#c2410c",
+    border: "rgba(27, 18, 7, 0.14)",
     card: "rgba(255, 255, 255, 0.92)",
-    shadow: "0 18px 60px rgba(12, 22, 40, 0.18)",
-    selection: "rgba(36, 95, 158, 0.18)",
-    selectionText: "#0b1322",
-    caret: "#0f172a",
+    shadow: "0 18px 60px rgba(27, 18, 7, 0.16)",
+    selection: "rgba(194, 65, 12, 0.18)",
+    selectionText: "#1b1207",
+    caret: "#1b1207",
     chipBg:
-      "linear-gradient(180deg, rgba(15, 23, 42, 0.06), rgba(15, 23, 42, 0.02) 55%, rgba(15, 23, 42, 0.04))",
+      "linear-gradient(180deg, rgba(27, 18, 7, 0.06), rgba(27, 18, 7, 0.02) 55%, rgba(27, 18, 7, 0.04))",
     chipHoverBg:
-      "linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.06) 55%, rgba(15, 23, 42, 0.08))",
+      "linear-gradient(180deg, rgba(27, 18, 7, 0.12), rgba(27, 18, 7, 0.06) 55%, rgba(27, 18, 7, 0.08))",
   },
   {
-    id: "dawn",
-    label: "Dawn",
-    group: "light",
-    tone: "light",
-    description: "Warm gray teal",
-    background: "#edf1f6",
-    layer: buildLayer("#edf1f6", "rgba(16, 94, 98, 0.12)", "rgba(61, 95, 180, 0.1)"),
-    surface: "#f1f4f9",
-    text: "#0b1320",
-    muted: "#364152",
-    accent: "#0f766e",
-    border: "rgba(11, 19, 32, 0.14)",
-    card: "rgba(255, 255, 255, 0.96)",
-    shadow: "0 18px 60px rgba(11, 19, 32, 0.16)",
-    selection: "rgba(15, 118, 110, 0.16)",
-    selectionText: "#0b1320",
-    caret: "#0b1320",
-    chipBg:
-      "linear-gradient(180deg, rgba(11, 19, 32, 0.05), rgba(11, 19, 32, 0.02) 55%, rgba(11, 19, 32, 0.05))",
-    chipHoverBg:
-      "linear-gradient(180deg, rgba(11, 19, 32, 0.12), rgba(11, 19, 32, 0.06) 55%, rgba(11, 19, 32, 0.08))",
-  },
-  {
-    id: "sunbeam",
-    label: "Light Colorful",
-    group: "light",
-    tone: "light",
-    description: "Airy citrus glow",
-    background: "#fff8e6",
-    layer: buildLayer("#fff8e6", "rgba(255, 214, 102, 0.28)", "rgba(255, 173, 120, 0.22)"),
-    surface: "#fffaf0",
-    text: "#2d1b00",
-    muted: "#5c4630",
-    accent: "#f59e0b",
-    border: "rgba(45, 27, 0, 0.12)",
-    card: "rgba(255, 255, 255, 0.94)",
-    shadow: "0 16px 55px rgba(92, 70, 48, 0.16)",
-    selection: "rgba(245, 158, 11, 0.18)",
-    selectionText: "#2d1b00",
-    caret: "#2d1b00",
-    chipBg:
-      "linear-gradient(180deg, rgba(92, 70, 48, 0.06), rgba(92, 70, 48, 0.02) 55%, rgba(92, 70, 48, 0.05))",
-    chipHoverBg:
-      "linear-gradient(180deg, rgba(92, 70, 48, 0.14), rgba(92, 70, 48, 0.07) 55%, rgba(92, 70, 48, 0.1))",
-  },
-  {
-    id: "emberglow",
-    label: "Dark Colorful",
+    id: "colorful_dark",
+    label: "Colorful Dark",
     group: "dark",
     tone: "dark",
-    description: "Moody amber neon",
-    background: "#0c0a08",
-    layer: buildLayer("#0c0a08", "rgba(255, 170, 22, 0.16)", "rgba(255, 102, 51, 0.12)"),
-    surface: "#100e0c",
-    text: "#f7f0e5",
-    muted: "#cdbfae",
-    accent: "#c28a00",
-    border: "rgba(255, 240, 229, 0.18)",
+    description: "Deep charcoal + vivid ember accent",
+    background: "#07060a",
+    layer: buildLayer(
+      "#07060a",
+      "rgba(255, 122, 24, 0.18)",
+      "rgba(255, 64, 129, 0.10)",
+    ),
+    surface: "#0c0b11",
+    text: "#f5f2ff",
+    muted: "#cdc7e6",
+    accent: "#ff7a18",
+    border: "rgba(255, 255, 255, 0.16)",
     card: "rgba(255, 255, 255, 0.07)",
-    shadow: "0 22px 68px rgba(12, 10, 8, 0.7)",
-    selection: "rgba(194, 138, 0, 0.28)",
-    caret: "#f7f0e5",
+    shadow: "0 24px 78px rgba(0, 0, 0, 0.68)",
+    selection: "rgba(255, 122, 24, 0.28)",
+    caret: "#f5f2ff",
     chipBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.3))",
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.30))",
     chipHoverBg:
       "linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.38))",
   },
+
+  // =========================
+  // LOVELY (light / dark)
+  // =========================
   {
-    id: "kaleidoscope",
-    label: "Wildly Colorful",
+    id: "lovely_light",
+    label: "Lovely Light",
+    group: "light",
+    tone: "light",
+    description: "Blush cream + plum ink (soft, still sharp)",
+    background: "#fff4f6",
+    layer: buildLayer(
+      "#fff4f6",
+      "rgba(255, 105, 180, 0.18)",
+      "rgba(148, 93, 214, 0.10)",
+    ),
+    surface: "#fff8fa",
+    text: "#23121b",
+    muted: "#513443",
+    accent: "#b4236a",
+    border: "rgba(35, 18, 27, 0.14)",
+    card: "rgba(255, 255, 255, 0.94)",
+    shadow: "0 18px 60px rgba(35, 18, 27, 0.14)",
+    selection: "rgba(180, 35, 106, 0.16)",
+    selectionText: "#23121b",
+    caret: "#23121b",
+    chipBg:
+      "linear-gradient(180deg, rgba(35, 18, 27, 0.06), rgba(35, 18, 27, 0.02) 55%, rgba(35, 18, 27, 0.04))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(35, 18, 27, 0.12), rgba(35, 18, 27, 0.06) 55%, rgba(35, 18, 27, 0.08))",
+  },
+  {
+    id: "lovely_dark",
+    label: "Lovely Dark",
     group: "dark",
     tone: "dark",
-    description: "Neon rainbow storm",
-    background: "#05040a",
+    description: "Blackberry night + rose highlight",
+    background: "#07050a",
     layer:
-      "conic-gradient(from 45deg, rgba(255, 91, 146, 0.32), rgba(255, 190, 92, 0.32), rgba(124, 255, 110, 0.32), rgba(92, 212, 255, 0.32), rgba(171, 118, 255, 0.34), rgba(255, 91, 146, 0.32))," +
-      "radial-gradient(120% 140% at 20% 20%, rgba(255, 91, 146, 0.24), transparent 42%)," +
-      "radial-gradient(120% 140% at 82% 18%, rgba(92, 212, 255, 0.2), transparent 40%)," +
-      "#05040a",
-    surface: "#0a0913",
-    text: "#fdfcff",
-    muted: "#d9d4f0",
-    accent: "#ff8b3d",
-    border: "rgba(255, 255, 255, 0.18)",
-    card: "rgba(255, 255, 255, 0.09)",
-    shadow: "0 24px 78px rgba(0, 0, 0, 0.7)",
-    selection: "rgba(255, 139, 61, 0.32)",
-    caret: "#fdfcff",
+      "radial-gradient(120% 140% at 18% 18%, rgba(255, 105, 180, 0.20), transparent 44%)," +
+      "radial-gradient(120% 140% at 82% 22%, rgba(167, 139, 250, 0.18), transparent 42%)," +
+      "#07050a",
+    surface: "#0c0a10",
+    text: "#fff6fb",
+    muted: "#e1cbd8",
+    accent: "#ff6aa9",
+    border: "rgba(255, 255, 255, 0.16)",
+    card: "rgba(255, 255, 255, 0.08)",
+    shadow: "0 26px 80px rgba(0, 0, 0, 0.70)",
+    selection: "rgba(255, 106, 169, 0.26)",
+    caret: "#fff6fb",
     chipBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.06) 50%, rgba(0, 0, 0, 0.35))",
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.30))",
     chipHoverBg:
-      "linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.12) 50%, rgba(0, 0, 0, 0.45))",
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.10) 50%, rgba(0, 0, 0, 0.40))",
+  },
+
+  // =========================
+  // AURORA (light / dark)
+  // =========================
+  {
+    id: "aurora_light",
+    label: "Aurora Light",
+    group: "light",
+    tone: "light",
+    description: "Cool near-white + aurora haze (keeps text solid)",
+    background: "#f3fbff",
+    layer:
+      "radial-gradient(120% 140% at 14% 18%, rgba(0, 209, 255, 0.14), transparent 46%)," +
+      "radial-gradient(120% 140% at 82% 22%, rgba(99, 102, 241, 0.12), transparent 44%)," +
+      "radial-gradient(120% 140% at 46% 78%, rgba(34, 197, 94, 0.10), transparent 48%)," +
+      "#f3fbff",
+    surface: "#f7fcff",
+    text: "#08111f",
+    muted: "#2f415c",
+    accent: "#0ea5e9",
+    border: "rgba(8, 17, 31, 0.14)",
+    card: "rgba(255, 255, 255, 0.92)",
+    shadow: "0 18px 60px rgba(8, 17, 31, 0.14)",
+    selection: "rgba(14, 165, 233, 0.16)",
+    selectionText: "#08111f",
+    caret: "#08111f",
+    chipBg:
+      "linear-gradient(180deg, rgba(8, 17, 31, 0.06), rgba(8, 17, 31, 0.02) 55%, rgba(8, 17, 31, 0.04))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(8, 17, 31, 0.12), rgba(8, 17, 31, 0.06) 55%, rgba(8, 17, 31, 0.08))",
+  },
+  {
+    id: "aurora_dark",
+    label: "Aurora Dark",
+    group: "dark",
+    tone: "dark",
+    description: "Teal-violet aurora with restrained glare",
+    background: "#060b18",
+    layer:
+      "linear-gradient(145deg, #0a1630 0%, #0a2326 28%, #0b2b22 56%, #101a34 78%, #0f0820 100%)",
+    surface: "#0a1022",
+    text: "#eaf4ff",
+    muted: "#c8d7ee",
+    accent: "#5fffd7",
+    border: "rgba(255, 255, 255, 0.14)",
+    card: "rgba(255, 255, 255, 0.06)",
+    shadow: "0 26px 80px rgba(2, 6, 18, 0.62)",
+    selection: "rgba(95, 255, 215, 0.22)",
+    caret: "#eaf4ff",
+    chipBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03) 48%, rgba(0, 0, 0, 0.22))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08) 48%, rgba(0, 0, 0, 0.32))",
+  },
+
+  // =========================
+  // CLARITY (light / dark)
+  // =========================
+  {
+    id: "clarity_light",
+    label: "Clarity Light",
+    group: "light",
+    tone: "light",
+    description: "Minimal, print-like contrast (no tinty whites)",
+    background: "#fafafa",
+    layer: buildLayer(
+      "#fafafa",
+      "rgba(2, 6, 23, 0.06)",
+      "rgba(2, 6, 23, 0.03)",
+    ),
+    surface: "#ffffff",
+    text: "#0b0f19",
+    muted: "#2b3445",
+    accent: "#2563eb",
+    border: "rgba(11, 15, 25, 0.14)",
+    card: "rgba(255, 255, 255, 0.96)",
+    shadow: "0 16px 55px rgba(11, 15, 25, 0.12)",
+    selection: "rgba(37, 99, 235, 0.16)",
+    selectionText: "#0b0f19",
+    caret: "#0b0f19",
+    chipBg:
+      "linear-gradient(180deg, rgba(11, 15, 25, 0.06), rgba(11, 15, 25, 0.02) 55%, rgba(11, 15, 25, 0.04))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(11, 15, 25, 0.12), rgba(11, 15, 25, 0.06) 55%, rgba(11, 15, 25, 0.08))",
+  },
+  {
+    id: "clarity_dark",
+    label: "Clarity Dark",
+    group: "dark",
+    tone: "dark",
+    description: "Neutral near-black + neutral near-white (lowest fatigue)",
+    background: "#0b0c0f",
+    layer: buildLayer(
+      "#0b0c0f",
+      "rgba(255, 255, 255, 0.06)",
+      "rgba(255, 255, 255, 0.03)",
+    ),
+    surface: "#0f1116",
+    text: "#f2f4f8",
+    muted: "#c7cbd6",
+    accent: "#60a5fa",
+    border: "rgba(255, 255, 255, 0.14)",
+    card: "rgba(255, 255, 255, 0.06)",
+    shadow: "0 24px 78px rgba(0, 0, 0, 0.62)",
+    selection: "rgba(96, 165, 250, 0.22)",
+    caret: "#f2f4f8",
+    chipBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 50%, rgba(0, 0, 0, 0.28))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.36))",
+  },
+
+  {
+    id: "hacker_dark",
+    label: "Hacker (Neon)",
+    group: "dark",
+    tone: "dark",
+    description: "Neon green on near-black, low-glare",
+    background: "#050607",
+    layer:
+      "radial-gradient(120% 140% at 18% 18%, rgba(0, 255, 136, 0.16), transparent 46%)," +
+      "radial-gradient(120% 140% at 82% 22%, rgba(0, 208, 255, 0.12), transparent 44%)," +
+      "radial-gradient(120% 140% at 52% 82%, rgba(255, 0, 255, 0.10), transparent 48%)," +
+      "#050607",
+    surface: "#090b0d",
+    text: "#eafff4",
+    muted: "#b7f3d4",
+    accent: "#00ff88",
+    border: "rgba(234, 255, 244, 0.16)",
+    card: "rgba(255, 255, 255, 0.06)",
+    shadow: "0 26px 80px rgba(0, 0, 0, 0.72)",
+    selection: "rgba(0, 255, 136, 0.26)",
+    caret: "#00ff88",
+    chipBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 50%, rgba(0, 0, 0, 0.32))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08) 50%, rgba(0, 0, 0, 0.40))",
+  },
+
+  {
+    id: "hacker_light",
+    label: "Hacker Light (Neon)",
+    group: "light",
+    tone: "light",
+    description:
+      "Off-white + neon accents (less eye-fatigue than pure neon text)",
+    background: "#f6fff9",
+    layer: buildLayer(
+      "#f6fff9",
+      "rgba(0, 255, 136, 0.14)",
+      "rgba(0, 208, 255, 0.10)",
+    ),
+    surface: "#fbfffd",
+    text: "#06110b",
+    muted: "#1f3a2d",
+    accent: "#00b85c",
+    border: "rgba(6, 17, 11, 0.14)",
+    card: "rgba(255, 255, 255, 0.94)",
+    shadow: "0 18px 60px rgba(6, 17, 11, 0.14)",
+    selection: "rgba(0, 184, 92, 0.18)",
+    selectionText: "#06110b",
+    caret: "#06110b",
+    chipBg:
+      "linear-gradient(180deg, rgba(6, 17, 11, 0.06), rgba(6, 17, 11, 0.02) 55%, rgba(6, 17, 11, 0.04))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(6, 17, 11, 0.12), rgba(6, 17, 11, 0.06) 55%, rgba(6, 17, 11, 0.08))",
   },
 ];
 
@@ -270,7 +361,10 @@ const applyTheme = (theme: TerminalThemeOption) => {
   root.style.setProperty("--selection-text", theme.selectionText || theme.text);
   root.style.setProperty("--caret", theme.caret);
   root.style.setProperty("--chip-bg", theme.chipBg || "var(--card)");
-  root.style.setProperty("--chip-hover-bg", theme.chipHoverBg || theme.chipBg || "var(--card)");
+  root.style.setProperty(
+    "--chip-hover-bg",
+    theme.chipHoverBg || theme.chipBg || "var(--card)",
+  );
   root.style.setProperty("--chip-border", theme.border);
   root.style.setProperty(
     "--chip-shadow",
@@ -278,13 +372,19 @@ const applyTheme = (theme: TerminalThemeOption) => {
       ? "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.08)"
       : "inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)",
   );
-  const suggestBg = theme.tone === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(0, 0, 0, 0.6)";
+  const suggestBg =
+    theme.tone === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(0, 0, 0, 0.6)";
   const suggestActiveBg =
-    theme.tone === "light" ? "rgba(36, 95, 158, 0.16)" : "rgba(141, 208, 255, 0.16)";
+    theme.tone === "light"
+      ? "rgba(36, 95, 158, 0.16)"
+      : "rgba(141, 208, 255, 0.16)";
   root.style.setProperty("--suggest-bg", suggestBg);
   root.style.setProperty("--suggest-active-bg", suggestActiveBg);
   root.style.setProperty("--suggest-active-color", theme.accent);
-  root.style.setProperty("--terminal-cursor", encodeCursor(theme.caret, theme.border));
+  root.style.setProperty(
+    "--terminal-cursor",
+    encodeCursor(theme.caret, theme.border),
+  );
   root.style.setProperty("--terminal-color-scheme", theme.tone);
   root.dataset.terminalTheme = theme.id;
   root.dataset.terminalTone = theme.tone;
