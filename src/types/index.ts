@@ -129,6 +129,7 @@ export type ContactInfo = {
 };
 
 export type SampleWork = {
+  intro: string;
   title: string;
   desc: string;
   tags?: string[];
