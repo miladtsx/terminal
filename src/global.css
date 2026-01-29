@@ -945,6 +945,48 @@
     font-family: var(--terminal-font, monospace);
     max-width: 360px;
   }
+
+  .t-fontLoading {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(10, 13, 20, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--text);
+    font-size: 12px;
+    letter-spacing: 0.2px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    z-index: 1400;
+  }
+
+  .t-fontLoadingDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0 rgba(141, 208, 255, 0.6);
+    animation: t-fontLoadingPulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes t-fontLoadingPulse {
+    0% {
+      transform: scale(0.9);
+      box-shadow: 0 0 0 0 rgba(141, 208, 255, 0.5);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 6px rgba(141, 208, 255, 0.08);
+    }
+    100% {
+      transform: scale(0.9);
+      box-shadow: 0 0 0 0 rgba(141, 208, 255, 0.02);
+    }
+  }
 }
 
 @layer utilities {

@@ -5,6 +5,7 @@ import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
 import { TerminalProps } from "@types";
+import { useUiStore, useShallow } from "@stores/uiStore";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
@@ -36,6 +37,13 @@ export default function Terminal(props: TerminalProps) {
     "portfolio" | "autobot" | null
   >(null);
   const { notification, dismiss } = useNotificationOverlay();
+  const fontLoading = useUiStore(
+    useShallow((state) => ({
+      loading: state.fontLoading.loading,
+      id: state.fontLoading.id,
+      label: state.fontLoading.label,
+    })),
+  );
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -206,15 +214,21 @@ export default function Terminal(props: TerminalProps) {
   };
 
   return (
-      <div
-        className={"t-root" + (ready ? " is-ready" : "")}
-        onMouseDown={handleMouseDown}
-        onContextMenu={handleContextMenu}
-        role="application"
-        aria-label="Terminal portfolio"
-      >
+    <div
+      className={"t-root" + (ready ? " is-ready" : "")}
+      onMouseDown={handleMouseDown}
+      onContextMenu={handleContextMenu}
+      role="application"
+      aria-label="Terminal portfolio"
+    >
       {notification ? (
         <NotificationOverlay notification={notification} onDismiss={dismiss} />
+      ) : null}
+      {fontLoading.loading ? (
+        <div className="t-fontLoading" role="status" aria-live="polite">
+          <span className="t-fontLoadingDot" aria-hidden="true" />
+          Loading {fontLoading.label || "font"}…
+        </div>
       ) : null}
       <div className="t-wrap" ref={wrapScrollRef}>
         <pre className="t-output" aria-live="polite">
@@ -269,16 +283,15 @@ export default function Terminal(props: TerminalProps) {
             {tabMatches.map((item, idx) => (
               <div
                 key={item}
-                className={`t-suggestItem${
-                  idx === tabIndex ? " is-active" : ""
-                }`}
+                className={`t-suggestItem${idx === tabIndex ? " is-active" : ""
+                  }`}
                 style={
                   idx === tabIndex
                     ? {
-                        ...suggestItemStyle,
-                        background: "rgba(141, 208, 255, 0.16)",
-                        color: "#8dd0ff",
-                      }
+                      ...suggestItemStyle,
+                      background: "rgba(141, 208, 255, 0.16)",
+                      color: "#8dd0ff",
+                    }
                     : suggestItemStyle
                 }
                 role="option"
@@ -292,11 +305,11 @@ export default function Terminal(props: TerminalProps) {
         {contextMenu ? (
           <div
             className="t-contextMenu"
-        style={
-          contextMenuPosition
-            ? { top: contextMenuPosition.top, left: contextMenuPosition.left }
-            : { top: contextMenu.y, left: contextMenu.x }
-        }
+            style={
+              contextMenuPosition
+                ? { top: contextMenuPosition.top, left: contextMenuPosition.left }
+                : { top: contextMenu.y, left: contextMenu.x }
+            }
             role="menu"
             aria-label="Terminal commands"
           >

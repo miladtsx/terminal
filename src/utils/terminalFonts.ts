@@ -1,3 +1,5 @@
+import { clearFontLoadingState, setFontLoadingState } from "@stores/uiStore";
+
 export type TerminalFontOption = {
   id: string;
   label: string;
@@ -69,9 +71,30 @@ const FONT_OPTIONS: TerminalFontOption[] = [
     href: "https://fonts.googleapis.com/css2?family=VT323&display=swap",
     description: "Retro terminal / digital readout feel.",
   },
+  {
+    id: "roboto",
+    label: "Roboto",
+    primary: "Roboto",
+    family:
+      '"Roboto", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
+    source: "remote",
+    href: "https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap",
+    description: "Friendly sans with good readability in UI chrome.",
+  },
+  {
+    id: "opensans",
+    label: "Open Sans",
+    primary: "Open Sans",
+    family:
+      '"Open Sans", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
+    source: "remote",
+    href: "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap",
+    description: "Clean humanist sans option for the terminal.",
+  },
 ];
 
 const loadedFonts = new Set<string>();
+const pendingLoads = new Set<string>();
 let previewBase: TerminalFontOption | null = null;
 let previewing = false;
 
@@ -135,7 +158,29 @@ function loadStylesheetOnce(href: string, id: string): Promise<void> {
 async function ensureLoaded(option: TerminalFontOption): Promise<void> {
   if (loadedFonts.has(option.id)) return;
   if (option.source === "remote" && option.href) {
-    await loadStylesheetOnce(option.href, `font-${option.id}`);
+    pendingLoads.add(option.id);
+    setFontLoadingState({
+      loading: true,
+      id: option.id,
+      label: option.label,
+    });
+
+    try {
+      await loadStylesheetOnce(option.href, `font-${option.id}`);
+    } finally {
+      pendingLoads.delete(option.id);
+      const [nextId] = Array.from(pendingLoads);
+      if (nextId) {
+        const nextOpt = getOption(nextId);
+        setFontLoadingState({
+          loading: true,
+          id: nextId,
+          label: nextOpt?.label ?? nextId,
+        });
+      } else {
+        clearFontLoadingState();
+      }
+    }
   }
 
   if (typeof document !== "undefined" && (document as any).fonts?.load) {
@@ -198,9 +243,12 @@ export function createTerminalFontController(): TerminalFontController {
     // kick off background loading without blocking paint
     const run = () => {
       FONT_OPTIONS.filter((opt) => opt.id !== currentId).forEach((opt, idx) => {
-        window.setTimeout(() => {
-          void ensureLoaded(opt);
-        }, 200 * idx + 200);
+        window.setTimeout(
+          () => {
+            void ensureLoaded(opt);
+          },
+          200 * idx + 200,
+        );
       });
     };
 
