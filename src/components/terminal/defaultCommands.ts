@@ -684,17 +684,12 @@ export function registerDefaultCommands({
 
   const whoamiHandler = () => {
     const lines = [
-      "Profile:",
-      "  Name: TSX",
-      "  Role: Technical Founder/Software Engineer",
-      "  Focus: Idea to Product, Automation, Security",
-      "  Availability: Open to interesting ideas, and consulting",
-      "  Links:",
-      ...contactEntries.map(
-        (entry) => `    ${entry.displayLabel ?? entry.label}: ${entry.value}`,
-      ),
+      "Name: Milad TSX",
+      "Role: Software Engineer",
+      "Focus: Backend, Reliability",
+      "Open to collaboration",
     ];
-    return [[buildAvatarSegment(lines, { label: "Milad", meta: "profile" })], ""];
+    return [[buildAvatarSegment(lines, { label: "Milad", meta: "profile" })]];
   };
 
   registry
@@ -704,10 +699,20 @@ export function registerDefaultCommands({
       "about",
       () => {
         const aboutLines = props.aboutLines || [
-          "I help teams avoid building systems that work in demos but fail in production.",
+          `I help you avoid building systems that work in demos but fail in production.
+
+I’m take your project from idea to production:
+
+idea → design → implement → feedback → security → launch → scale → monitoring ...
+          `,
         ];
         return [
-          [buildAvatarSegment(aboutLines, { label: "Milad", meta: "about" })],
+          [
+            buildAvatarSegment(aboutLines, {
+              label: "",
+              meta: "",
+            }),
+          ],
           "",
         ];
       },
