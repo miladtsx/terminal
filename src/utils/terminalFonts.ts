@@ -25,12 +25,12 @@ const DEFAULT_FONT_ID = "fira";
 const FONT_OPTIONS: TerminalFontOption[] = [
   {
     id: "fira",
-    label: "Fira Code (default)",
+    label: "Fira Code",
     primary: "Fira Code",
     family:
       '"Fira Code", "IBM Plex Mono", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace',
     source: "bundled",
-    description: "Balanced coding font.",
+    description: "Balanced monospace",
   },
   {
     id: "jetbrains",
@@ -40,7 +40,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
       '"JetBrains Mono", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap",
-    description: "Crisp, spacious developer font.",
+    description: "Crisp developer mono",
   },
   {
     id: "plex",
@@ -50,7 +50,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
       '"IBM Plex Mono", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap",
-    description: "Calm neo-grotesque with clean weights.",
+    description: "Calm neo-grotesque",
   },
   {
     id: "space",
@@ -60,7 +60,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
       '"Space Mono", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap",
-    description: "Playful geometric with a sci‑fi vibe.",
+    description: "Playful geometric mono",
   },
   {
     id: "vt323",
@@ -69,7 +69,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
     family: '"VT323", "Fira Code", "SFMono-Regular", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=VT323&display=swap",
-    description: "Retro terminal / digital readout feel.",
+    description: "Retro terminal feel",
   },
   {
     id: "roboto",
@@ -79,7 +79,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
       '"Roboto", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap",
-    description: "Friendly sans with good readability in UI chrome.",
+    description: "Friendly sans clean",
   },
   {
     id: "opensans",
@@ -89,7 +89,7 @@ const FONT_OPTIONS: TerminalFontOption[] = [
       '"Open Sans", "Fira Code", "SFMono-Regular", "Menlo", "Consolas", monospace',
     source: "remote",
     href: "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap",
-    description: "Clean humanist sans option for the terminal.",
+    description: "Clean humanist",
   },
 ];
 
