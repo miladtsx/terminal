@@ -243,11 +243,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
         `
-I’m a backend reliability engineer. I fix, harden, and scale systems you’re afraid to touch.
+Your backend mostly works—until it breaks at the worst moment.
 
-I’m the person you call when your backend “mostly works” and that’s no longer acceptable.
+Do you want another quick patch, or to build it right the first time?
 
-I build backends that don’t panic at 3am.
+I fix, harden, and scale the systems you’re afraid to touch.
 `,
         suggested,
       )();
