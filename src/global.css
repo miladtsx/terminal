@@ -969,15 +969,23 @@
     place-items: center;
     padding: 24px 16px;
     background: rgba(4, 6, 10, 0.7);
+    background: color-mix(
+      in srgb,
+      rgba(4, 6, 10, 0.82) 70%,
+      var(--bg, #04060a) 30%
+    );
     backdrop-filter: blur(14px) saturate(135%);
   }
 
   .booking-panel {
     width: min(1080px, 96vw);
     max-height: 90vh;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0.02));
+    background: var(--surface);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface, #07080a) 82%, rgba(255, 255, 255, 0.08) 18%),
+      var(--surface, #07080a)
+    );
     border: 1px solid var(--border);
     border-radius: 20px;
     box-shadow: var(--shadow);
@@ -995,9 +1003,12 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    background: linear-gradient(180deg,
-        rgba(7, 8, 10, 0.95),
-        rgba(7, 8, 10, 0.8));
+    background: var(--surface);
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface, #07080a) 78%, rgba(4, 6, 10, 0.88) 22%),
+      color-mix(in srgb, var(--surface, #07080a) 70%, rgba(4, 6, 10, 0.65) 30%)
+    );
     backdrop-filter: blur(8px);
   }
 
@@ -1068,10 +1079,11 @@
     gap: 10px;
     padding: 12px 16px;
     border-radius: 12px;
-    background: rgba(7, 8, 10, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: var(--surface);
+    background: color-mix(in srgb, var(--surface, #07080a) 90%, rgba(7, 8, 10, 0.82) 10%);
+    border: 1px solid var(--border);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
-    color: #eaf1fb;
+    color: var(--text);
   }
 
   .booking-fallback {
@@ -1085,6 +1097,11 @@
     z-index: 3;
     backdrop-filter: blur(6px);
     background: rgba(4, 6, 10, 0.35);
+    background: color-mix(
+      in srgb,
+      rgba(4, 6, 10, 0.35) 68%,
+      var(--bg, #04060a) 32%
+    );
   }
 
   .booking-fallbackCard {
@@ -1096,10 +1113,15 @@
     text-align: center;
     padding: 14px 16px;
     border-radius: 14px;
-    background: linear-gradient(160deg, rgba(255, 193, 94, 0.32), rgba(255, 193, 94, 0.18));
-    border: 1px solid rgba(255, 193, 94, 0.55);
+    background: var(--surface);
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--surface, #07080a) 82%, var(--accent, #8dd0ff) 18%),
+      color-mix(in srgb, var(--surface, #07080a) 92%, var(--accent, #8dd0ff) 8%)
+    );
+    border: 1px solid var(--border);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
-    color: #ffe9c2;
+    color: var(--text);
   }
 
   .booking-fallbackTitle {
@@ -1122,16 +1144,17 @@
     padding: 10px 12px;
     border-radius: 12px;
     text-decoration: none;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.06);
-    color: #ffe9c2;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    background: color-mix(in srgb, var(--surface, #07080a) 92%, rgba(255, 255, 255, 0.05) 8%);
+    color: var(--text);
     transition: transform 120ms ease, border-color 150ms ease, background 150ms ease;
   }
 
   .booking-fallbackLinks a:hover,
   .booking-fallbackLinks a:focus-visible {
-    border-color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--surface, #07080a) 84%, rgba(255, 255, 255, 0.18) 16%);
     outline: none;
     transform: translateY(-1px);
   }
