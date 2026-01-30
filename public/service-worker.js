@@ -1,5 +1,11 @@
 const CACHE_NAME = "tsx-terminal";
-const CORE_ASSETS = ["/", "/index.html", "/files/resume_tsx.pdf", "/files/llm_tsx.txt"];
+const CORE_ASSETS = [
+  "/",
+  "/index.html",
+  "/files/Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+  "/files/Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
+  "/files/llm_tsx.txt",
+];
 
 const log = (...args) => {
   console.log(`[${CACHE_NAME} sw]`, ...args);
@@ -22,10 +28,10 @@ self.addEventListener("install", (event) => {
           } catch (err) {
             log("skip caching (fetch failed)", url, err);
           }
-        })
+        }),
       );
       await self.skipWaiting();
-    })()
+    })(),
   );
 });
 
@@ -35,10 +41,10 @@ self.addEventListener("activate", (event) => {
     (async () => {
       const keys = await caches.keys();
       await Promise.all(
-        keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : null))
+        keys.map((key) => (key !== CACHE_NAME ? caches.delete(key) : null)),
       );
       await self.clients.claim();
-    })()
+    })(),
   );
 });
 
@@ -71,7 +77,7 @@ self.addEventListener("fetch", (event) => {
         }
         throw error;
       }
-    })()
+    })(),
   );
 });
 
@@ -133,7 +139,7 @@ self.addEventListener("message", (event) => {
           entries,
           online: navigator.onLine,
         });
-      })()
+      })(),
     );
     return;
   }
@@ -147,7 +153,7 @@ self.addEventListener("message", (event) => {
           cacheName: CACHE_NAME,
           entries,
         });
-      })()
+      })(),
     );
   }
 });

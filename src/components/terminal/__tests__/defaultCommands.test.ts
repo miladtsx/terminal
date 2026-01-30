@@ -3,6 +3,7 @@ import type { TerminalLine } from "@types";
 import { CommandRegistry } from "../commandRegistry";
 import { registerDefaultCommands } from "../defaultCommands";
 import { TerminalModel } from "../terminalModel";
+import { findFileByName } from "../../../data/files";
 
 const noop = () => {};
 
@@ -36,13 +37,20 @@ describe("default commands", () => {
     const lines = Array.isArray(output) ? output : [output];
     const joined = lines.join("\n");
     expect(joined).toContain("llm_tsx.txt");
-    expect(joined).toContain("resume_tsx.pdf");
+    expect(joined).toContain("Milad_TSX_Senior_Backend_Engineer_Resume.pdf");
   });
 
   it("verify reports hash match for empty file", async () => {
     const { registry, model } = buildRegistry();
     const verifyHandler = registry.get("verify")?.handler;
     expect(verifyHandler).toBeTruthy();
+
+    // align manifest entry with mocked empty content so the hash matches
+    const llm = findFileByName("llm_tsx.txt");
+    if (llm) {
+      llm.sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+      llm.size = 0;
+    }
 
     const fetchMock = vi.fn(async () => new Response(new Uint8Array([])));
     globalThis.fetch = fetchMock as unknown as typeof fetch;
@@ -68,8 +76,8 @@ describe("default commands", () => {
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const output = await verifyHandler?.({
-      args: ["resume_tsx.pdf"],
-      raw: "verify resume_tsx.pdf",
+      args: ["Milad_TSX_Senior_Backend_Engineer_Resume.pdf"],
+      raw: "verify Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
       model,
       registry,
     });
@@ -81,8 +89,8 @@ describe("default commands", () => {
     const { registry, model } = buildRegistry();
     const catHandler = registry.get("cat")?.handler;
     const output = await catHandler?.({
-      args: ["resume_tsx.pdf"],
-      raw: "cat resume_tsx.pdf",
+      args: ["Milad_TSX_Senior_Backend_Engineer_Resume.pdf"],
+      raw: "cat Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
       model,
       registry,
     });

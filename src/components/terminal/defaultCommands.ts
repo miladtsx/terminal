@@ -30,6 +30,8 @@ import { logsIndex } from "../../data/logsIndex";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "work", label: "Work Experiences" },
+  { command: "download resume", label: "Download CV PDF" },
+  { command: "contact", label: "Contact" },
   { command: "chatbot", label: "Chatbot" },
 ];
 
@@ -134,8 +136,8 @@ export function formatCommandToButton(
 }
 
 const FILE_ALIASES: Record<string, string> = {
-  resume: "resume_tsx.pdf",
-  cv: "resume_tsx.pdf",
+  backend: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+  fullstack: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
   llm: "llm_tsx.txt",
 };
 
@@ -1028,13 +1030,19 @@ idea → design → implement → feedback → security → launch → scale →
             resolveFile,
           ) || resolveFile(args[0] || "");
         if (!target) return ["usage: download <filename>", "try: ls"];
+
+        // Use the actual filename from the path so downloads keep their real name.
+        const downloadName =
+          target.path.split("/").filter(Boolean).pop() || target.name;
+
         const link = document.createElement("a");
         link.href = target.path;
-        link.download = target.name;
+        link.download = downloadName;
+        link.rel = "noopener";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        return [`downloading ${target.name}...`];
+        return [`downloading ${downloadName}...`];
       },
       { desc: "download file from /files" },
     )
@@ -1312,7 +1320,7 @@ idea → design → implement → feedback → security → launch → scale →
     .register(
       "resume",
       () => {
-        const target = findFileByName("resume_tsx.pdf");
+        const target = findFileByName("cv.pdf");
         if (!target) return ["resume not found; try ls"];
         window.open(target.path, "_blank", "noopener,noreferrer");
         return [`opening ${target.name}...`];

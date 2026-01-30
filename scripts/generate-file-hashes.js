@@ -20,7 +20,7 @@ async function hashFile(fullPath) {
 
   return {
     name,
-    path: `/files/${name}`,
+    path: `files/${name}`,
     size: stat.size,
     sha256: hash,
     text: TEXT_EXTS.has(ext),
