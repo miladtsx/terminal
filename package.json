@@ -1,11 +1,11 @@
 {
   "name": "portfolio-terminal",
-  "description": "Basic terminal-based portfolio website",
+  "description": "Basic portfolio website",
   "author": {
     "email": "miladtsx+terminalpackage@gmail.com",
     "name": "TSX"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@calcom/atoms": "^2.3.3",
+    "lucide-react": "^0.561.0",
     "marked": "9.1.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
