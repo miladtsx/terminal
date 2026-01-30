@@ -176,6 +176,8 @@
   .t-output {
     margin: 0;
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
     line-height: 1.45;
     font-size: inherit;
     user-select: text;
