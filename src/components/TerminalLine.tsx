@@ -143,7 +143,7 @@ function renderSegment(
         <button
           key={key}
           type="button"
-          className="t-commandLink"
+          className="t-commandLink t-pressable"
           onClick={() => executeCommand(attrs.command)}
           aria-label={ariaLabel}
         >

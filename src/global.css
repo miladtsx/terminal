@@ -224,6 +224,52 @@
     caret-shape: block;
   }
 
+  /* shared press/hover behavior; visuals come from the consumer via vars */
+  .t-pressable,
+  button {
+    --press-half-y: -1px;
+    --press-full-y: 1.5px;
+    --press-half-scale: 1.01;
+    --press-full-scale: 0.99;
+    --press-shadow-rest: none;
+    --press-shadow-half: var(--press-shadow-rest);
+    --press-shadow-full: var(--press-shadow-half);
+    /* --press-bg: inherit; */
+    --press-hover-bg: var(--press-bg);
+    --press-color: inherit;
+    --press-hover-color: inherit;
+    --press-border: transparent;
+    --press-hover-border: var(--press-border);
+    --press-ease: ease;
+    transform: translateY(0) scale(1);
+    transition:
+      transform 240ms var(--press-ease),
+      box-shadow 240ms var(--press-ease),
+      filter 180ms ease-out;
+  }
+
+  .t-pressable:hover,
+  button:hover,
+  .t-pressable:focus-visible,
+  button:focus-visible {
+    transform: translateY(var(--press-half-y)) scale(var(--press-half-scale));
+    box-shadow: var(--press-shadow-half, var(--press-shadow-rest));
+  }
+
+  .t-pressable:active,
+  button:active {
+    transform: translateY(var(--press-full-y)) scale(var(--press-full-scale));
+    box-shadow: var(--press-shadow-full, var(--press-shadow-half, var(--press-shadow-rest)));
+  }
+
+  .t-pressable:disabled,
+  button:disabled {
+    opacity: var(--press-disabled-opacity, 0.6);
+    cursor: not-allowed;
+    box-shadow: none;
+    filter: var(--press-disabled-filter, grayscale(0.35));
+  }
+
   .t-input::placeholder {
     color: rgba(235, 245, 255, 0.35);
   }
