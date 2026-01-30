@@ -233,9 +233,6 @@ export function ChatDock() {
             </div>
 
             <div className="chat-body" ref={listRef}>
-              <div className="chat-hint">
-                Everything is probabilistic here, nothing serious. have fun!
-              </div>
               {renderedMessages}
               {!hasUserMessages ? (
                 <div className="chat-suggestions" role="list">

@@ -198,15 +198,6 @@
   max-height: none;
 }
 
-.chat-hint {
-  font-size: 12px;
-  color: var(--muted, rgba(234, 241, 251, 0.6));
-  padding: 8px 10px;
-  border-radius: 12px;
-  border: 1px dashed var(--border, rgba(255, 255, 255, 0.1));
-  background: color-mix(in srgb, var(--card, rgba(255, 255, 255, 0.06)) 60%, transparent);
-}
-
 .chat-suggestions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
