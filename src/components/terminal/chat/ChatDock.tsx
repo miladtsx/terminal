@@ -213,25 +213,14 @@ export function ChatDock() {
                 >
                   <RotateCcw size={16} />
                 </button>
-                {loading ? (
-                  <button
-                    className="ghost t-pressable"
-                    title="Stop"
-                    aria-label="Stop response"
-                    onClick={cancel}
-                  >
-                    <StopCircle size={16} />
-                  </button>
-                ) : (
-                  <button
-                    className="ghost t-pressable"
-                    title="Minimize"
-                    aria-label="Minimize chatbot"
-                    onClick={minimizeChat}
-                  >
-                    <Minus size={16} />
-                  </button>
-                )}
+                <button
+                  className="ghost t-pressable"
+                  title="Minimize"
+                  aria-label="Minimize chatbot"
+                  onClick={minimizeChat}
+                >
+                  <Minus size={16} />
+                </button>
                 <button
                   className="ghost t-pressable"
                   title="Close"
@@ -291,11 +280,11 @@ export function ChatDock() {
               />
               <button
                 className="chat-send t-pressable"
-                onClick={send}
-                aria-label="Send message"
-                disabled={loading || !input.trim()}
+                onClick={loading ? cancel : send}
+                aria-label={loading ? "Stop response" : "Send message"}
+                disabled={loading ? false : !input.trim()}
               >
-                <SendIcon size={18} />
+                {loading ? <StopCircle size={18} /> : <SendIcon size={18} />}
               </button>
             </div>
           </div>
