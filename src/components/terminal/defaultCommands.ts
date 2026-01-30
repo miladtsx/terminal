@@ -138,6 +138,7 @@ export function formatCommandToButton(
 const FILE_ALIASES: Record<string, string> = {
   backend: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
   fullstack: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+  resume: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
   llm: "llm_tsx.txt",
 };
 
