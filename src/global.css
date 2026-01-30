@@ -132,47 +132,45 @@
   }
 
   .t-fontSizeButton {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--surface) 95%, rgba(255, 255, 255, 0.15)) 0%,
-      color-mix(in srgb, var(--surface) 65%, rgba(141, 208, 255, 0.18)) 100%
-    );
-    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55),
+    --press-radius: 50%;
+    --press-padding: 0;
+    --press-gap: 0;
+    --press-margin: 0;
+    --press-letter-spacing: 0.08em;
+    --press-weight: 600;
+    --press-bg: linear-gradient(145deg,
+        color-mix(in srgb, var(--surface) 95%, rgba(255, 255, 255, 0.15)) 0%,
+        color-mix(in srgb, var(--surface) 65%, rgba(141, 208, 255, 0.18)) 100%);
+    --press-hover-bg: linear-gradient(145deg,
+      color-mix(in srgb, var(--surface) 80%, rgba(255, 255, 255, 0.25)) 0%,
+      color-mix(in srgb, var(--accent, #8dd0ff) 78%, rgba(27, 45, 79, 0.85)) 100%);
+    --press-border: rgba(255, 255, 255, 0.2);
+    --press-hover-border: color-mix(in srgb, var(--accent, #8dd0ff) 75%, rgba(255, 255, 255, 0.45));
+    --press-color: var(--text);
+    --press-shadow-rest: 0 10px 22px rgba(0, 0, 0, 0.55),
       inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    color: var(--text);
+    --press-shadow-half: 0 12px 26px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    --press-shadow-full: 0 8px 18px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    --press-half-y: -1px;
+    --press-full-y: 1px;
+    --press-half-scale: 1.005;
+    --press-full-scale: 0.99;
+    --press-disabled-opacity: 0.5;
+    --press-disabled-filter: grayscale(0.4);
+    --press-backdrop: none;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 40px;
+    height: 40px;
     font-size: 22px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
     line-height: 1;
-    cursor: pointer;
-    transition: transform 160ms ease, box-shadow 160ms ease,
-      filter 160ms ease;
-  }
-
-  .t-fontSizeButton:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  }
-
-  .t-fontSizeButton:not(:disabled):active {
-    transform: translateY(1px);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-
-  .t-fontSizeButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    box-shadow: none;
-    filter: grayscale(0.4);
+    border: 1px solid var(--press-border);
+    box-shadow: var(--press-shadow-rest);
+    color: var(--press-color, var(--text));
   }
 
   .t-output {

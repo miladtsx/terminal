@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AArrowUp, AArrowDown } from "lucide-react";
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
 import { useTerminalColors } from "@hooks/useTerminalColors";
@@ -396,21 +397,21 @@ export default function Terminal(props: TerminalProps) {
       <div className="t-fontSizeControls" aria-label="Adjust font size">
         <button
           type="button"
-          className="t-fontSizeButton"
+          className="t-fontSizeButton t-pressable"
           aria-label="Decrease font size"
           onClick={() => adjustFontSize(-FONT_SIZE_STEP)}
           disabled={!canDecrease}
         >
-          -
+          <AArrowDown size={18} />
         </button>
         <button
           type="button"
-          className="t-fontSizeButton"
+          className="t-fontSizeButton t-pressable"
           aria-label="Increase font size"
           onClick={() => adjustFontSize(FONT_SIZE_STEP)}
           disabled={!canIncrease}
         >
-          +
+          <AArrowUp size={18} />
         </button>
       </div>
       <ChatDock />
