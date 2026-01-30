@@ -65,6 +65,7 @@ export default function Terminal(props: TerminalProps) {
   const setTerminalFontSize = useUiStore(
     (state) => state.setTerminalFontSize,
   );
+  const [collapsedCommands, setCollapsedCommands] = useState<Record<number, boolean>>({});
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -236,6 +237,68 @@ export default function Terminal(props: TerminalProps) {
   );
   const canDecrease = terminalFontSize > FONT_SIZE_MIN;
   const canIncrease = terminalFontSize < FONT_SIZE_MAX;
+  const prevCommandCountRef = useRef<number>(0);
+
+  const commandLines = useMemo(() => {
+    return lines
+      .map((line, idx) => {
+        const first = line[0];
+        if (line.length === 1 && typeof first !== "string" && first.type === "text") {
+          const text = first.text || "";
+          const prefix = `${prompt} `;
+          if (text.startsWith(prefix)) {
+            return {
+              index: idx,
+              commandText: text.slice(prefix.length),
+            };
+          }
+        }
+        return null;
+      })
+      .filter((entry): entry is { index: number; commandText: string } => Boolean(entry));
+  }, [lines, prompt]);
+
+  useEffect(() => {
+    // Drop collapsed markers for lines that no longer exist.
+    setCollapsedCommands((prev) => {
+      const next: Record<number, boolean> = {};
+      commandLines.forEach((cmd) => {
+        if (prev[cmd.index]) next[cmd.index] = true;
+      });
+      return next;
+    });
+
+    // Auto-collapse the previous command when a new one arrives.
+    if (commandLines.length > prevCommandCountRef.current) {
+      const prevCmd = commandLines[commandLines.length - 2];
+      if (prevCmd) {
+        setCollapsedCommands((prev) => ({ ...prev, [prevCmd.index]: true }));
+      }
+      prevCommandCountRef.current = commandLines.length;
+    } else {
+      prevCommandCountRef.current = commandLines.length;
+    }
+  }, [commandLines]);
+
+  const hiddenLines = useMemo(() => {
+    const hidden = new Set<number>();
+    commandLines.forEach((cmd, idx) => {
+      if (!collapsedCommands[cmd.index]) return;
+      const nextStart = commandLines[idx + 1]?.index ?? lines.length;
+      for (let i = cmd.index + 1; i < nextStart; i += 1) hidden.add(i);
+    });
+    return hidden;
+  }, [collapsedCommands, commandLines, lines.length]);
+
+  const toggleCollapse = useCallback((lineIndex: number) => {
+    setCollapsedCommands((prev) => ({ ...prev, [lineIndex]: !prev[lineIndex] }));
+  }, []);
+
+  const commandLookup = useMemo(() => {
+    const map = new Map<number, { commandText: string }>();
+    commandLines.forEach((cmd) => map.set(cmd.index, { commandText: cmd.commandText }));
+    return map;
+  }, [commandLines]);
 
   const suggestStyle: React.CSSProperties = {
     margin: "4px 0 8px",
@@ -287,6 +350,12 @@ export default function Terminal(props: TerminalProps) {
               ? `intro-start-line${introStartVisible ? " is-visible" : ""}`
               : undefined;
 
+            if (hiddenLines.has(index)) return null;
+
+            const commandMeta = commandLookup.get(index);
+            const isCommandLine = Boolean(commandMeta);
+            const isCollapsed = isCommandLine && collapsedCommands[index];
+
             return (
               <span key={`line-${index}`}>
                 <TerminalLineRow
@@ -294,6 +363,11 @@ export default function Terminal(props: TerminalProps) {
                   lineIndex={index}
                   className={className}
                   executeCommand={executeCommand}
+                  isCommandLine={isCommandLine}
+                  isCollapsed={isCollapsed}
+                  prompt={prompt}
+                  commandText={commandMeta?.commandText}
+                  onToggleCollapse={isCommandLine ? () => toggleCollapse(index) : undefined}
                 />
                 {index < lines.length - 1 ? "\n" : null}
               </span>

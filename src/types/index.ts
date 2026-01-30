@@ -157,6 +157,11 @@ export type TerminalLineProps = {
   lineIndex: number;
   className?: string;
   executeCommand: (command: string) => void;
+  isCommandLine?: boolean;
+  isCollapsed?: boolean;
+  prompt?: string;
+  commandText?: string;
+  onToggleCollapse?: () => void;
 };
 
 export type RegisterDefaultsArgs = {

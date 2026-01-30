@@ -378,6 +378,11 @@ export function TerminalLineRow({
   lineIndex,
   className,
   executeCommand,
+  isCommandLine,
+  isCollapsed,
+  prompt,
+  commandText,
+  onToggleCollapse,
 }: TerminalLineProps) {
   const hasCommandSegments = line.some(
     (segment) => typeof segment !== "string" && segment.type === "command",
@@ -394,12 +399,40 @@ export function TerminalLineRow({
         )
       );
 
+  const promptGlyph = prompt || ">";
+  const commandLabel = (() => {
+    if (commandText) return commandText;
+    const first = line[0];
+    if (line.length === 1 && typeof first !== "string" && first.type === "text") {
+      const raw = first.text || "";
+      const prefix = `${promptGlyph} `;
+      return raw.startsWith(prefix) ? raw.slice(prefix.length) : raw;
+    }
+    return typeof line[0] === "string" ? (line[0] as string) : "";
+  })();
+
+  const interactiveContent = isCommandLine ? (
+    <button
+      type="button"
+      className={`t-lineCommand${isCollapsed ? " is-collapsed" : " is-open"}`}
+      aria-expanded={!isCollapsed}
+      aria-label={`${isCollapsed ? "Expand" : "Collapse"} output for ${commandLabel || "command"}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggleCollapse?.();
+      }}
+    >
+      <span className="t-lineCaret" aria-hidden="true">{promptGlyph}</span>
+      <span className="t-lineCommandText">{commandLabel}</span>
+    </button>
+  ) : content;
+
   return (
     <span
       className={`${className || ""}${hasCommandSegments ? " has-commands" : ""}`.trim()}
       data-line-index={lineIndex}
     >
-      {content}
+      {interactiveContent}
     </span>
   );
 }

@@ -372,8 +372,8 @@ const applyTheme = (theme: TerminalColorOption) => {
   root.style.setProperty(
     "--chip-shadow",
     theme.tone === "light"
-      ? "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.08)"
-      : "inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6)",
+      ? "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.04), 0 0.5px 0.7px rgba(0,0,0,0.03)"
+      : "inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.3)",
   );
   root.style.setProperty("--chip-color", theme.chipColor || theme.text);
   root.style.setProperty(

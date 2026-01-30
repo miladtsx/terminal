@@ -17,13 +17,13 @@
     --selection: rgba(141, 208, 255, 0.3);
     --selection-text: #0b101a;
     --caret: #eaf1fb;
-    --chip-color: #dbe6f4;
-    --chip-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02) 45%, rgba(0, 0, 0, 0.25));
-    --chip-border: rgba(255, 255, 255, 0.22);
-    --chip-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.6);
-    --chip-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06) 45%, rgba(0, 0, 0, 0.35));
-    --chip-hover-color: #f2f6fb;
-    --chip-active-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+    --chip-color: #e9f4ff;
+    --chip-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(141, 208, 255, 0.18) 45%, rgba(82, 120, 255, 0.15));
+    --chip-border: rgba(255, 255, 255, 0.24);
+    --chip-shadow: 0 7px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+    --chip-hover-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.26), rgba(141, 208, 255, 0.28) 38%, rgba(82, 120, 255, 0.26));
+    --chip-hover-color: #f8fcff;
+    --chip-active-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.65);
     --suggest-bg: rgba(0, 0, 0, 0.6);
     --suggest-active-bg: rgba(141, 208, 255, 0.16);
     --suggest-active-color: var(--accent);
@@ -206,6 +206,43 @@
     user-select: none;
   }
 
+  .t-lineCommand {
+    all: unset;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+  }
+
+  .t-lineCommand:focus-visible {
+    outline: 1px dashed var(--accent);
+    outline-offset: 2px;
+  }
+
+  .t-lineCaret {
+    display: inline-block;
+    width: 1.1ch;
+    color: var(--muted);
+    transition: transform 160ms ease, color 160ms ease;
+    transform-origin: 40% 50%;
+  }
+
+  .t-lineCommand.is-open .t-lineCaret {
+    transform: rotate(90deg);
+    color: var(--accent);
+  }
+
+  .t-lineCommandText {
+    color: inherit;
+  }
+
+  .t-lineCommand:hover .t-lineCaret {
+    color: var(--accent);
+  }
+
   .t-input {
     flex: 1;
     background: transparent;
@@ -275,56 +312,98 @@
   }
 
   .t-commandLink {
+    --chip-shadow: 0 7px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+    --chip-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(141, 208, 255, 0.18) 45%, rgba(82, 120, 255, 0.15));
+    --chip-hover-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.26), rgba(141, 208, 255, 0.28) 38%, rgba(82, 120, 255, 0.26));
+
+    --press-bg: var(--chip-bg);
+    --press-hover-bg: var(--chip-hover-bg);
+    --press-border: var(--chip-border, rgba(255, 255, 255, 0.24));
+    --press-hover-border: rgba(255, 255, 255, 0.35);
+    --press-color: var(--chip-color, #e9f4ff);
+    --press-hover-color: var(--chip-hover-color, #f8fcff);
+    --press-shadow-rest: var(--chip-shadow);
+    --press-shadow-half:
+      inset 0 1px 3px rgba(0, 0, 0, .35),
+      inset 0 0 0 1px rgba(255, 255, 255, .10);
+    --press-shadow-full:
+      inset 0 3px 8px rgba(0, 0, 0, .55),
+      inset 0 0 0 1px rgba(255, 255, 255, .06);
+
     position: relative;
-    display: inline-block;
-    padding: 1px 6px;
-    margin: 0 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    margin: 2px 3px;
     cursor: pointer;
-
-    color: var(--chip-color, #dbe6f4);
+    max-width: fit-content;
+    color: var(--chip-color, #e9f4ff);
     text-decoration: none;
-    letter-spacing: 0.2px;
-
+    letter-spacing: 0.25px;
+    font-weight: 600;
     background: var(--chip-bg);
-    border-radius: 4px;
+    border-radius: 999px;
     border: 1px solid var(--chip-border);
-
     box-shadow: var(--chip-shadow);
-
+    backdrop-filter: blur(10px) saturate(120%);
+    transform: translateY(0) scale(1);
     transition:
-      background 160ms ease,
-      color 160ms ease,
-      transform 120ms ease;
+      transform 240ms var(--press-ease),
+      box-shadow 240ms var(--press-ease),
+      background-color 180ms ease-out,
+      color 180ms ease-out,
+      border-color 180ms ease-out;
   }
 
-  /* anodized “grain” */
+  /* inner ring */
+  .t-commandLink::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  /* anodized "grain" */
   .t-commandLink::after {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    opacity: 0.25;
+    opacity: 0.35;
     background-image:
+      linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 35%),
       repeating-linear-gradient(90deg,
-        rgba(255, 255, 255, 0.06) 0px,
-        rgba(255, 255, 255, 0.06) 1px,
+        rgba(255, 255, 255, 0.09) 0px,
+        rgba(255, 255, 255, 0.09) 1px,
         transparent 1px,
         transparent 3px);
   }
 
-  /* hover = polished, not glowing */
+  /* hover = polished, subtle lift */
   .t-commandLink:hover,
   .t-commandLink:focus-visible {
-    color: var(--chip-hover-color, #fbf2f2);
+    filter: brightness(1.03);
+    color: var(--chip-hover-color, #f8fcff);
     background: var(--chip-hover-bg);
-    transform: translateY(-0.5px);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(1.5px) scale(0.995);
+    box-shadow:
+      inset 0 1px 3px rgba(0, 0, 0, .35),
+      inset 0 0 0 1px rgba(255, 255, 255, .10);
   }
 
   /* pressed */
   .t-commandLink:active {
-    transform: translateY(0.5px);
-    box-shadow: var(--chip-active-shadow, inset 0 1px 2px rgba(0, 0, 0, 0.7));
+    transform: translateY(3px) scale(0.99);
+    box-shadow:
+      inset 0 3px 8px rgba(0, 0, 0, .55),
+      inset 0 0 0 1px rgba(255, 255, 255, .06);
+    filter: brightness(0.98);
   }
 
   .t-avatarMessage {
@@ -459,24 +538,27 @@
     border-color: var(--border);
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 1024px) {
     .intro-start-line.has-commands {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
+      gap: 12px;
       width: 100%;
-      justify-items: center;
-      align-items: center;
-      margin: 6px 0 4px;
+      margin: 8px 0 6px;
     }
 
-    .intro-start-line.has-commands > span {
+    .intro-start-line.has-commands>span {
       display: none;
     }
 
     .intro-start-line.has-commands .t-commandLink {
-      width: 100%;
+      flex: 1 1 calc(50% - 12px);
+      min-width: 180px;
+      display: inline-flex;
       justify-content: center;
+      text-align: center;
     }
   }
 
@@ -490,7 +572,7 @@
     box-shadow: 0 4px 16px color-mix(in srgb, var(--bg) 60%, rgba(0, 0, 0, 0.35));
   }
 
-  .t-faqItem + .t-faqItem {
+  .t-faqItem+.t-faqItem {
     border-top: 1px solid color-mix(in srgb, var(--border) 80%, rgba(0, 0, 0, 0.15));
     margin-top: 8px;
     padding-top: 8px;
@@ -641,11 +723,9 @@
     padding: 14px 16px;
     border: 1px solid rgba(141, 208, 255, 0.18);
     border-radius: 12px;
-    background: linear-gradient(
-      180deg,
-      rgba(141, 208, 255, 0.12),
-      rgba(11, 16, 26, 0.6)
-    );
+    background: linear-gradient(180deg,
+        rgba(141, 208, 255, 0.12),
+        rgba(11, 16, 26, 0.6));
     color: #e8f0ff;
     line-height: 1.55;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
@@ -776,11 +856,9 @@
     padding: 14px;
     border-radius: 12px;
     border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
-    background: linear-gradient(
-      145deg,
-      color-mix(in srgb, var(--surface) 80%, var(--accent) 10%),
-      color-mix(in srgb, var(--surface) 90%, #000 5%)
-    );
+    background: linear-gradient(145deg,
+        color-mix(in srgb, var(--surface) 80%, var(--accent) 10%),
+        color-mix(in srgb, var(--surface) 90%, #000 5%));
     box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
     transition: transform 160ms ease, border-color 160ms ease,
       box-shadow 160ms ease, background 160ms ease;
@@ -792,6 +870,11 @@
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.32);
     transform: translateY(-2px);
     outline: none;
+  }
+
+  .t-workCard:active {
+    transform: translateY(1px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
   }
 
   .t-workTags {
@@ -812,14 +895,14 @@
     border-radius: 999px;
     background: color-mix(in srgb, var(--accent) 16%, transparent);
     border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
-    font-size: 12px;
+    font-size: 0.8em;
     letter-spacing: 0.1px;
     color: color-mix(in srgb, var(--text) 86%, var(--accent) 20%);
   }
 
   .t-workIntro {
     color: color-mix(in srgb, var(--accent) 72%, var(--text) 28%);
-    font-size: 13px;
+    font-size: 0.9em;
     letter-spacing: 0.15px;
     line-height: 1.5;
     text-align: center;
@@ -839,11 +922,9 @@
 
   .t-workModal {
     width: min(760px, 92vw);
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--surface) 92%, var(--accent) 8%),
-      color-mix(in srgb, var(--surface) 86%, #000 8%)
-    );
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--surface) 92%, var(--accent) 8%),
+        color-mix(in srgb, var(--surface) 86%, #000 8%));
     border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
     border-radius: 14px;
     box-shadow: 0 22px 44px rgba(0, 0, 0, 0.4);
@@ -1075,11 +1156,9 @@
     place-items: center;
     padding: 24px 16px;
     background: rgba(4, 6, 10, 0.7);
-    background: color-mix(
-      in srgb,
-      rgba(4, 6, 10, 0.82) 70%,
-      var(--bg, #04060a) 30%
-    );
+    background: color-mix(in srgb,
+        rgba(4, 6, 10, 0.82) 70%,
+        var(--bg, #04060a) 30%);
     backdrop-filter: blur(14px) saturate(135%);
   }
 
@@ -1087,11 +1166,9 @@
     width: min(1080px, 96vw);
     max-height: 90vh;
     background: var(--surface);
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface, #07080a) 82%, rgba(255, 255, 255, 0.08) 18%),
-      var(--surface, #07080a)
-    );
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--surface, #07080a) 82%, rgba(255, 255, 255, 0.08) 18%),
+        var(--surface, #07080a));
     border: 1px solid var(--border);
     border-radius: 20px;
     box-shadow: var(--shadow);
@@ -1110,11 +1187,9 @@
     top: 0;
     z-index: 2;
     background: var(--surface);
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--surface, #07080a) 78%, rgba(4, 6, 10, 0.88) 22%),
-      color-mix(in srgb, var(--surface, #07080a) 70%, rgba(4, 6, 10, 0.65) 30%)
-    );
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--surface, #07080a) 78%, rgba(4, 6, 10, 0.88) 22%),
+        color-mix(in srgb, var(--surface, #07080a) 70%, rgba(4, 6, 10, 0.65) 30%));
     backdrop-filter: blur(8px);
   }
 
@@ -1203,11 +1278,9 @@
     z-index: 3;
     backdrop-filter: blur(6px);
     background: rgba(4, 6, 10, 0.35);
-    background: color-mix(
-      in srgb,
-      rgba(4, 6, 10, 0.35) 68%,
-      var(--bg, #04060a) 32%
-    );
+    background: color-mix(in srgb,
+        rgba(4, 6, 10, 0.35) 68%,
+        var(--bg, #04060a) 32%);
   }
 
   .booking-fallbackCard {
@@ -1220,11 +1293,9 @@
     padding: 14px 16px;
     border-radius: 14px;
     background: var(--surface);
-    background: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--surface, #07080a) 82%, var(--accent, #8dd0ff) 18%),
-      color-mix(in srgb, var(--surface, #07080a) 92%, var(--accent, #8dd0ff) 8%)
-    );
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--surface, #07080a) 82%, var(--accent, #8dd0ff) 18%),
+        color-mix(in srgb, var(--surface, #07080a) 92%, var(--accent, #8dd0ff) 8%));
     border: 1px solid var(--border);
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
     color: var(--text);
@@ -1388,10 +1459,12 @@
       transform: scale(0.9);
       box-shadow: 0 0 0 0 rgba(141, 208, 255, 0.5);
     }
+
     50% {
       transform: scale(1.05);
       box-shadow: 0 0 0 6px rgba(141, 208, 255, 0.08);
     }
+
     100% {
       transform: scale(0.9);
       box-shadow: 0 0 0 0 rgba(141, 208, 255, 0.02);
