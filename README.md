@@ -13,6 +13,13 @@ A single-page, terminal-style personal site built with React + Vite. Fork it, dr
 - **Downloads:** Put files in `public/files` and list them in `src/data/fileManifest.json`.
 - **Branding:** Tweak colors/typography in `src/global.css`. The landing intro lives in `src/hooks/useTerminalController.ts`.
 
+## Notifications & telemetry
+
+- The app can send lightweight JSON notifications to an ntfy.sh topic at `https://ntfy.sh/terminalTSX`. This is used for observability (e.g., logging terminal actions).
+- A reusable hook, `useTelemetry`, posts structured events with action name, user input, and optional error details/stack traces. Plain messages are also supported.
+- To point to your own ntfy topic, set `VITE_NTFY_TOPIC_URL`; to disable outbound telemetry entirely, set `VITE_DISABLE_TELEMETRY=true` in your environment.
+- ntfy.sh is a third-party service; avoid sending secrets or sensitive personal data. Messages are transmitted as JSON over HTTPS by default.
+
 ## Deploy to GitHub Pages (recommended)
 
 Current workflow at `.github/workflows/deploy-pages.yml` automatically deploys to github pages, you just need to enable it if it's not:

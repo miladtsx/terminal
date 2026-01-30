@@ -26,6 +26,7 @@ import {
   parseShareCommandsFromLocation,
   simulateTypingSequence,
 } from "@utils";
+import { useTelemetry } from "@hooks/useTelemetry";
 
 export function useTerminalController(props: TerminalProps): ControllerReturn {
   const typeSfxRef = useRef<ReturnType<typeof createTypeSfx> | null>(null);
@@ -46,6 +47,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     parsedShareCommands.length ? parsedShareCommands : null,
   );
   const themes = useMemo(() => listThemes(), []);
+  const { logEvent, logError } = useTelemetry();
   const fontControllerRef = useRef(props.appearanceController?.font);
   const colorControllerRef = useRef(props.appearanceController?.color);
   const previewBaseRef = useRef<string | null>(null);
@@ -541,14 +543,25 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         );
         const lines = normalizeCommandOutput(out);
         setLinesFromModel(lines.concat(lines.length ? [""] : []));
+        void logEvent({
+          action: name,
+          userInput: cmd,
+          message: "command executed",
+        });
       } catch (error) {
         setLinesFromModel([
           `error: ${(error as Error)?.message || "command failed"}`,
           "",
         ]);
+        void logError({
+          action: name,
+          userInput: cmd,
+          message: "command execution failed",
+          error,
+        });
       }
     },
-    [setLinesFromModel, normalizeCommandOutput],
+    [logError, logEvent, setLinesFromModel, normalizeCommandOutput],
   );
 
   const getTypeSfx = () => {

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { sendTelemetryEvent } from "@hooks/useTelemetry";
 
 type ChatRole = "assistant" | "user" | "intro";
 
@@ -239,6 +240,16 @@ export const useChatStore = create<ChatStore>()(
             error: null,
           }));
 
+          void sendTelemetryEvent({
+            action: "chat_message",
+            userInput: content,
+            message: "chat user message",
+            context: {
+              tone: state.tone ?? "default",
+              messageId: userMessage.id,
+            },
+          });
+
           const history = [...get().messages].filter(
             (m) => m.role === "user" || m.role === "assistant",
           );
@@ -324,6 +335,13 @@ export const useChatStore = create<ChatStore>()(
             await process();
           } catch (error) {
             console.error("chatbot error", error);
+            void sendTelemetryEvent({
+              action: "chat_message_error",
+              userInput: content,
+              message: "chatbot failed",
+              level: "error",
+              error,
+            });
             abortController = null;
             set((prev) => ({
               loading: false,

@@ -222,6 +222,31 @@ export type NotificationPayload = {
   durationMs?: number;
 };
 
+export type TelemetryLevel = "info" | "warn" | "error";
+
+export type TelemetryError = {
+  name?: string;
+  message: string;
+  stack?: string;
+};
+
+export type TelemetryEventPayload = {
+  timestamp: string;
+  action?: string;
+  userInput?: string;
+  message?: string;
+  level: TelemetryLevel;
+  error?: TelemetryError;
+  context?: Record<string, unknown>;
+  fingerprint?: string;
+};
+
+export type TelemetryInput =
+  | string
+  | Omit<TelemetryEventPayload, "timestamp" | "level"> & {
+      level?: TelemetryLevel;
+    };
+
 export type OfflineStatus = {
   supported: boolean;
   online: boolean;
