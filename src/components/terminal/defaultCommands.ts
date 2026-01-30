@@ -23,13 +23,14 @@ import {
   listThemes,
   matchTheme,
 } from "@utils";
+import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "work", label: "Work Experiences" },
-  { command: "contact" },
+  { command: "chatbot", label: "Chatbot" },
 ];
 
 const createTextSegment = (text: string): TextSegment => ({
@@ -912,6 +913,17 @@ idea → design → implement → feedback → security → launch → scale →
         ) as TerminalLineInput[];
       },
       { desc: "book a meeting" },
+    )
+    .register(
+      "chatbot",
+      () => {
+        openChat();
+        return [
+          "Opening chatbot…",
+          "Tip: Esc to minimize",
+        ];
+      },
+      { desc: "Chat with my resume! [Beta]" },
     )
     .register(
       "work",

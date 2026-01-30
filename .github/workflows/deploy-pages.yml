@@ -17,6 +17,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_CHATBOT_URL: ${{ vars.VITE_CHATBOT_URL }}
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}

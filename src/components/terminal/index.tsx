@@ -13,6 +13,7 @@ import {
   useUiStore,
   useShallow,
 } from "@stores/uiStore";
+import ChatDock from "./chat";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
@@ -107,7 +108,13 @@ export default function Terminal(props: TerminalProps) {
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       const target = event.target as Element | null;
-      if (target && (target.closest(".t-output") || target.closest("a"))) {
+      if (
+        target &&
+        (target.closest(".t-output") ||
+          target.closest("a") ||
+          target.closest(".chat-window") ||
+          target.closest(".chat-fab"))
+      ) {
         return;
       }
       focusInput();
@@ -406,6 +413,7 @@ export default function Terminal(props: TerminalProps) {
           +
         </button>
       </div>
+      <ChatDock />
     </div>
   );
 }
