@@ -33,6 +33,7 @@
     --terminal-color-scheme: dark;
     color-scheme: var(--terminal-color-scheme);
     --terminal-cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Crect width='12' height='12' x='2' y='2' rx='2' ry='2' fill='%23eaf1fb' stroke='rgba(255,255,255,0.5)' stroke-width='2'/%3E%3C/svg%3E") 8 8, text;
+    --z-main: 30;
   }
 
   *,
@@ -103,6 +104,7 @@
     transition: opacity 420ms ease;
     font-family: var(--terminal-font, theme("fontFamily.mono"));
     cursor: var(--terminal-cursor);
+    z-index: var(--z-main, 30);
   }
 
   /* ensure UA defaults (e.g., pre/button) don't override the terminal font */
@@ -921,7 +923,7 @@
     align-items: center;
     justify-content: center;
     padding: 14px;
-    z-index: 20;
+    z-index: calc(var(--z-main, 30) + 10);
   }
 
   .t-workModal {

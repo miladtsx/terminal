@@ -23,7 +23,7 @@
     box-shadow 180ms ease,
     background 160ms ease,
     border-color 160ms ease;
-  z-index: 40;
+  z-index: calc(var(--z-main, 30) + 1);
 }
 
 .chat-fab.is-active {
@@ -79,7 +79,7 @@
   right: 18px;
   max-width: 500px;
   width: calc(100vw - 32px);
-  z-index: 39;
+  z-index: calc(var(--z-main, 30) + 1);
 }
 
 .chat-wrap.is-maximized {
