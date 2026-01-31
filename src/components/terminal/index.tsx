@@ -437,7 +437,7 @@ export default function Terminal(props: TerminalProps) {
               <button
                 key={item.id}
                 type="button"
-                className="t-contextMenuItem"
+                className="t-contextMenuItem t-pressable"
                 onClick={() => {
                   item.action();
                   closeContextMenu();
@@ -450,7 +450,7 @@ export default function Terminal(props: TerminalProps) {
             <div className="t-contextMenuDivider" />
             <button
               type="button"
-              className="t-contextMenuItem system"
+              className="t-contextMenuItem system t-pressable"
               onClick={() =>
                 openSystemMenu(contextMenu.sourceEvent || undefined)
               }

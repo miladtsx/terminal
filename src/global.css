@@ -185,11 +185,13 @@
 
   .intro-start-line {
     opacity: 0;
-    transition: opacity 500ms ease;
+    transform: translateY(8px);
+    transition: opacity 380ms ease, transform 380ms ease;
   }
 
   .intro-start-line.is-visible {
     opacity: 1;
+    transform: translateY(0);
   }
 
   .t-inputRow.intro-hidden {
@@ -1370,51 +1372,61 @@
   .t-contextMenu {
     position: fixed;
     min-width: 240px;
-    background: rgba(13, 18, 28, 0.7);
-    backdrop-filter: blur(18px) saturate(120%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 18px;
-    box-shadow:
-      0 25px 60px rgba(3, 4, 9, 0.6);
-    padding: 10px 0;
+    background: color-mix(in srgb, var(--surface, #07080a) 94%, rgba(255, 255, 255, 0.04) 6%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(3, 4, 9, 0.55);
+    padding: 6px 0;
     z-index: 1200;
-    opacity: 0.9;
   }
 
   .t-contextMenuItem {
     width: 100%;
     border: none;
-    background: transparent;
+    background: var(--press-bg, transparent);
     color: var(--text);
     text-align: left;
-    padding: 8px 14px;
+    padding: 10px 16px;
     display: flex;
     flex-direction: column;
     gap: 2px;
     font-family: var(--terminal-font, monospace);
     cursor: pointer;
-    transition: background 120ms ease;
+    transition:
+      background 120ms ease,
+      border-color 120ms ease;
+    --press-bg: rgba(255, 255, 255, 0.02);
+    --press-hover-bg: rgba(255, 255, 255, 0.08);
+    --press-border: transparent;
+    --press-hover-border: rgba(255, 255, 255, 0.08);
+    --press-color: var(--text);
+    --press-hover-color: var(--text);
   }
 
   .t-contextMenuItem:hover,
   .t-contextMenuItem:focus-visible {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--press-hover-bg, rgba(255, 255, 255, 0.08));
+    border-color: var(--press-hover-border, rgba(255, 255, 255, 0.08));
+    outline: none;
   }
 
   .t-contextMenuItem small {
     font-size: 11px;
     color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .t-contextMenuDivider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.12);
-    margin: 2px 0;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 4px 0;
   }
 
   .t-contextMenuItem.system {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    margin-top: 4px;
+    margin-top: 6px;
+    padding-top: 12px;
   }
 
   .t-contextHint {
