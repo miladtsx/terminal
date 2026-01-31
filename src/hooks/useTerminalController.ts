@@ -348,7 +348,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         startLines[0] = [
           buildAvatarSegment([startLines[0]], {
             label: "Milad",
-            meta: "Backend Engineer",
+            meta: "Senior Backend & Full Stack Engineer",
           }),
         ];
       }

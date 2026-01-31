@@ -54,7 +54,7 @@ CAREER TIMELINE (CANONICAL)
    - Onfido (KYC), Klaviyo (Marketing), Biconomy/Gelato (Gasless UX)
    - Alchemy / Ankr RPC
 
-3) Senior Backend Engineer
+3) Senior Backend & Full Stack Engineer
    Company: Revision / Quiztion (Multiplayer Mobile Game)
    Dates: Feb 2020 – Jul 2021
    Type: Remote / Hybrid
@@ -76,7 +76,7 @@ CAREER TIMELINE (CANONICAL)
    - Migrated architecture from monolith to microservices
    - Assisted Unity client devs with WebSocket bidirectional communication (C#)
 
-4) Lead Backend Engineer / CTO-equivalent
+4) Lead Backend & Full Stack Engineer
    Company: BugDasht (Crowdsourced Cybersecurity Platform)
    Dates: Feb 2019 – Sep 2019
    Type: Remote / Hybrid
