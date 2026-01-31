@@ -53,6 +53,17 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const previewBaseRef = useRef<string | null>(null);
   const previewColorBaseRef = useRef<string | null>(null);
   const themePreviewingRef = useRef(false);
+  const [allowProgrammaticFocus, setAllowProgrammaticFocus] = useState(true);
+  const coarsePointerRef = useRef(false);
+
+  const detectCoarsePointer = useCallback(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+    } catch {
+      return false;
+    }
+  }, []);
 
   const [state, setState] = useState<TerminalState>({
     ready: false,
@@ -85,8 +96,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   );
 
   const focusInput = useCallback(() => {
+    if (!allowProgrammaticFocus) return;
     inputRef.current?.focus();
-  }, []);
+  }, [allowProgrammaticFocus]);
 
   const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
@@ -949,6 +961,15 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       previewFontFromInput,
     ],
   );
+
+  useEffect(() => {
+    const isCoarse = detectCoarsePointer();
+    coarsePointerRef.current = isCoarse;
+    if (isCoarse) {
+      // Avoid triggering the software keyboard on touch devices until the user explicitly taps.
+      setAllowProgrammaticFocus(false);
+    }
+  }, [detectCoarsePointer]);
 
   useEffect(() => {
     autoGrow();
