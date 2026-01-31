@@ -458,6 +458,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       setLinesFromModel();
 
       const firstLineIndex = blankIndex + 1;
+      // Mark intro suggestion block immediately so mobile layout applies from first paint.
+      setIntroStartLineRange({
+        start: firstLineIndex,
+        count: startLines.length,
+      });
+      setIntroStartVisible(true);
       let offset = 120;
       lineTexts.forEach((lineText, lineIndex) => {
         for (let i = 0; i < lineText.length; i++) {
@@ -485,13 +491,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           start: firstLineIndex,
           count: startLines.length,
         });
-        setIntroStartVisible(false);
         introTypingRef.current = false;
-        requestAnimationFrame(() => {
-          setIntroStartVisible(true);
-          setShowIntroInput(true);
-          focusInput();
-        });
+        setShowIntroInput(true);
+        focusInput();
       }, offset);
 
       extraTimers.push(finalizeTimer);
