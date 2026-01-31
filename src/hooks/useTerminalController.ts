@@ -339,7 +339,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
-        `I keep your backend from failing when it matters most.
+        `I build reliable, production-ready systems.
         `,
         suggested,
       )();
