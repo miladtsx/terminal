@@ -68,6 +68,14 @@ export type CopySegment = {
   ariaLabel?: string;
 };
 
+export type LinkSegment = {
+  type: "link";
+  href: string;
+  label: string;
+  ariaLabel?: string;
+  newTab?: boolean;
+};
+
 export type TextSegment = {
   type: "text";
   text: string;
@@ -116,6 +124,7 @@ export type LineSegment =
   | TextSegment
   | CommandSegment
   | CopySegment
+  | LinkSegment
   | FaqSegment
   | LogSegment
   | MarkdownSegment

@@ -57,6 +57,18 @@ const createCopySegment = (value: string, label?: string): CopySegment => ({
   label,
 });
 
+const createLinkSegment = (
+  href: string,
+  label: string,
+  options?: { ariaLabel?: string; newTab?: boolean },
+) => ({
+  type: "link" as const,
+  href,
+  label,
+  ariaLabel: options?.ariaLabel,
+  newTab: options?.newTab,
+});
+
 const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
   const segments: LineSegment[] = [createTextSegment("  ")];
   commands.forEach((c, index) => {
@@ -71,13 +83,22 @@ const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
   return segments;
 };
 
-const buildContactRow = (label: string, value: string): LineSegment[] => [
-  createTextSegment(`${label}`),
-  createTextSegment("  "),
-  createTextSegment(value),
-  createTextSegment(" "),
-  createCopySegment(value, label),
-];
+const buildContactRow = (label: string, value: string): LineSegment[] => {
+  const isEmail = /@/.test(value);
+  const valueSegment = isEmail
+    ? createLinkSegment(`mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`, value, {
+        ariaLabel: `Email ${value}`,
+      })
+    : createTextSegment(value);
+
+  return [
+    createTextSegment(`${label}`),
+    createTextSegment("  "),
+    valueSegment,
+    createTextSegment(" "),
+    createCopySegment(value, label),
+  ];
+};
 
 const HOME_DIR = ["home"];
 const FILES_DIR = ["home", "files"];

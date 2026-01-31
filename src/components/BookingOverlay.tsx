@@ -187,7 +187,7 @@ export function BookingOverlay({ open, onClose, email }: BookingOverlayProps) {
                   >
                     Open booking page
                   </a>
-                  <a href={`mailto:${email}`} ref={fallbackSecondaryRef}>
+                  <a href={`mailto:${email}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`} ref={fallbackSecondaryRef}>
                     Email instead
                   </a>
                 </div>

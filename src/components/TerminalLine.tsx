@@ -4,6 +4,7 @@ import { copyToClipboard, buildShareLink } from "@utils";
 import {
   CommandSegment,
   CopySegment,
+  LinkSegment,
   FaqSegment,
   LogSegment,
   LineSegment,
@@ -134,6 +135,22 @@ function renderSegment(
   switch (segment.type) {
     case "text":
       return <span key={key}>{segment.text}</span>;
+    case "link": {
+      const attrs = segment as LinkSegment;
+      const ariaLabel = attrs.ariaLabel || attrs.label;
+      return (
+        <a
+          key={key}
+          className="t-link"
+          href={attrs.href}
+          aria-label={ariaLabel}
+          target={attrs.newTab ? "_blank" : undefined}
+          rel={attrs.newTab ? "noopener noreferrer" : undefined}
+        >
+          {attrs.label}
+        </a>
+      );
+    }
     case "avatar":
       return <AvatarMessageSegment key={key} segment={segment as AvatarSegment} />;
     case "command": {
