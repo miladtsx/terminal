@@ -301,15 +301,15 @@ export function registerDefaultCommands({
   const caseStudies = props.sampleWorks || [
     {
       intro: "About to pay 50k for basics.",
-      title: "In-House Instead of a $50K Vendor",
-      desc: "Took on smart contract work myself and saved the team a quoted ~$50K outsourcing bill.",
+      title: "In-House Instead of an expensive Vendor",
+      desc: "Took on smart contract work myself and saved the team a quoted $47K USD outsourcing bill.",
       tags: ["cost", "ownership", "web3"],
       problem:
-        "The team needed a point-allocation smart contract system and was about to outsource it to an external provider quoting around $50K.",
+        "The team needed a point-allocation smart contract system and was about to outsource it to an external provider quoting around $47K.",
       approach:
         "Switched hats from backend to smart contracts, designed the allocation logic with the team, implemented and tested the contracts, and integrated them with the existing backend and frontend flows.",
       result:
-        "Delivered the required on-chain point system in-house, avoided the ~$50K outsourcing cost, kept full control of the codebase, and removed a dependency on external vendors.",
+        "Delivered the required on-chain point system in-house, avoided the high-risk outsourcing cost, kept full control of the codebase, and removed a dependency on external vendors.",
     },
     {
       intro: "Stop spending before proving idea works.",
