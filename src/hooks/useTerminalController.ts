@@ -339,16 +339,15 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
-        `I build reliable, production-ready systems.
-        `,
+        `I keep your production boring.`,
         suggested,
       )();
 
       if (startLines.length && typeof startLines[0] === "string") {
         startLines[0] = [
           buildAvatarSegment([startLines[0]], {
-            label: "Milad",
-            meta: "Senior Backend & Full Stack Engineer",
+            label: "Milad TSX",
+            meta: "Backend Resilience Engineering",
           }),
         ];
       }

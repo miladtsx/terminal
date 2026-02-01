@@ -794,14 +794,12 @@ const searchHandler = async ({ args }: CommandHandlerContext) => {
       "about",
       () => {
         const aboutLines = props.aboutLines || [
-          `I help you avoid building systems that work in demos but fail in production.
-
-
-I take your project from idea to production:
-
-idea → design → implement → feedback → security → launch → scale → monitoring ...
-          `,
+          "I’m Milad, a backend software engineer.",
+          "I build reliable and efficient systems, predictable at production.",
+          "Outside of that I like early mornings, good tea, and watching cats like they’re alien philosophers.",
+          "",
         ];
+
         return [
           [
             buildAvatarSegment(aboutLines, {
