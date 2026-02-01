@@ -99,7 +99,73 @@ function CopyButton({
 }
 
 function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
   return (
+    <>
+      <span className="t-avatarMessage">
+        <button
+          type="button"
+          className="t-avatarPhoto"
+          aria-label="Open profile photo"
+          onClick={() => setIsOpen(true)}
+        >
+          <img
+            src={segment.image}
+            alt={segment.label ? `${segment.label} avatar` : "avatar"}
+          />
+        </button>
+        <span className="t-avatarContent">
+          {(segment.label || segment.meta) ? (
+            <span className="t-avatarHead">
+              {segment.label ? (
+                <span className="t-avatarLabel">{segment.label}</span>
+              ) : null}
+              {segment.meta ? (
+                <span className="t-avatarMeta">{segment.meta}</span>
+              ) : null}
+            </span>
+          ) : null}
+          {segment.lines.map((line, lineIdx) => (
+            <span key={`avatar-line-${lineIdx}`} className="t-avatarLine">
+              {line}
+            </span>
+          ))}
+        </span>
+      </span>
+
+      {isOpen ? (
+        <div className="t-avatarModal" role="dialog" aria-modal="true">
+          <div className="t-avatarModal__backdrop" onClick={() => setIsOpen(false)} />
+          <div className="t-avatarModal__content">
+            <button
+              type="button"
+              className="t-avatarModal__close"
+              aria-label="Close photo"
+              onClick={() => setIsOpen(false)}
+            >
+              ×
+            </button>
+            <img
+              src={segment.image}
+              alt={segment.label ? `${segment.label} avatar full view` : "avatar full view"}
+            />
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, "&amp;")

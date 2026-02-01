@@ -776,7 +776,15 @@ const searchHandler = async ({ args }: CommandHandlerContext) => {
       "Focus: Backend, Reliability",
       "Open to collaboration",
     ];
-    return [[buildAvatarSegment(lines, { label: "Milad", meta: "profile" })]];
+    return [
+      [
+        buildAvatarSegment(lines, {
+          label: "Milad",
+          meta: "profile",
+          image: "images/ai_avatar.jpg",
+        }),
+      ],
+    ];
   };
 
   registry
@@ -797,8 +805,9 @@ idea → design → implement → feedback → security → launch → scale →
         return [
           [
             buildAvatarSegment(aboutLines, {
-              label: "",
-              meta: "",
+              label: "Making Systems Resilient",
+              meta: "Pragmatic optimist",
+              image: "images/ai_avatar.jpg",
             }),
           ],
           "",
