@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchStore } from "@stores/searchStore";
-import { runSearch } from "@data/searchIndex";
+import { runSearch, sanitizeSearchQuery } from "@data/searchIndex";
 import { SearchHit } from "@types";
 
 const debounce = (fn: (...args: any[]) => void, wait = 200) => {
@@ -79,12 +79,13 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
   const run = useMemo(
     () =>
       debounce(async (next: string) => {
-        if (!next.trim()) {
+        const cleaned = sanitizeSearchQuery(next);
+        if (!cleaned) {
           clear();
           return;
         }
         setPending(true);
-        const { hits: found, total: foundTotal } = await runSearch(next);
+        const { hits: found, total: foundTotal } = await runSearch(cleaned);
         setResults(found, foundTotal);
         setPending(false);
       }, 180),
@@ -106,7 +107,15 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
   }, [query, isOpen, run, clear]);
 
   const grouped = useMemo(() => {
-    const by: Record<string, { label: string; items: SearchHit[] }> = {};
+    type Entry = {
+      key: string;
+      title: string;
+      readCommand: string;
+      downloadCommand?: string;
+      snippets: SearchHit[];
+    };
+
+    const by: Record<string, { label: string; items: Entry[] }> = {};
     const labels: Record<SearchHit["source"], string> = {
       blog: "Blogs",
       log: "Logs",
@@ -115,10 +124,34 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
     };
     hits.forEach((hit) => {
       if (!by[hit.source]) by[hit.source] = { label: labels[hit.source], items: [] };
-      by[hit.source].items.push(hit);
+      const key = `${hit.source}::${hit.title}::${hit.readCommand}::${hit.downloadCommand || ""}`;
+      const existing = by[hit.source].items.find((entry) => entry.key === key);
+
+      if (existing) {
+        existing.snippets.push(hit);
+      } else {
+        by[hit.source].items.push({
+          key,
+          title: hit.title,
+          readCommand: hit.readCommand,
+          downloadCommand: hit.downloadCommand,
+          snippets: [hit],
+        });
+      }
     });
     return by;
   }, [hits]);
+
+  const highlightRegex = useMemo(() => {
+    const cleaned = sanitizeSearchQuery(query);
+    const tokens = cleaned
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .map((token) => `\\b${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`);
+
+    return tokens.length ? new RegExp(`(${tokens.join("|")})`, "gi") : null;
+  }, [query]);
 
   if (!isOpen) return null;
 
@@ -141,7 +174,11 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
                 className="t-searchInput"
                 placeholder="Search blogs, logs, work, resume…"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                maxLength={50}
+                onChange={(e) => {
+                  const cleaned = sanitizeSearchQuery(e.target.value, { trim: false });
+                  setQuery(cleaned);
+                }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   console.log("[search] input mousedown", {
@@ -186,53 +223,60 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
             <div className="t-searchEmpty">{query ? "No matches yet." : "Start typing to search."}</div>
           ) : (
             Object.entries(grouped).map(([key, group]) => (
-              <details key={key} className="t-searchGroup" open>
+              <details key={key} className="t-searchGroup" open={false}>
                 <summary className="t-searchGroupHead">
                   <span className="t-searchCaret">▾</span>
                   <span className={`t-searchTag is-${key}`}>{group.label}</span>
-                  <span className="t-searchCount">{group.items.length}</span>
+                  <span className="t-searchCount">[{group.items.length}]</span>
                 </summary>
                 <div className="t-searchGroupBody">
-                  {group.items.map((hit) => (
-                    <details key={hit.id} className="t-searchHit" open>
+                  {group.items.map((entry) => (
+                    <details key={entry.key} className="t-searchHit" open>
                       <summary className="t-searchHead">
                         <span className="t-searchCaret">▾</span>
-                        <span className="t-searchTitle">{hit.title}</span>
-                        <span className="t-searchMeta">line {hit.lineNumber}</span>
+                        <span className="t-searchTitle">{entry.title} ({entry.snippets.length})</span>
                       </summary>
-                      <pre
-                        className="t-searchSnippet"
-                        dangerouslySetInnerHTML={{
-                          __html: hit.before
-                            .concat([hit.line], hit.after)
-                            .join("\n")
-                            .replace(/</g, "&lt;")
-                            .replace(/>/g, "&gt;")
-                            .replace(new RegExp(`(${query.split(/\s+/).map((q) => q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi"), "<mark>$1</mark>")
-                            .split("\n")
-                            .map((line, idx) => {
-                              const lineNum = hit.lineNumber - hit.before.length + idx;
-                              return `<span class=\"t-searchLineNum\">${lineNum.toString().padStart(3, " ")}▏</span>${line}`;
-                            })
-                            .join("\n"),
-                        }}
-                      />
+                      {entry.snippets.map((hit) => (
+                        <pre
+                          key={hit.id}
+                          className="t-searchSnippet"
+                          dangerouslySetInnerHTML={{
+                            __html: (() => {
+                              const content = hit.before.concat([hit.line], hit.after).join("\n");
+                              const escaped = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                              const marked = highlightRegex
+                                ? escaped.replace(highlightRegex, "<mark>$1</mark>")
+                                : escaped;
+
+                              return marked
+                                .split("\n")
+                                .map((line, idx) => {
+                                  const isFocusLine = idx === hit.before.length;
+                                  return isFocusLine
+                                    ? `<span class=\"t-searchLineFocus\">${line}</span>`
+                                    : line;
+                                })
+                                .join("\n");
+                            })(),
+                          }}
+                        />
+                      ))}
                       <div className="t-searchActions">
                         <button
                           type="button"
                           className="t-commandLink t-pressable"
                           onClick={() => {
-                            executeCommand(hit.readCommand);
+                            executeCommand(entry.readCommand);
                             minimize();
                           }}
                         >
                           Read more
                         </button>
-                        {hit.downloadCommand ? (
+                        {entry.downloadCommand ? (
                           <button
                             type="button"
                             className="t-commandLink t-pressable"
-                            onClick={() => executeCommand(hit.downloadCommand!)}
+                            onClick={() => executeCommand(entry.downloadCommand!)}
                           >
                             Download
                           </button>

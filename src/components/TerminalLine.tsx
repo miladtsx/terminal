@@ -130,29 +130,21 @@ function renderSearchSnippet(
   hit: SearchHitsSegmentType["hits"][number],
   query: string,
 ): string {
-  const renderLine = (
-    lineNumber: number,
-    text: string,
-    emphasize?: boolean,
-  ) => {
-    const lineLabel = `<span class="t-searchLineNum">${lineNumber
-      .toString()
-      .padStart(3, " ")}▏</span>`;
+  const renderLine = (text: string, emphasize?: boolean) => {
     const body = highlightQuery(text, query);
-    return `${lineLabel}${emphasize ? '<span class="t-searchLineFocus">' : ""}${body}${emphasize ? "</span>" : ""}`;
+    return `${emphasize ? '<span class="t-searchLineFocus">' : ""}${body}${emphasize ? "</span>" : ""}`;
   };
 
   const lines: string[] = [];
-  const start = hit.lineNumber - hit.before.length;
 
-  hit.before.forEach((text, idx) => {
-    lines.push(renderLine(start + idx, text));
+  hit.before.forEach((text) => {
+    lines.push(renderLine(text));
   });
 
-  lines.push(renderLine(hit.lineNumber, hit.line, true));
+  lines.push(renderLine(hit.line, true));
 
   hit.after.forEach((text, idx) => {
-    lines.push(renderLine(hit.lineNumber + idx + 1, text));
+    lines.push(renderLine(text));
   });
 
   return lines.join("\n");
@@ -175,7 +167,14 @@ function SearchHits({
   );
 
   const grouped = useMemo(() => {
-    const by: Record<string, { label: string; items: typeof hits }> = {};
+    type Entry = {
+      key: string;
+      title: string;
+      readCommand: string;
+      downloadCommand?: string;
+      snippets: typeof hits;
+    };
+    const by: Record<string, { label: string; items: Entry[] }> = {};
     const labelFor: Record<SearchHitsSegmentType["hits"][number]["source"], string> = {
       blog: "Blogs",
       log: "Logs",
@@ -183,11 +182,28 @@ function SearchHits({
       work: "Work",
     };
     hits.forEach((hit) => {
-      const key = hit.source;
-      if (!by[key]) {
-        by[key] = { label: labelFor[hit.source] || hit.source, items: [] };
+      const sourceKey = hit.source;
+      const entryKey = `${hit.source}::${hit.title}::${hit.readCommand}::${hit.downloadCommand || ""}`;
+
+      if (!by[sourceKey]) {
+        by[sourceKey] = {
+          label: labelFor[hit.source] || hit.source,
+          items: [],
+        };
       }
-      by[key].items.push(hit);
+
+      const existing = by[sourceKey].items.find((item) => item.key === entryKey);
+      if (existing) {
+        existing.snippets.push(hit);
+      } else {
+        by[sourceKey].items.push({
+          key: entryKey,
+          title: hit.title,
+          readCommand: hit.readCommand,
+          downloadCommand: hit.downloadCommand,
+          snippets: [hit],
+        });
+      }
     });
     return by;
   }, [hits]);
@@ -239,53 +255,53 @@ function SearchHits({
 
                 {!collapsed ? (
                   <div className="t-searchGroupBody">
-                    {group.items.map((hit) => {
-                      const folded = itemCollapsed[hit.id] ?? false;
+                    {group.items.map((entry) => {
+                      const folded = itemCollapsed[entry.key] ?? false;
                       return (
                         <div
                           className="t-searchHit"
-                          key={hit.id}
-                          data-source={hit.source}
+                          key={entry.key}
+                          data-source={key}
                         >
                           <button
                             type="button"
                             className="t-searchHead"
-                            onClick={() => toggleItem(hit.id)}
+                            onClick={() => toggleItem(entry.key)}
                           >
                             <span className="t-searchCaret">
                               {folded ? "▸" : "▾"}
                             </span>
-                            <span className="t-searchTitle">{hit.title}</span>
-                            <span className="t-searchMeta">
-                              line {hit.lineNumber}
-                            </span>
+                            <span className="t-searchTitle">{entry.title}</span>
                           </button>
 
                           {!folded ? (
                             <>
-                              <pre
-                                className="t-searchSnippet"
-                                dangerouslySetInnerHTML={{
-                                  __html: renderSearchSnippet(hit, query),
-                                }}
-                              />
+                              {entry.snippets.map((hit) => (
+                                <pre
+                                  key={hit.id}
+                                  className="t-searchSnippet"
+                                  dangerouslySetInnerHTML={{
+                                    __html: renderSearchSnippet(hit, query),
+                                  }}
+                                />
+                              ))}
                               <div className="t-searchActions">
                                 <button
                                   type="button"
                                   className="t-commandLink t-pressable"
-                                  onClick={() => executeCommand(hit.readCommand)}
-                                  aria-label={`Read more from ${hit.title}`}
+                                  onClick={() => executeCommand(entry.readCommand)}
+                                  aria-label={`Read more from ${entry.title}`}
                                 >
                                   Read more
                                 </button>
-                                {hit.downloadCommand ? (
+                                {entry.downloadCommand ? (
                                   <button
                                     type="button"
                                     className="t-commandLink t-pressable"
                                     onClick={() =>
-                                      executeCommand(hit.downloadCommand!)
+                                      executeCommand(entry.downloadCommand!)
                                     }
-                                    aria-label={`Download ${hit.title}`}
+                                    aria-label={`Download ${entry.title}`}
                                   >
                                     Download
                                   </button>

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { SearchHit } from "@types";
+import { sanitizeSearchQuery } from "@data/searchIndex";
 
 type SearchState = {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export const useSearchStore = create<SearchState & SearchActions>((set) => ({
   open: () => set({ isOpen: true, isMinimized: false }),
   close: () => set({ isOpen: false }),
   minimize: () => set({ isOpen: false, isMinimized: true }),
-  setQuery: (query) => set({ query }),
+  setQuery: (query) => set({ query: sanitizeSearchQuery(query, { trim: false }) }),
   setResults: (hits, total = hits.length) => set({ hits, total }),
   clear: () => set({ query: "", hits: [], total: 0 }),
 }));

@@ -29,7 +29,7 @@ import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
-import { runSearch, setSearchWorkItems, makeWorkSlug } from "@data/searchIndex";
+import { runSearch, setSearchWorkItems, makeWorkSlug, sanitizeSearchQuery } from "@data/searchIndex";
 import { searchStore } from "@stores/searchStore";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
@@ -503,7 +503,8 @@ export function registerDefaultCommands({
   };
 
 const searchHandler = async ({ args }: CommandHandlerContext) => {
-  const query = args.join(" ").trim();
+  const rawQuery = args.join(" ");
+  const query = sanitizeSearchQuery(rawQuery);
 
   // If no query, open modal and focus input preserving state.
   if (!query) {

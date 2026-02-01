@@ -3,7 +3,8 @@ import { logsIndex } from "./logsIndex";
 import { findFileByName } from "./files";
 import { FileMeta, SampleWork, SearchHit } from "@types";
 
-export const SEARCH_RESULT_CONTEXT_WINDOW_LINES = 5;
+// show the previous and after contents of the located search query match
+export const SEARCH_RESULT_CONTEXT_WINDOW_LINES = 0;
 
 const textCache = new Map<string, string>();
 const resumeLinesCache: { lines?: string[] } = {};
@@ -21,8 +22,19 @@ export const buildSearchRegex = (query: string) => {
     .split(/\s+/)
     .map((t) => t.trim())
     .filter(Boolean)
-    .map(escapeRegex);
+    .map(escapeRegex)
+    .map((token) => `\\b${token}`); // anchor at word start to avoid substring hits
+
   return tokens.length ? new RegExp(tokens.join("|"), "i") : null;
+};
+
+export const sanitizeSearchQuery = (raw: string, opts: { trim?: boolean } = {}) => {
+  // Drop anything except letters, numbers, and whitespace then normalize spacing.
+  const filtered = raw.replace(/[^a-z0-9\s]/gi, "");
+  const normalized = filtered.replace(/\s+/g, " ");
+  const shouldTrim = opts.trim ?? true;
+  const ready = shouldTrim ? normalized.trim() : normalized;
+  return ready.slice(0, 50);
 };
 
 export function sliceContext(
@@ -151,7 +163,8 @@ export async function runSearch(query: string): Promise<{
   hits: SearchHit[];
   total: number;
 }> {
-  const regex = buildSearchRegex(query);
+  const normalizedQuery = sanitizeSearchQuery(query);
+  const regex = buildSearchRegex(normalizedQuery);
   if (!regex) return { hits: [], total: 0 };
 
   const hits: SearchHit[] = [];
