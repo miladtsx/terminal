@@ -29,7 +29,12 @@ import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
-import { runSearch, setSearchWorkItems, makeWorkSlug, sanitizeSearchQuery } from "@data/searchIndex";
+import {
+  runSearch,
+  setSearchWorkItems,
+  makeWorkSlug,
+  sanitizeSearchQuery,
+} from "@data/searchIndex";
 import { searchStore } from "@stores/searchStore";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
@@ -90,9 +95,13 @@ const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
 const buildContactRow = (label: string, value: string): LineSegment[] => {
   const isEmail = /@/.test(value);
   const valueSegment = isEmail
-    ? createLinkSegment(`mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`, value, {
-        ariaLabel: `Email ${value}`,
-      })
+    ? createLinkSegment(
+        `mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`,
+        value,
+        {
+          ariaLabel: `Email ${value}`,
+        },
+      )
     : createTextSegment(value);
 
   return [
@@ -502,45 +511,45 @@ export function registerDefaultCommands({
     return lines;
   };
 
-const searchHandler = async ({ args }: CommandHandlerContext) => {
-  const rawQuery = args.join(" ");
-  const query = sanitizeSearchQuery(rawQuery);
+  const searchHandler = async ({ args }: CommandHandlerContext) => {
+    const rawQuery = args.join(" ");
+    const query = sanitizeSearchQuery(rawQuery);
 
-  // If no query, open modal and focus input preserving state.
-  if (!query) {
+    // If no query, open modal and focus input preserving state.
+    if (!query) {
+      searchStore.open();
+      return ["search mode opened — type in the search bar (live results)"];
+    }
+
+    const { hits, total } = await runSearch(query);
+    if (!hits.length) return [`no matches for "${query}"`];
+
+    const maxResults = 12;
+    const trimmed = hits.slice(0, maxResults);
+    const output: TerminalLineInput[] = [
+      `search results (${trimmed.length}/${total})`,
+      [
+        {
+          type: "searchHits",
+          query,
+          hits: trimmed,
+        },
+      ],
+    ];
+
+    if (total > trimmed.length) {
+      output.push(
+        `… ${total - trimmed.length} more matches hidden — refine your query to narrow.`,
+      );
+    }
+
+    // keep modal state in sync
+    searchStore.setQuery(query);
+    searchStore.setResults(hits, total);
     searchStore.open();
-    return ["search mode opened — type in the search bar (live results)"];
-  }
 
-  const { hits, total } = await runSearch(query);
-  if (!hits.length) return [`no matches for "${query}"`];
-
-  const maxResults = 12;
-  const trimmed = hits.slice(0, maxResults);
-  const output: TerminalLineInput[] = [
-    `search results (${trimmed.length}/${total})`,
-    [
-      {
-        type: "searchHits",
-        query,
-        hits: trimmed,
-      },
-    ],
-  ];
-
-  if (total > trimmed.length) {
-    output.push(
-      `… ${total - trimmed.length} more matches hidden — refine your query to narrow.`,
-    );
-  }
-
-  // keep modal state in sync
-  searchStore.setQuery(query);
-  searchStore.setResults(hits, total);
-  searchStore.open();
-
-  return output;
-};
+    return output;
+  };
 
   const files = listFiles();
 
@@ -1011,10 +1020,7 @@ const searchHandler = async ({ args }: CommandHandlerContext) => {
       "chatbot",
       () => {
         openChat();
-        return [
-          "Opening chatbot…",
-          "Tip: Esc to minimize",
-        ];
+        return ["Opening chatbot…", "Tip: Esc to minimize"];
       },
       { desc: "Chat with my resume! [Beta]" },
     )
@@ -1388,9 +1394,7 @@ const searchHandler = async ({ args }: CommandHandlerContext) => {
           pwd: ["print current directory (virtual)"],
           ls: ["list files from /files", "ls"],
           cat: ["cat <file> — print text files only"],
-          grep: [
-            "grep <term> — unified search (alias of search)",
-          ],
+          grep: ["grep <term> — unified search (alias of search)"],
           search: [
             "search <term> — unified search across works, logs, and resume text",
             "Cmd/Ctrl+F pre-fills the search prompt",
