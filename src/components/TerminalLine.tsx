@@ -100,31 +100,210 @@ function CopyButton({
 
 function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
   return (
-    <span className="t-avatarMessage">
-      <span className="t-avatarPhoto" aria-hidden="true">
-        <img
-          src={segment.image}
-          alt={segment.label ? `${segment.label} avatar` : "avatar"}
-        />
-      </span>
-      <span className="t-avatarContent">
-        {(segment.label || segment.meta) ? (
-          <span className="t-avatarHead">
-            {segment.label ? (
-              <span className="t-avatarLabel">{segment.label}</span>
-            ) : null}
-            {segment.meta ? (
-              <span className="t-avatarMeta">{segment.meta}</span>
-            ) : null}
-          </span>
-        ) : null}
-        {segment.lines.map((line, lineIdx) => (
-          <span key={`avatar-line-${lineIdx}`} className="t-avatarLine">
-            {line}
-          </span>
-        ))}
-      </span>
-    </span>
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightQuery(text: string, query: string): string {
+  const escaped = escapeHtml(text);
+  const tokens = query
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .map(escapeRegex);
+
+  if (!tokens.length) return escaped;
+  const regex = new RegExp(`(${tokens.join("|")})`, "gi");
+  return escaped.replace(regex, "<mark>$1</mark>");
+}
+
+function renderSearchSnippet(
+  hit: SearchHitsSegmentType["hits"][number],
+  query: string,
+): string {
+  const renderLine = (
+    lineNumber: number,
+    text: string,
+    emphasize?: boolean,
+  ) => {
+    const lineLabel = `<span class="t-searchLineNum">${lineNumber
+      .toString()
+      .padStart(3, " ")}▏</span>`;
+    const body = highlightQuery(text, query);
+    return `${lineLabel}${emphasize ? '<span class="t-searchLineFocus">' : ""}${body}${emphasize ? "</span>" : ""}`;
+  };
+
+  const lines: string[] = [];
+  const start = hit.lineNumber - hit.before.length;
+
+  hit.before.forEach((text, idx) => {
+    lines.push(renderLine(start + idx, text));
+  });
+
+  lines.push(renderLine(hit.lineNumber, hit.line, true));
+
+  hit.after.forEach((text, idx) => {
+    lines.push(renderLine(hit.lineNumber + idx + 1, text));
+  });
+
+  return lines.join("\n");
+}
+
+function SearchHits({
+  segment,
+  executeCommand,
+}: {
+  segment: SearchHitsSegmentType;
+  executeCommand: (command: string) => void;
+}) {
+  const { hits, query } = segment;
+  const [open, setOpen] = useState(true);
+  const [groupCollapsed, setGroupCollapsed] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [itemCollapsed, setItemCollapsed] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  const grouped = useMemo(() => {
+    const by: Record<string, { label: string; items: typeof hits }> = {};
+    const labelFor: Record<SearchHitsSegmentType["hits"][number]["source"], string> = {
+      blog: "Blogs",
+      log: "Logs",
+      resume: "Resume",
+      work: "Work",
+    };
+    hits.forEach((hit) => {
+      const key = hit.source;
+      if (!by[key]) {
+        by[key] = { label: labelFor[hit.source] || hit.source, items: [] };
+      }
+      by[key].items.push(hit);
+    });
+    return by;
+  }, [hits]);
+
+  if (!open) return null;
+
+  const toggleGroup = (key: string) =>
+    setGroupCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+  const toggleItem = (id: string) =>
+    setItemCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  return (
+    <div className="t-searchModal" role="dialog" aria-modal="true">
+      <div className="t-searchOverlay" />
+      <div className="t-searchWindow">
+        <div className="t-searchHeader">
+          <div className="t-searchHeaderLeft">
+            <span className="t-searchEyebrow">Search</span>
+            <span className="t-searchHeading">
+              “{query}” — {hits.length} result{hits.length === 1 ? "" : "s"}
+            </span>
+          </div>
+          <div className="t-searchHeaderActions">
+            <button
+              type="button"
+              className="t-searchClose t-pressable"
+              aria-label="Close search results"
+              onClick={() => setOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div className="t-searchGroups">
+          {Object.entries(grouped).map(([key, group]) => {
+            const collapsed = groupCollapsed[key] ?? false;
+            return (
+              <div className="t-searchGroup" key={key} data-source={key}>
+                <button
+                  type="button"
+                  className="t-searchGroupHead"
+                  onClick={() => toggleGroup(key)}
+                >
+                  <span className="t-searchCaret">{collapsed ? "▸" : "▾"}</span>
+                  <span className={`t-searchTag is-${key}`}>{group.label}</span>
+                  <span className="t-searchCount">{group.items.length}</span>
+                </button>
+
+                {!collapsed ? (
+                  <div className="t-searchGroupBody">
+                    {group.items.map((hit) => {
+                      const folded = itemCollapsed[hit.id] ?? false;
+                      return (
+                        <div
+                          className="t-searchHit"
+                          key={hit.id}
+                          data-source={hit.source}
+                        >
+                          <button
+                            type="button"
+                            className="t-searchHead"
+                            onClick={() => toggleItem(hit.id)}
+                          >
+                            <span className="t-searchCaret">
+                              {folded ? "▸" : "▾"}
+                            </span>
+                            <span className="t-searchTitle">{hit.title}</span>
+                            <span className="t-searchMeta">
+                              line {hit.lineNumber}
+                            </span>
+                          </button>
+
+                          {!folded ? (
+                            <>
+                              <pre
+                                className="t-searchSnippet"
+                                dangerouslySetInnerHTML={{
+                                  __html: renderSearchSnippet(hit, query),
+                                }}
+                              />
+                              <div className="t-searchActions">
+                                <button
+                                  type="button"
+                                  className="t-commandLink t-pressable"
+                                  onClick={() => executeCommand(hit.readCommand)}
+                                  aria-label={`Read more from ${hit.title}`}
+                                >
+                                  Read more
+                                </button>
+                                {hit.downloadCommand ? (
+                                  <button
+                                    type="button"
+                                    className="t-commandLink t-pressable"
+                                    onClick={() =>
+                                      executeCommand(hit.downloadCommand!)
+                                    }
+                                    aria-label={`Download ${hit.title}`}
+                                  >
+                                    Download
+                                  </button>
+                                ) : null}
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
