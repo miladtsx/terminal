@@ -12,6 +12,8 @@ import {
   TerminalFontMeta,
   TerminalColorMeta,
   CommandButton,
+  SearchHit,
+  SampleWork,
 } from "@types";
 import {
   buildAvatarSegment,
@@ -27,6 +29,8 @@ import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
+import { runSearch, setSearchWorkItems, makeWorkSlug } from "@data/searchIndex";
+import { searchStore } from "@stores/searchStore";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "work", label: "Work Experiences" },
@@ -381,6 +385,24 @@ export function registerDefaultCommands({
         "Cut manual review by ~3 hours per day and raised true-positive alert handling speed.",
     },
   ];
+  setSearchWorkItems(caseStudies);
+  const workIndex = new Map<string, SampleWork>();
+  caseStudies.forEach((item) => workIndex.set(makeWorkSlug(item.title), item));
+
+  const findWorkEntry = (input: string) => {
+    const token = input.toLowerCase().trim();
+    return (
+      workIndex.get(token) ||
+      caseStudies.find((item) => {
+        const slug = makeWorkSlug(item.title);
+        return (
+          slug === token ||
+          item.title.toLowerCase() === token ||
+          item.title.toLowerCase().includes(token)
+        );
+      })
+    );
+  };
 
   const contactEntries = [
     contact.email
@@ -479,6 +501,45 @@ export function registerDefaultCommands({
 
     return lines;
   };
+
+const searchHandler = async ({ args }: CommandHandlerContext) => {
+  const query = args.join(" ").trim();
+
+  // If no query, open modal and focus input preserving state.
+  if (!query) {
+    searchStore.open();
+    return ["search mode opened — type in the search bar (live results)"];
+  }
+
+  const { hits, total } = await runSearch(query);
+  if (!hits.length) return [`no matches for "${query}"`];
+
+  const maxResults = 12;
+  const trimmed = hits.slice(0, maxResults);
+  const output: TerminalLineInput[] = [
+    `search results (${trimmed.length}/${total})`,
+    [
+      {
+        type: "searchHits",
+        query,
+        hits: trimmed,
+      },
+    ],
+  ];
+
+  if (total > trimmed.length) {
+    output.push(
+      `… ${total - trimmed.length} more matches hidden — refine your query to narrow.`,
+    );
+  }
+
+  // keep modal state in sync
+  searchStore.setQuery(query);
+  searchStore.setResults(hits, total);
+  searchStore.open();
+
+  return output;
+};
 
   const files = listFiles();
 
@@ -951,20 +1012,42 @@ idea → design → implement → feedback → security → launch → scale →
     )
     .register(
       "work",
-      () => {
-        return [
-          "",
-          "Click any case study to see how I help businesses",
-          "",
-          [
-            {
-              type: "work",
-              items: caseStudies,
-            },
-          ],
-        ];
+      ({ args }) => {
+        const action = (args[0] || "list").toLowerCase();
+
+        if (action === "list" || !args.length) {
+          return [
+            "",
+            "Click any case study to see how I help businesses",
+            "",
+            [
+              {
+                type: "work",
+                items: caseStudies,
+              },
+            ],
+          ];
+        }
+
+        if (action === "read") {
+          const target = args.slice(1).join(" ").trim();
+          if (!target) return ["usage: work read <title|slug>"];
+          const entry = findWorkEntry(target);
+          if (!entry) return [`no work entry found for "${target}"`];
+          return [
+            entry.title,
+            [
+              {
+                type: "work",
+                items: [entry],
+              },
+            ],
+          ];
+        }
+
+        return ["usage: work [list] | work read <title|slug>"];
       },
-      { desc: "selected projects" },
+      { desc: "selected projects", subcommands: ["list", "read"] },
     )
     .register("pwd", ({ model }) => [model.getCwd()], {
       desc: "print working directory",
@@ -1000,6 +1083,14 @@ idea → design → implement → feedback → security → launch → scale →
       },
       { desc: "list downloadable files" },
     )
+    .register("search", searchHandler, {
+      desc: "search logs, and resume text",
+      subcommands: [],
+    })
+    .register("grep", searchHandler, {
+      desc: "alias for search",
+      subcommands: [],
+    })
     .register(
       "cat",
       async ({ args, model }) => {
@@ -1101,74 +1192,6 @@ idea → design → implement → feedback → security → launch → scale →
         }
       },
       { desc: "show SHA256 for a file" },
-    )
-    .register(
-      "grep",
-      async ({ args }) => {
-        const term = args.join(" ").trim();
-        if (!term) return ["usage: grep <term>"];
-        const regex = new RegExp(
-          term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-          "i",
-        );
-        const matches: string[] = [];
-        for (const file of listTextFiles()) {
-          try {
-            const text = await getTextForFile(file);
-            const lines = text.split(/\r?\n/);
-            lines.forEach((line, index) => {
-              if (regex.test(line)) {
-                matches.push(
-                  `${file.name}:${(index + 1)
-                    .toString()
-                    .padStart(3, " ")}: ${line.trim()}`,
-                );
-              }
-            });
-          } catch {
-            // ignore single-file errors for grep
-          }
-        }
-
-        blogIndex.linesForSearch().forEach((entry) => {
-          entry.lines.forEach((line, index) => {
-            if (regex.test(line)) {
-              matches.push(
-                `blog/${entry.slug}:${(index + 1)
-                  .toString()
-                  .padStart(3, " ")}: ${line.trim()}`,
-              );
-            }
-          });
-        });
-
-        logsIndex.linesForSearch().forEach((entry) => {
-          entry.lines.forEach((line, index) => {
-            if (regex.test(line)) {
-              matches.push(
-                `log/${entry.slug}:${(index + 1)
-                  .toString()
-                  .padStart(3, " ")}: ${line.trim()}`,
-              );
-            }
-          });
-        });
-
-        caseStudies.forEach((study, index) => {
-          const haystack = `${study.title} ${study.desc}`;
-          if (regex.test(haystack)) {
-            matches.push(`case[${index + 1}]: ${study.title} — ${study.desc}`);
-          }
-        });
-
-        if (!matches.length) return [`no matches for "${term}"`];
-        const truncated = matches.slice(0, 30);
-        if (matches.length > truncated.length) {
-          truncated.push(`... (${matches.length - truncated.length} more)`);
-        }
-        return truncated;
-      },
-      { desc: "search text files, blog posts, logs, and case studies" },
     )
     .register(
       "copy",
@@ -1358,7 +1381,11 @@ idea → design → implement → feedback → security → launch → scale →
           ls: ["list files from /files", "ls"],
           cat: ["cat <file> — print text files only"],
           grep: [
-            "grep <term> — search case studies + text files + blog/log posts",
+            "grep <term> — unified search (alias of search)",
+          ],
+          search: [
+            "search <term> — unified search across works, logs, and resume text",
+            "Cmd/Ctrl+F pre-fills the search prompt",
           ],
           open: ["open <file> — open in new tab"],
           download: ["download <file> — trigger browser download"],

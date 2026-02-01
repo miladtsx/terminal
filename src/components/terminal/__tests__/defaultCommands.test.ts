@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TerminalLine } from "@types";
+import type { TerminalLine, TerminalLineInput } from "@types";
 import { CommandRegistry } from "../commandRegistry";
 import { registerDefaultCommands } from "../defaultCommands";
 import { TerminalModel } from "../terminalModel";
@@ -22,7 +22,7 @@ function buildRegistry() {
 describe("default commands", () => {
   beforeEach(() => {
     // Make sure fetch exists for command handlers.
-    globalThis.fetch = vi.fn();
+    globalThis.fetch = vi.fn(async () => new Response("sample text line\nkickoff line"));
   });
 
   afterEach(() => {
@@ -149,7 +149,22 @@ describe("default commands", () => {
       registry,
     });
     const grepLines = Array.isArray(grepOut) ? grepOut : [grepOut];
-    expect(grepLines.join("\n")).toContain("blog/client-question");
+    const searchLine = (grepLines as TerminalLineInput[]).find(
+      (line): line is TerminalLine =>
+        Array.isArray(line) &&
+        line.some((seg) => (seg as any).type === "searchHits"),
+    );
+    expect(searchLine).toBeTruthy();
+    const searchSeg = searchLine?.find(
+      (seg) => (seg as any).type === "searchHits",
+    ) as any;
+    expect(
+      searchSeg?.hits?.some(
+        (hit: any) =>
+          hit.readCommand?.includes("client-question") ||
+          hit.title?.toLowerCase().includes("client question"),
+      ),
+    ).toBe(true);
   });
 
   it("lists and reads logs from markdown", async () => {

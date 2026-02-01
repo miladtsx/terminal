@@ -661,7 +661,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const handleGlobalPointerDown = useCallback(
     (event: PointerEvent) => {
       const target = event.target as Element | null;
-      if (target && (target.closest?.(".t-output") || target.closest?.("a")))
+      if (
+        target &&
+        (target.closest?.(".t-output") ||
+          target.closest?.("a") ||
+          target.closest?.(".t-searchModal"))
+      )
         return;
       requestAnimationFrame(() => focusInput());
     },
@@ -680,7 +685,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
             active.tagName === "TEXTAREA" ||
             active.isContentEditable);
 
-        if (input && active !== input && !isEditable) {
+        // Don't steal focus from search modal inputs
+        const isSearchOpen = !!document.querySelector(".t-searchModal");
+        const isInSearch = active && active.closest(".t-searchModal");
+
+        if (isSearchOpen && isInSearch) return;
+
+        if (input && active !== input && !isEditable && !isInSearch) {
           focusInput();
         }
       }
@@ -766,6 +777,21 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       const metaOrCtrl = event.ctrlKey || event.metaKey;
       if (metaOrCtrl && !event.altKey) {
+        if (event.key.toLowerCase() === "f") {
+          event.preventDefault();
+          resetTabState();
+          const preset = "search ";
+          setState((prev) => ({
+            ...prev,
+            input: preset,
+            tabVisible: false,
+            tabMatches: [],
+            tabIndex: 0,
+          }));
+          focusInput();
+          return;
+        }
+
         const inputEl = inputRef.current;
         if (inputEl) {
           if (event.key.toLowerCase() === "a") {

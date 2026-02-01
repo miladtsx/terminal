@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MarkdownBlock } from "@components/MarkdownBlock";
 import { copyToClipboard, buildShareLink } from "@utils";
 import {
@@ -12,6 +12,7 @@ import {
   MarkdownSegment,
   WorkSegment,
   AvatarSegment,
+  SearchHitsSegment as SearchHitsSegmentType,
 } from "@types";
 
 function CopyIcon({ active }: { active: boolean }) {
@@ -190,6 +191,15 @@ function renderSegment(
     case "work": {
       return (
         <WorkGrid key={key} segment={segment as WorkSegment} />
+      );
+    }
+    case "searchHits": {
+      return (
+        <SearchHits
+          key={key}
+          segment={segment as SearchHitsSegmentType}
+          executeCommand={executeCommand}
+        />
       );
     }
     default:

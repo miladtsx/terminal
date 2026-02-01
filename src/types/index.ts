@@ -120,6 +120,25 @@ export type MarkdownSegment = {
   markdown: string;
 };
 
+export type SearchHit = {
+  id: string;
+  source: "blog" | "log" | "resume" | "work";
+  title: string;
+  location: string;
+  lineNumber: number;
+  before: string[];
+  line: string;
+  after: string[];
+  readCommand: string;
+  downloadCommand?: string;
+};
+
+export type SearchHitsSegment = {
+  type: "searchHits";
+  query: string;
+  hits: SearchHit[];
+};
+
 export type LineSegment =
   | TextSegment
   | CommandSegment
@@ -129,7 +148,8 @@ export type LineSegment =
   | LogSegment
   | MarkdownSegment
   | WorkSegment
-  | AvatarSegment;
+  | AvatarSegment
+  | SearchHitsSegment;
 export type TerminalLine = LineSegment[];
 export type TerminalLineInput = string | TerminalLine;
 

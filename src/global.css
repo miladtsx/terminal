@@ -738,6 +738,336 @@
     transform: translateY(1px);
   }
 
+  .t-searchHits {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 8px 0 4px;
+  }
+
+  .t-searchModal {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+  }
+
+  .t-searchOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 10, 18, 0.78);
+    backdrop-filter: blur(4px);
+    pointer-events: auto;
+  }
+
+  .t-searchWindow {
+    position: absolute;
+    inset: 4% 4% auto 4%;
+    min-height: 75vh;
+    max-height: 88vh;
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+    border: 1px solid color-mix(in srgb, var(--accent) 70%, var(--surface) 30%);
+    border-radius: 16px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+  }
+
+  .t-searchHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    padding-right: 56px; /* give space for floating close button */
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+  }
+
+  .t-searchHeader-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  @media (max-width: 640px) {
+    .t-searchHeader-grid {
+      grid-template-columns: 1fr;
+      grid-auto-rows: auto;
+    }
+    .t-searchHeaderActions {
+      width: 100%;
+      justify-content: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .t-searchInputWrap {
+      width: 100%;
+    }
+  }
+
+  .t-searchHeaderLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .t-searchEyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.28px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .t-searchHeading {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+
+  .t-searchHeaderActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .t-searchInputWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-width: 240px;
+  }
+
+  .t-searchInput {
+    width: 100%;
+    padding: 9px 32px 9px 12px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    background: color-mix(in srgb, var(--surface) 95%, var(--accent) 5%);
+    color: var(--text);
+  }
+
+  .t-searchClear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .t-searchClose {
+    all: unset;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 24%, var(--surface) 76%);
+    color: var(--bg);
+    font-size: 16px;
+    text-align: center;
+    line-height: 30px;
+    border: 1px solid color-mix(in srgb, var(--accent) 60%, var(--surface) 40%);
+  }
+
+  .t-searchClose-floating {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+
+  .t-searchClose:hover {
+    background: color-mix(in srgb, var(--accent) 34%, var(--surface) 66%);
+  }
+
+  .t-searchGroups {
+    padding: 14px 16px 18px;
+    overflow: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .t-searchEmpty {
+    padding: 22px 14px;
+    color: var(--muted);
+  }
+
+  .t-searchGroup {
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  }
+
+  .t-searchGroupHead {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .t-searchGroupBody {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .t-searchCount {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .t-searchHit {
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+    padding: 0 0 8px;
+    box-shadow: var(--shadow, 0 10px 28px rgba(0, 0, 0, 0.25));
+  }
+
+  .t-searchHead {
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  .t-searchTag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    color: var(--text);
+    background: color-mix(in srgb, var(--accent) 30%, var(--surface) 70%);
+    border: 1px solid color-mix(in srgb, var(--accent) 65%, var(--surface) 35%);
+  }
+
+  .t-searchTag.is-blog {
+    background: color-mix(in srgb, #5773ff 30%, var(--surface) 70%);
+    border-color: color-mix(in srgb, #5773ff 60%, var(--surface) 40%);
+  }
+
+  .t-searchTag.is-log {
+    background: color-mix(in srgb, #f59e0b 32%, var(--surface) 68%);
+    border-color: color-mix(in srgb, #f59e0b 62%, var(--surface) 38%);
+  }
+
+  .t-searchTag.is-resume {
+    background: color-mix(in srgb, #22c55e 32%, var(--surface) 68%);
+    border-color: color-mix(in srgb, #22c55e 62%, var(--surface) 38%);
+  }
+
+  .t-searchTitle {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+
+  .t-searchMeta {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .t-searchSnippet {
+    margin: 0 0 4px;
+    padding: 10px 12px 8px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%);
+    color: var(--text);
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+
+  .t-searchSnippet mark {
+    background: color-mix(in srgb, var(--accent) 75%, var(--surface) 25%);
+    color: var(--bg);
+    padding: 0 2px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .t-searchLineNum {
+    color: var(--muted);
+    margin-right: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .t-searchLineFocus {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .t-searchActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 12px 0;
+  }
+
+  .t-searchCaret {
+    width: 16px;
+    display: inline-flex;
+    justify-content: center;
+    color: var(--muted);
+  }
+
+  .search-fab {
+    position: fixed;
+    bottom: 18px;
+    right: 82px;
+    z-index: 25;
+    background: color-mix(in srgb, var(--accent) 65%, var(--surface) 35%);
+    color: var(--bg);
+    border: 1px solid color-mix(in srgb, var(--accent) 75%, var(--surface) 25%);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 700;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .search-fab-pill {
+    background: var(--bg);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .search-fab-label {
+    font-size: 13px;
+    letter-spacing: 0.2px;
+  }
+
   .t-markdown {
     margin: 14px 0;
     padding: 14px 16px;

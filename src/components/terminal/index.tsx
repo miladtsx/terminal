@@ -15,6 +15,8 @@ import {
   useShallow,
 } from "@stores/uiStore";
 import ChatDock from "./chat";
+import { SearchModal, SearchFab } from "./SearchModal";
+import { searchStore } from "@stores/searchStore";
 
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
@@ -115,7 +117,9 @@ export default function Terminal(props: TerminalProps) {
         (target.closest(".t-output") ||
           target.closest("a") ||
           target.closest(".chat-window") ||
-          target.closest(".chat-fab"))
+          target.closest(".chat-fab") ||
+          target.closest(".t-searchModal") ||
+          target.closest(".search-fab"))
       ) {
         return;
       }
@@ -219,6 +223,14 @@ export default function Terminal(props: TerminalProps) {
       document.removeEventListener("keydown", handleKey);
     };
   }, [closeContextMenu]);
+
+  const openSearch = useCallback(() => {
+    searchStore.open();
+    requestAnimationFrame(() => {
+      const input = document.querySelector<HTMLInputElement>(".t-searchInput");
+      input?.focus();
+    });
+  }, []);
 
   const adjustFontSize = useCallback(
     (delta: number) => {
@@ -488,6 +500,8 @@ export default function Terminal(props: TerminalProps) {
           <AArrowUp size={18} />
         </button>
       </div>
+      <SearchModal executeCommand={executeCommand} />
+      <SearchFab onOpen={openSearch} />
       <ChatDock />
     </div>
   );
