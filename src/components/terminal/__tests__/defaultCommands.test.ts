@@ -167,6 +167,33 @@ describe("default commands", () => {
     ).toBe(true);
   });
 
+  it("includes work case studies in grep results", async () => {
+    const { registry, model } = buildRegistry();
+    const grepHandler = registry.get("grep")?.handler;
+
+    const grepOut = await grepHandler?.({
+      args: ["outsourcing"],
+      raw: "grep outsourcing",
+      model,
+      registry,
+    });
+    const grepLines = Array.isArray(grepOut) ? grepOut : [grepOut];
+    const searchLine = (grepLines as TerminalLineInput[]).find(
+      (line): line is TerminalLine =>
+        Array.isArray(line) &&
+        line.some((seg) => (seg as any).type === "searchHits"),
+    );
+    expect(searchLine).toBeTruthy();
+    const searchSeg = searchLine?.find(
+      (seg) => (seg as any).type === "searchHits",
+    ) as any;
+    expect(
+      searchSeg?.hits?.some(
+        (hit: any) => hit.source === "work" && hit.readCommand?.startsWith("work read"),
+      ),
+    ).toBe(true);
+  });
+
   it("lists and reads logs from markdown", async () => {
     const { registry, model } = buildRegistry();
     const logsHandler = registry.get("logs")?.handler;
