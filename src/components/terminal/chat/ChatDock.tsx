@@ -47,6 +47,10 @@ export function ChatDock() {
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const activePointerRef = useRef<number | null>(null);
 
   const focusInput = () => requestAnimationFrame(() => inputRef.current?.focus());
 
@@ -72,6 +76,14 @@ export function ChatDock() {
   useEffect(() => {
     if (!isOpen) setIsMaximized(false);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isMaximized) return;
+    setDragOffset({ x: 0, y: 0 });
+    setIsDragging(false);
+    dragStartRef.current = null;
+    activePointerRef.current = null;
+  }, [isMaximized]);
 
   const hasStreamingChunk = useMemo(
     () => messages.some((m) => m.id === "streaming"),
@@ -100,6 +112,52 @@ export function ChatDock() {
     const preset = tonePresets.find((p) => p.key === presetKey);
     if (!preset) return;
     setTone(preset.key);
+  };
+
+  const resetDragState = () => {
+    setIsDragging(false);
+    dragStartRef.current = null;
+    activePointerRef.current = null;
+  };
+
+  const endDrag = (event?: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    if (event?.currentTarget && activePointerRef.current !== null) {
+      event.currentTarget.releasePointerCapture(activePointerRef.current);
+    }
+    resetDragState();
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (isMaximized) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    const target = event.target;
+    if (target instanceof Element && target.closest("button")) return;
+    event.preventDefault();
+    dragStartRef.current = { x: event.clientX, y: event.clientY };
+    activePointerRef.current = event.pointerId;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current) return;
+    const deltaX = event.clientX - dragStartRef.current.x;
+    const deltaY = event.clientY - dragStartRef.current.y;
+    if (deltaX === 0 && deltaY === 0) return;
+    setDragOffset((prev) => ({
+      x: prev.x + deltaX,
+      y: prev.y + deltaY,
+    }));
+    dragStartRef.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    endDrag(event);
+  };
+
+  const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
+    endDrag(event);
   };
 
   const renderedMessages = useMemo(
@@ -151,6 +209,11 @@ export function ChatDock() {
     }
   };
 
+  const wrapTransformStyle = {
+    transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
     <>
       {isOpen && !isMinimized ? (
@@ -159,9 +222,16 @@ export function ChatDock() {
           role="dialog"
           aria-modal="false"
           onClick={focusInput}
+          style={wrapTransformStyle}
         >
           <div className={`chat-window${isMaximized ? " is-maximized" : ""}`}>
-            <div className="chat-header">
+            <div
+              className={`chat-header${isDragging ? " is-dragging" : ""}`}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerCancel}
+            >
               <div className="chat-title">
                 <Bot size={18} />
                 <span>CV-Bot</span>

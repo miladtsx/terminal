@@ -5,6 +5,7 @@
   max-width: 500px;
   width: calc(100vw - 32px);
   z-index: calc(var(--z-main, 30) + 1);
+  transition: transform 150ms ease, opacity 150ms ease;
 }
 
 .chat-wrap.is-maximized {
@@ -50,6 +51,13 @@
     color-mix(in srgb, var(--card, rgba(255, 255, 255, 0.12)) 60%, transparent),
     color-mix(in srgb, var(--surface, #0a0d12) 85%, transparent)
   );
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.chat-header.is-dragging {
+  cursor: grabbing;
 }
 
 .chat-title {
@@ -71,6 +79,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  touch-action: auto;
   border-radius: 9px;
   --press-padding: 0;
   --press-gap: 0;
