@@ -1,11 +1,13 @@
 const CACHE_NAME = "__SERVICE_WORKER_CACHE_NAME__"; // replaced by scripts/version-service-worker.js after build
+const BASE_PATH = new URL(".", self.location).pathname;
 const CORE_ASSETS = [
-  "/",
-  "/index.html",
-  "/files/Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  "/files/Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
-  "/files/llm_tsx.txt",
-];
+  "",
+  "index.html",
+  "files/Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+  "files/Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
+  "files/llm_tsx.txt",
+].map((relative) => `${BASE_PATH}${relative}`);
+const INDEX_FALLBACK = `${BASE_PATH}index.html`;
 
 const log = (...args) => {
   console.debug(`[${CACHE_NAME} sw]`, ...args);
@@ -72,7 +74,7 @@ self.addEventListener("fetch", (event) => {
         return response;
       } catch (error) {
         if (request.mode === "navigate") {
-          const fallback = await cache.match("/index.html");
+          const fallback = await cache.match(INDEX_FALLBACK);
           if (fallback) return fallback;
         }
         throw error;
