@@ -8,7 +8,7 @@ const CORE_ASSETS = [
 ];
 
 const log = (...args) => {
-  console.log(`[${CACHE_NAME} sw]`, ...args);
+  console.log(`[${CACHE_NAME} sw] `, ...args);
 };
 
 self.addEventListener("install", (event) => {
