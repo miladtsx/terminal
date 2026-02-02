@@ -33,8 +33,7 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
   useEffect(() => {
     if (isOpen) {
       requestAnimationFrame(() => {
-        const focused = inputRef.current?.focus();
-        console.log("[search] focus on open", { isOpen, focused });
+        inputRef.current?.focus();
       });
     }
   }, [isOpen]);
@@ -181,11 +180,7 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
                 }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
-                  console.log("[search] input mousedown", {
-                    target: e.target,
-                    currentTarget: e.currentTarget,
-                    alreadyFocused: document.activeElement === e.currentTarget,
-                  });
+                  inputRef.current?.focus();
                 }}
               />
               {query ? (
