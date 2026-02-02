@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AArrowUp, AArrowDown } from "lucide-react";
 import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
 import { useTerminalColors } from "@hooks/useTerminalColors";
@@ -15,7 +14,8 @@ import {
   useShallow,
 } from "@stores/uiStore";
 import ChatDock from "./chat";
-import { SearchModal, SearchFab } from "./SearchModal";
+import { SearchModal } from "./SearchModal";
+import { TerminalToolbar } from "./Toolbar";
 import { searchStore } from "@stores/searchStore";
 
 export default function Terminal(props: TerminalProps) {
@@ -117,9 +117,8 @@ export default function Terminal(props: TerminalProps) {
         (target.closest(".t-output") ||
           target.closest("a") ||
           target.closest(".chat-window") ||
-          target.closest(".chat-fab") ||
           target.closest(".t-searchModal") ||
-          target.closest(".search-fab"))
+          target.closest(".terminal-toolbar"))
       ) {
         return;
       }
@@ -480,28 +479,14 @@ export default function Terminal(props: TerminalProps) {
           </div>
         ) : null}
       </div>
-      <div className="t-fontSizeControls" aria-label="Adjust font size">
-        <button
-          type="button"
-          className="t-fontSizeButton t-pressable"
-          aria-label="Decrease font size"
-          onClick={() => adjustFontSize(-FONT_SIZE_STEP)}
-          disabled={!canDecrease}
-        >
-          <AArrowDown size={18} />
-        </button>
-        <button
-          type="button"
-          className="t-fontSizeButton t-pressable"
-          aria-label="Increase font size"
-          onClick={() => adjustFontSize(FONT_SIZE_STEP)}
-          disabled={!canIncrease}
-        >
-          <AArrowUp size={18} />
-        </button>
-      </div>
+      <TerminalToolbar
+        onOpenSearch={openSearch}
+        onIncrease={() => adjustFontSize(FONT_SIZE_STEP)}
+        onDecrease={() => adjustFontSize(-FONT_SIZE_STEP)}
+        canIncrease={canIncrease}
+        canDecrease={canDecrease}
+      />
       <SearchModal executeCommand={executeCommand} />
-      <SearchFab onOpen={openSearch} />
       <ChatDock />
     </div>
   );
