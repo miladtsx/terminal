@@ -1,6 +1,6 @@
 import { AvatarSegment } from "@types";
 
-export const AVATAR_IMAGE = "images/avatar.jpeg";
+export const AVATAR_IMAGE = "images/avatar.jpg";
 
 type AvatarOptions = {
   label?: string;
