@@ -186,11 +186,7 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
                     currentTarget: e.currentTarget,
                     alreadyFocused: document.activeElement === e.currentTarget,
                   });
-                  const focused = inputRef.current?.focus();
-                  console.log("[search] input focus attempt on mousedown", { focused, active: document.activeElement });
                 }}
-                onFocus={(e) => console.log("[search] input focus", { target: e.target })}
-                onBlur={(e) => console.log("[search] input blur", { target: e.target })}
               />
               {query ? (
                 <button
