@@ -29,6 +29,7 @@ import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
 import { logsIndex } from "../../data/logsIndex";
+import packageJson from "../../../package.json";
 import {
   runSearch,
   setSearchWorkItems,
@@ -43,6 +44,8 @@ export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "contact", label: "Contact" },
   { command: "chatbot", label: "Chatbot" },
 ];
+
+const APP_VERSION = packageJson.version;
 
 const createTextSegment = (text: string): TextSegment => ({
   type: "text",
@@ -1387,6 +1390,11 @@ export function registerDefaultCommands({
       { desc: "open resume.pdf in new tab" },
     )
     .register(
+      "ver",
+      () => [`version: ${APP_VERSION}`],
+      { desc: "show app version" },
+    )
+    .register(
       "man",
       ({ args }) => {
         const topic = (args[0] || "").toLowerCase();
@@ -1407,6 +1415,7 @@ export function registerDefaultCommands({
           copy: ["copy email — copy to clipboard"],
           whoami: ["compact profile card; alias: finger"],
           resume: ["open resume PDF"],
+          ver: ["ver — show app version"],
           blog: [
             "blog list [--tag t] [--search q] — list posts",
             "blog read <slug|title> — open a post",
