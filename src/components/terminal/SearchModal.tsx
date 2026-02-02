@@ -172,7 +172,7 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
               <input
                 ref={inputRef}
                 className="t-searchInput"
-                placeholder="Search blogs, logs, work, resume…"
+                placeholder="e.g Rust"
                 value={query}
                 maxLength={50}
                 onChange={(e) => {
@@ -291,21 +291,5 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
         </div>
       </div>
     </div>
-  );
-}
-
-export function SearchFab({ onOpen }: { onOpen: () => void }) {
-  const { total, query, isOpen } = useSearchStore();
-  return (
-    <button
-      type="button"
-      className={`search-fab${isOpen ? " is-active" : ""}`}
-      aria-label="Open search"
-      onClick={onOpen}
-    >
-      🔍
-      <span className="search-fab-label">Search</span>
-      {total > 0 && query ? <span className="search-fab-pill">{total}</span> : null}
-    </button>
   );
 }
