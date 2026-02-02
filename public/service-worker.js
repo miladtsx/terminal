@@ -1,4 +1,4 @@
-const CACHE_NAME = "tsx-terminal";
+const CACHE_NAME = "__SERVICE_WORKER_CACHE_NAME__"; // replaced by scripts/version-service-worker.js after build
 const CORE_ASSETS = [
   "/",
   "/index.html",
