@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Terminal favicon">
+  <rect width="64" height="64" rx="8" fill="#0f172a" />
+  <polygon points="22,18 38,32 22,46" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" />
+  <rect x="24" y="48" width="20" height="4" rx="2" fill="#fff" />
+</svg>
