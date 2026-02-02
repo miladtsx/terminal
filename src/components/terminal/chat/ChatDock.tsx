@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { marked } from "marked";
 import { Bot, Maximize2, Minus, RotateCcw, SendIcon, StopCircle, X } from "lucide-react";
@@ -108,11 +108,14 @@ export function ChatDock() {
     [],
   );
 
-  const handleTonePreset = (presetKey: "technical" | "non-technical") => {
-    const preset = tonePresets.find((p) => p.key === presetKey);
-    if (!preset) return;
-    setTone(preset.key);
-  };
+  const handleTonePreset = useCallback(
+    (presetKey: "technical" | "non-technical") => {
+      const preset = tonePresets.find((p) => p.key === presetKey);
+      if (!preset) return;
+      setTone(preset.key);
+    },
+    [setTone, tonePresets],
+  );
 
   const resetDragState = () => {
     setIsDragging(false);
@@ -160,37 +163,88 @@ export function ChatDock() {
     endDrag(event);
   };
 
-  const renderedMessages = useMemo(
-    () =>
-      messages.map((message) => {
-        const roleClass =
-          message.role === "user"
-            ? "chat-bubble user"
-            : message.role === "assistant"
-              ? "chat-bubble bot"
-              : "chat-bubble intro";
-        return (
-          <div key={message.id} className={roleClass}>
-            {message.role === "assistant" && (
-              <span className="chat-avatar" aria-hidden="true">
-                <Bot size={18} />
-              </span>
-            )}
-            {message.role === "assistant" ? (
-              <div
-                className="chat-content"
-                dangerouslySetInnerHTML={{
-                  __html: marked.parse(message.content || ""),
-                }}
-              />
-            ) : (
-              <div className="chat-content">{message.content}</div>
-            )}
-          </div>
+  const showToneSelector = !messages.some((message) => message.role === "user");
+
+  const renderedMessages = useMemo(() => {
+    const nodes: React.ReactNode[] = [];
+    let toneInserted = false;
+
+    messages.forEach((message, index) => {
+      const roleClass =
+        message.role === "user"
+          ? "chat-bubble user"
+          : message.role === "assistant"
+            ? "chat-bubble bot"
+            : "chat-bubble intro";
+
+      nodes.push(
+        <div key={message.id} className={roleClass}>
+          {message.role === "assistant" && (
+            <span className="chat-avatar" aria-hidden="true">
+              <Bot size={18} />
+            </span>
+          )}
+          {message.role === "assistant" ? (
+            <div
+              className="chat-content"
+              dangerouslySetInnerHTML={{
+                __html: marked.parse(message.content || ""),
+              }}
+            />
+          ) : (
+            <div className="chat-content">{message.content}</div>
+          )}
+        </div>,
+      );
+
+      if (
+        !toneInserted &&
+        showToneSelector &&
+        message.role === "intro" &&
+        index === 0
+      ) {
+        nodes.push(
+          <div
+            key="chat-tone-selector"
+            className="chat-tone"
+            aria-label="Tone selector"
+          >
+            <span id="chat-tone-label" className="chat-tone-title">
+              Tone
+            </span>
+            <div
+              className="chat-tone-options"
+              role="radiogroup"
+              aria-labelledby="chat-tone-label"
+            >
+              {tonePresets.map((preset) => (
+                <label
+                  key={preset.key}
+                  className={`chat-tone-option${tone === preset.key ? " is-active" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="chat-tone"
+                    value={preset.key}
+                    checked={tone === preset.key}
+                    onChange={() => handleTonePreset(preset.key)}
+                  />
+                  <span className="chat-tone-radio" aria-hidden="true" />
+                  <div className="chat-tone-text">
+                    <span className="chat-tone-option-label">{preset.label}</span>
+                    <span className="chat-tone-option-helper">{preset.helper}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>,
         );
-      }),
-    [messages],
-  );
+        toneInserted = true;
+      }
+    });
+
+    return nodes;
+  }, [messages, showToneSelector, tone, tonePresets, handleTonePreset]);
 
   const send = async () => {
     await sendMessage();
@@ -274,39 +328,6 @@ export function ChatDock() {
 
             <div className="chat-body" ref={listRef}>
               {renderedMessages}
-              <div
-                className="chat-tone"
-                aria-label="Tone selector"
-              >
-                <span id="chat-tone-label" className="chat-tone-title">
-                  Tone
-                </span>
-                <div
-                  className="chat-tone-options"
-                  role="radiogroup"
-                  aria-labelledby="chat-tone-label"
-                >
-                  {tonePresets.map((preset) => (
-                    <label
-                      key={preset.key}
-                      className={`chat-tone-option${tone === preset.key ? " is-active" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="chat-tone"
-                        value={preset.key}
-                        checked={tone === preset.key}
-                        onChange={() => handleTonePreset(preset.key)}
-                      />
-                      <span className="chat-tone-radio" aria-hidden="true" />
-                      <div className="chat-tone-text">
-                        <span className="chat-tone-option-label">{preset.label}</span>
-                        <span className="chat-tone-option-helper">{preset.helper}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
               {showTypingIndicator ? (
                 <div className="chat-bubble bot">
                   <span className="chat-avatar" aria-hidden="true">
