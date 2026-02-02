@@ -1,4 +1,4 @@
-import { MessageCircle, Search, AArrowUp, AArrowDown, } from "lucide-react";
+import { Bot, Search, AArrowUp, AArrowDown, } from "lucide-react";
 import { useSearchStore } from "@stores/searchStore";
 import { openChat, useChatStore } from "@stores/chatStore";
 
@@ -34,7 +34,7 @@ export function TerminalToolbar({
         title="Open chatbot"
         onClick={openChat}
       >
-        <MessageCircle size={18} />
+        <Bot size={18} />
         {unread > 0 ? <span className="terminal-toolbar-dot" aria-hidden="true" /> : null}
       </button>
 
