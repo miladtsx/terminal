@@ -43,7 +43,7 @@ const INTRO_MESSAGE: ChatMessage = {
   id: "intro",
   role: "intro",
   createdAt: Date.now(),
-  content: "Hi, This is a digital copy of Milad. How should it talk to you?",
+  content: "Welcome!",
 };
 
 const uuid = () => {

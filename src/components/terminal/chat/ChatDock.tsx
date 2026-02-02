@@ -1,16 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { marked } from "marked";
-import {
-  Bot,
-  BotMessageSquare,
-  Maximize2,
-  Minus,
-  RotateCcw,
-  SendIcon,
-  StopCircle,
-  X,
-} from "lucide-react";
+import { Bot, Maximize2, Minus, RotateCcw, SendIcon, StopCircle, X } from "lucide-react";
 import { useChatStore } from "@stores/chatStore";
 import "./chat.css";
 
@@ -28,7 +19,6 @@ export function ChatDock() {
     setTone,
     sendMessage,
     clear,
-    openChat,
     toggleChat,
     minimizeChat,
     cancel,
@@ -46,7 +36,6 @@ export function ChatDock() {
       setTone: state.setTone,
       sendMessage: state.sendMessage,
       clear: state.clear,
-      openChat: state.openChat,
       toggleChat: state.toggleChat,
       minimizeChat: state.minimizeChat,
       cancel: state.cancel,
@@ -100,16 +89,11 @@ export function ChatDock() {
       },
       {
         key: "non-technical" as const,
-        label: "Non-technical",
+        label: "Non-Technical",
         helper: "Plain language",
       },
     ],
     [],
-  );
-
-  const hasUserMessages = useMemo(
-    () => messages.some((m) => m.role === "user"),
-    [messages],
   );
 
   const handleTonePreset = (presetKey: "technical" | "non-technical") => {
@@ -167,22 +151,8 @@ export function ChatDock() {
     }
   };
 
-  const docked = isMinimized || !isOpen;
-
   return (
     <>
-      <button
-        className={`chat-fab${docked ? "" : " is-active"}`}
-        aria-label="Open chatbot"
-        onClick={() => {
-          openChat();
-          focusInput();
-        }}
-      >
-        <BotMessageSquare size={20} strokeWidth={2.2} />
-        {unread > 0 ? <span className="chat-fab-unread">{unread}</span> : null}
-      </button>
-
       {isOpen && !isMinimized ? (
         <div
           className={`chat-wrap${isMaximized ? " is-maximized" : ""}`}
@@ -234,22 +204,39 @@ export function ChatDock() {
 
             <div className="chat-body" ref={listRef}>
               {renderedMessages}
-              {!hasUserMessages ? (
-                <div className="chat-suggestions" role="list">
+              <div
+                className="chat-tone"
+                aria-label="Tone selector"
+              >
+                <span id="chat-tone-label" className="chat-tone-title">
+                  Tone
+                </span>
+                <div
+                  className="chat-tone-options"
+                  role="radiogroup"
+                  aria-labelledby="chat-tone-label"
+                >
                   {tonePresets.map((preset) => (
-                    <button
+                    <label
                       key={preset.key}
-                      role="listitem"
-                      className={`chat-suggestion${tone === preset.key ? " is-active" : ""}`}
-                      onClick={() => handleTonePreset(preset.key)}
-                      aria-pressed={tone === preset.key}
+                      className={`chat-tone-option${tone === preset.key ? " is-active" : ""}`}
                     >
-                      <span className="chat-suggestion-label">{preset.label}</span>
-                      <span className="chat-suggestion-helper">{preset.helper}</span>
-                    </button>
+                      <input
+                        type="radio"
+                        name="chat-tone"
+                        value={preset.key}
+                        checked={tone === preset.key}
+                        onChange={() => handleTonePreset(preset.key)}
+                      />
+                      <span className="chat-tone-radio" aria-hidden="true" />
+                      <div className="chat-tone-text">
+                        <span className="chat-tone-option-label">{preset.label}</span>
+                        <span className="chat-tone-option-helper">{preset.helper}</span>
+                      </div>
+                    </label>
                   ))}
                 </div>
-              ) : null}
+              </div>
               {showTypingIndicator ? (
                 <div className="chat-bubble bot">
                   <span className="chat-avatar" aria-hidden="true">
@@ -269,7 +256,7 @@ export function ChatDock() {
               <textarea
                 ref={inputRef}
                 className="chat-input"
-                placeholder="Ask anything about Milad—technical or not."
+                placeholder="Ask about Milad"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
