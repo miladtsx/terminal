@@ -42,7 +42,6 @@ export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "work", label: "Work Experiences" },
   { command: "download resume", label: "Download CV PDF" },
   { command: "contact", label: "Contact" },
-  { command: "chatbot", label: "Chatbot" },
 ];
 
 const APP_VERSION = packageJson.version;
