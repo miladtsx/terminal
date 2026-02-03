@@ -4,7 +4,7 @@
   right: 18px;
   max-width: 500px;
   width: calc(100vw - 32px);
-  z-index: calc(var(--z-main, 30) + 1);
+  z-index: var(--z-chat, 60);
   transition: transform 150ms ease, opacity 150ms ease;
 }
 
@@ -15,7 +15,7 @@
   max-width: none;
   padding: 10px;
   background: var(--surface, #0a0d12);
-  z-index: 120;
+  z-index: var(--z-chat-max, 70);
 }
 
 
