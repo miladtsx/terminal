@@ -231,6 +231,18 @@ export default function Terminal(props: TerminalProps) {
     });
   }, []);
 
+  useEffect(() => {
+    const handleSearchShortcut = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        openSearch();
+      }
+    };
+
+    document.addEventListener("keydown", handleSearchShortcut);
+    return () => document.removeEventListener("keydown", handleSearchShortcut);
+  }, [openSearch]);
+
   const adjustFontSize = useCallback(
     (delta: number) => {
       const nextSize = Math.min(
