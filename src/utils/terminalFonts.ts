@@ -20,7 +20,7 @@ export type TerminalFontController = {
 };
 
 const STORAGE_KEY = "terminal.font";
-const DEFAULT_FONT_ID = "fira";
+const DEFAULT_FONT_ID = "plex";
 
 const FONT_OPTIONS: TerminalFontOption[] = [
   {

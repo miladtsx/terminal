@@ -418,11 +418,19 @@ function renderSegment(
     case "command": {
       const attrs = segment as CommandSegment;
       const ariaLabel = attrs.ariaLabel || `Run ${attrs.command}`;
+      const variantClass =
+        attrs.variant === "primary"
+          ? " is-primary"
+          : attrs.variant === "secondary"
+            ? " is-secondary"
+            : attrs.variant === "link"
+              ? " is-link"
+              : "";
       return (
         <button
           key={key}
           type="button"
-          className="t-commandLink t-pressable"
+          className={`t-commandLink t-pressable${variantClass}`}
           onClick={() => executeCommand(attrs.command)}
           aria-label={ariaLabel}
         >

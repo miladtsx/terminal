@@ -7,6 +7,7 @@ import type { TerminalColorController, TerminalColorOption } from "@utils";
 export interface CommandButton {
   command: string;
   label?: string;
+  variant?: "primary" | "secondary" | "link";
 }
 
 export interface TerminalProps {
@@ -59,6 +60,7 @@ export type CommandSegment = {
   label: string;
   command: string;
   ariaLabel?: string;
+  variant?: CommandButton["variant"];
 };
 
 export type CopySegment = {

@@ -34,7 +34,7 @@ export type TerminalColorController = {
 };
 
 const STORAGE_KEY = "terminal.color";
-const DEFAULT_COLOR_ID = "midnight";
+const DEFAULT_COLOR_ID = "clarity_light";
 
 const buildLayer = (base: string, a: string, b: string) =>
   `radial-gradient(circle at 18% 18%, ${a}, transparent 38%), radial-gradient(circle at 82% 12%, ${b}, transparent 32%), ${base}`;

@@ -298,41 +298,37 @@
   }
 
   .t-commandLink {
-    --chip-shadow: 0 7px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
-    --chip-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(141, 208, 255, 0.18) 45%, rgba(82, 120, 255, 0.15));
-    --chip-hover-bg: linear-gradient(120deg, rgba(255, 255, 255, 0.26), rgba(141, 208, 255, 0.28) 38%, rgba(82, 120, 255, 0.26));
+    --chip-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+    --chip-bg: color-mix(in srgb, var(--card) 92%, var(--accent) 8%);
+    --chip-hover-bg: color-mix(in srgb, var(--card) 88%, var(--accent) 12%);
 
     --press-bg: var(--chip-bg);
     --press-hover-bg: var(--chip-hover-bg);
-    --press-border: var(--chip-border, rgba(255, 255, 255, 0.24));
-    --press-hover-border: rgba(255, 255, 255, 0.35);
-    --press-color: var(--chip-color, #e9f4ff);
-    --press-hover-color: var(--chip-hover-color, #f8fcff);
+    --press-border: var(--chip-border, color-mix(in srgb, var(--border) 90%, var(--accent) 10%));
+    --press-hover-border: color-mix(in srgb, var(--border) 70%, var(--accent) 22%);
+    --press-color: var(--chip-color, var(--text));
+    --press-hover-color: var(--chip-hover-color, var(--text-strong, #f7fbff));
     --press-shadow-rest: var(--chip-shadow);
-    --press-shadow-half:
-      inset 0 1px 3px rgba(0, 0, 0, .35),
-      inset 0 0 0 1px rgba(255, 255, 255, .10);
-    --press-shadow-full:
-      inset 0 3px 8px rgba(0, 0, 0, .55),
-      inset 0 0 0 1px rgba(255, 255, 255, .06);
+    --press-shadow-half: none;
+    --press-shadow-full: none;
 
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    margin: 2px 3px;
+    padding: 8px 12px;
+    margin: 2px 6px;
     cursor: pointer;
     max-width: fit-content;
-    color: var(--chip-color, #e9f4ff);
+    color: var(--chip-color, var(--text));
     text-decoration: none;
     letter-spacing: 0.25px;
     font-weight: 600;
     background: var(--chip-bg);
-    border-radius: 999px;
+    border-radius: 12px;
     border: 1px solid var(--chip-border);
     box-shadow: var(--chip-shadow);
-    backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(6px) saturate(110%);
     transform: translateY(0) scale(1);
     transition:
       transform 240ms var(--press-ease),
@@ -340,6 +336,56 @@
       background-color 180ms ease-out,
       color 180ms ease-out,
       border-color 180ms ease-out;
+  }
+
+  .t-commandLink.is-primary {
+    --chip-bg: var(--accent);
+    --chip-hover-bg: color-mix(in srgb, var(--accent) 92%, #ffffff 8%);
+    --chip-border: color-mix(in srgb, var(--accent) 80%, #050915 12%);
+    --chip-color: #f9fbff;
+    --chip-hover-color: #ffffff;
+    --chip-shadow: 0 6px 12px rgba(0, 0, 0, 0.22);
+  }
+
+  .t-commandLink.is-secondary {
+    --chip-bg: transparent;
+    --chip-hover-bg: color-mix(in srgb, transparent 90%, var(--accent) 10%);
+    --chip-border: color-mix(in srgb, var(--accent) 60%, var(--border) 50%);
+    --chip-color: var(--accent);
+    --chip-hover-color: var(--text);
+    --chip-shadow: none;
+  }
+
+  .t-commandLink.is-link {
+    --press-shadow-rest: none;
+    --press-shadow-half: none;
+    --press-shadow-full: none;
+    --press-bg: transparent;
+    --press-hover-bg: transparent;
+    --press-border: transparent;
+    --press-hover-border: transparent;
+    --press-color: var(--muted);
+    --press-hover-color: var(--text);
+    --chip-color: var(--muted);
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 12px 0 0;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+  }
+
+  .t-commandLink.is-link::before,
+  .t-commandLink.is-link::after {
+    display: none;
+  }
+
+  .t-commandLink.is-link:hover,
+  .t-commandLink.is-link:focus-visible {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 
   /* inner ring */
@@ -469,7 +515,8 @@
   }
 
   .t-avatarMeta {
-    color: var(--accent);
+    color: var(--muted);
+    text-transform: none;
     padding: 3px 10px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.06);
@@ -667,6 +714,16 @@
       display: inline-flex;
       justify-content: center;
       text-align: center;
+    }
+
+    .intro-start-line.has-commands .t-commandLink.is-link {
+      flex: 0 0 auto;
+      min-width: unset;
+      padding: 4px 6px;
+      margin: 0 8px;
+      box-shadow: none;
+      background: none;
+      text-align: left;
     }
   }
 
@@ -1842,7 +1899,6 @@
     text-transform: uppercase;
     letter-spacing: 0.14em;
     font-size: 11px;
-    color: rgba(235, 245, 255, 0.72);
   }
 
   .booking-title {
@@ -1871,7 +1927,6 @@
     min-height: 520px;
     width: calc(100% - 36px);
     height: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.08);
     margin: 0 18px 20px;
   }
 
