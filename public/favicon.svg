@@ -1,5 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Terminal favicon">
-  <rect width="64" height="64" rx="8" fill="#0f172a" />
-  <polygon points="22,18 38,32 22,46" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round" />
-  <rect x="24" y="48" width="20" height="4" rx="2" fill="#fff" />
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="30%" r="110%" gradientTransform="scale(1.1 1.1)">
+      <stop offset="0%" stop-color="#3f63a5" />
+      <stop offset="60%" stop-color="#111827" />
+    </radialGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.8)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#bg)" />
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" />
+  <path d="M20 14 L14 20 L14 44 L20 50" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M44 14 L50 20 L50 44 L44 50" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+  <polyline points="28 20 40 32 28 44" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
