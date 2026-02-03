@@ -28,9 +28,12 @@ export const buildSearchRegex = (query: string) => {
   return tokens.length ? new RegExp(tokens.join("|"), "i") : null;
 };
 
-export const sanitizeSearchQuery = (raw: string, opts: { trim?: boolean } = {}) => {
-  // Drop anything except letters, numbers, and whitespace then normalize spacing.
-  const filtered = raw.replace(/[^a-z0-9\s]/gi, "");
+export const sanitizeSearchQuery = (
+  raw: string,
+  opts: { trim?: boolean } = {},
+) => {
+  // Allow dots and hyphens so queries like "node.js" stay intact; strip the rest.
+  const filtered = raw.replace(/[^a-z0-9.\-\s]/gi, "");
   const normalized = filtered.replace(/\s+/g, " ");
   const shouldTrim = opts.trim ?? true;
   const ready = shouldTrim ? normalized.trim() : normalized;
