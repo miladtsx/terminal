@@ -319,19 +319,20 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     if (!model) return;
 
     introTypingRef.current = true;
-    const greeting = getGreeting();
+    // const greeting = getGreeting();
 
     model.pushLine("");
     setLinesFromModel();
 
-    const typing = simulateTypingSequence(greeting, {
+    const typing = simulateTypingSequence("", {
       onChar: (typed) => {
         model.setLine(0, typed);
         setLinesFromModel();
       },
     });
 
-    const timers: number[] = [...typing.timers];
+    // const timers: number[] = [...typing.timers];
+    const timers: number[] = [];
 
     const suggested =
       initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
@@ -339,7 +340,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     const typeIntroStartLines = (extraTimers: number[]) => {
       const startLines = formatCommandToButton(
-        `I own your production system, keep it calm, and improve it steadily.`,
+        `I help teams operate critical backend systems reliably and ship changes safely in growing production environments.
+
+10+ years in production systems across fintech, gaming, and security.
+        `,
         suggested,
       )();
 
@@ -347,7 +351,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         startLines[0] = [
           buildAvatarSegment([startLines[0]], {
             label: "Milad TSX",
-            meta: "Backend Engineering",
+            meta: "Backend-leaning Full-Stack Engineer",
           }),
         ];
       }

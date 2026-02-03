@@ -786,7 +786,7 @@ export function registerDefaultCommands({
   const whoamiHandler = () => {
     const lines = [
       "Name: Milad TSX",
-      "Role: Software Engineer",
+      "Role: Backend-leaning Full-Stack Engineer",
       "Focus: Backend, Reliability",
       "Open to collaboration",
     ];
@@ -808,9 +808,10 @@ export function registerDefaultCommands({
       "about",
       () => {
         const aboutLines = props.aboutLines || [
-          "I’m Milad, a backend software engineer.",
-          "I build reliable and efficient systems, predictable at production.",
-          "Outside of that I like early mornings, good tea, and watching cats like they’re alien philosophers.",
+          "I’m a Backend-leaning Full-Stack Engineer focused on predictable delivery: small changes, measurable outcomes, and code that is easy to operate.",
+          "I’m looking for a long-term role where I can grow with the product and take responsibility over time.",
+          "",
+          "Outside work: I enjoy early mornings, tea, and long walks.",
           "",
         ];
 
@@ -1037,7 +1038,7 @@ export function registerDefaultCommands({
         if (action === "list" || !args.length) {
           return [
             "",
-            "Click any case study to see how I help businesses",
+            "Click to see how I help businesses",
             "",
             [
               {
@@ -1391,11 +1392,9 @@ export function registerDefaultCommands({
       },
       { desc: "open resume.pdf in new tab" },
     )
-    .register(
-      "ver",
-      () => [`version: ${APP_VERSION}`],
-      { desc: "show app version" },
-    )
+    .register("ver", () => [`version: ${APP_VERSION}`], {
+      desc: "show app version",
+    })
     .register(
       "man",
       ({ args }) => {
