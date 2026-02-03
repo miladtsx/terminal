@@ -210,7 +210,7 @@ export function ChatDock() {
             aria-label="Tone selector"
           >
             <span id="chat-tone-label" className="chat-tone-title">
-              Tone
+              Select Your Desired Tone
             </span>
             <div
               className="chat-tone-options"
