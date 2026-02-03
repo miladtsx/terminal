@@ -350,8 +350,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       if (startLines.length && typeof startLines[0] === "string") {
         startLines[0] = [
           buildAvatarSegment([startLines[0]], {
-            label: "Milad TSX",
-            meta: "Backend-leaning Full-Stack Engineer",
+            label: "Software Backend Engineer",
+            meta: "(Reliability / Infrastructure)",
           }),
         ];
       }

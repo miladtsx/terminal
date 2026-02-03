@@ -786,14 +786,14 @@ export function registerDefaultCommands({
   const whoamiHandler = () => {
     const lines = [
       "Name: Milad TSX",
-      "Role: Backend-leaning Full-Stack Engineer",
-      "Focus: Backend, Reliability",
+      "Role: Software Backend Engineer",
+      "Focus: Reliability / Infrastructure",
       "Open to collaboration",
     ];
     return [
       [
         buildAvatarSegment(lines, {
-          label: "Milad",
+          label: "Milad TSX",
           meta: "profile",
           image: "images/ai_avatar.jpg",
         }),
@@ -808,18 +808,19 @@ export function registerDefaultCommands({
       "about",
       () => {
         const aboutLines = props.aboutLines || [
-          "I’m a Backend-leaning Full-Stack Engineer focused on predictable delivery: small changes, measurable outcomes, and code that is easy to operate.",
-          "I’m looking for a long-term role where I can grow with the product and take responsibility over time.",
-          "",
-          "Outside work: I enjoy early mornings, tea, and long walks.",
-          "",
+          `I like hard backend problems: 
+- correctness
+- recovery
+- and predictable behavior 
+in systems that can’t afford to be wrong.
+          `,
         ];
 
         return [
           [
             buildAvatarSegment(aboutLines, {
-              label: "Making Systems Resilient",
-              meta: "Pragmatic optimist",
+              label: "Software Backend Engineer",
+              meta: "(Reliability / Infrastructure)",
               image: "images/ai_avatar.jpg",
             }),
           ],

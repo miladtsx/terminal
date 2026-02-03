@@ -441,17 +441,19 @@
   .t-avatarMessage {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(120px, 30%) 1fr;
+    grid-template-columns: minmax(120px, 32%) 1fr;
     gap: 18px;
     align-items: center;
-    padding: 16px 18px;
-    margin: 14px 0;
-    /* border-radius: 18px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(140deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    background:
+      radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0)) 0 0 / 180px 180px,
+      linear-gradient(140deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
     box-shadow:
-      0 22px 42px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08); */
+      0 22px 42px rgba(0, 0, 0, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .t-avatarMessage::after {
@@ -492,7 +494,7 @@
   .t-avatarContent {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     min-width: 0;
   }
 
@@ -526,7 +528,8 @@
   .t-avatarLine {
     display: block;
     white-space: pre-wrap;
-    line-height: 1.6;
+    line-height: 1.7;
+    letter-spacing: 0.08px;
   }
 
   .t-avatarModal {
@@ -606,7 +609,15 @@
     grid-template-columns: unset;
     align-items: center;
     gap: 10px;
-    padding: 12px 14px;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+
+  .intro-start-line .t-avatarMessage::after {
+    display: none;
   }
 
   .intro-start-line .t-avatarPhoto {
