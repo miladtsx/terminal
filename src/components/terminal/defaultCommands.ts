@@ -808,7 +808,7 @@ export function registerDefaultCommands({
       "about",
       () => {
         const aboutLines = props.aboutLines || [
-          `I like hard backend problems: 
+          `I enjoy hard systems problems: 
 - correctness
 - recovery
 - and predictable behavior 
@@ -819,7 +819,7 @@ in systems that can’t afford to be wrong.
         return [
           [
             buildAvatarSegment(aboutLines, {
-              label: "Software Backend Engineer",
+              label: "Software Engineer",
               meta: "(Reliability / Infrastructure)",
               image: "images/ai_avatar.jpg",
             }),
