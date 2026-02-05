@@ -41,8 +41,8 @@ import { searchStore } from "@stores/searchStore";
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "contact", label: "Contact", variant: "primary" },
   { command: "download resume", label: "Resume (PDF)", variant: "secondary" },
-  { command: "work", label: "Production", variant: "link" },
-  { command: "about", label: "About", variant: "link" },
+  { command: "work", label: "Production", variant: "secondary" },
+  { command: "about", label: "About", variant: "secondary" },
 ];
 
 const APP_VERSION = packageJson.version;
