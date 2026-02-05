@@ -342,7 +342,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       const startLines = formatCommandToButton(
         `I help teams operate critical backend systems reliably and ship changes safely in growing production environments.
 
-10+ years in production systems across fintech, gaming, and security.
+10+ yrs in production systems across high-stake industries.
         `,
         suggested,
       )();
