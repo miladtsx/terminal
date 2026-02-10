@@ -908,7 +908,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         }
 
         if (tabMatches.length) {
-          const next = (tabIndex + 1) % tabMatches.length;
+          const step = event.shiftKey ? -1 : 1;
+          const next =
+            (tabIndex + step + tabMatches.length) % tabMatches.length;
           setState((prev) => ({
             ...prev,
             tabIndex: next,
@@ -922,7 +924,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         return;
       }
 
-      if (tabPrefix) {
+      const modifierKeys = ["Shift", "Control", "Alt", "Meta"];
+      if (tabPrefix && !modifierKeys.includes(event.key)) {
         resetTabState();
       }
     },
