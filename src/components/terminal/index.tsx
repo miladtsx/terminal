@@ -210,7 +210,9 @@ export default function Terminal(props: TerminalProps) {
   );
 
   useEffect(() => {
-    const handleClick = () => {
+    const handleClick = (ev: Event) => {
+      const target = ev.target as Element | null;
+      if (target?.closest(".t-contextMenu")) return; // keep menu open when interacting with it
       closeContextMenu();
     };
     const handleKey = (ev: KeyboardEvent) => {
@@ -600,16 +602,6 @@ export default function Terminal(props: TerminalProps) {
               </button>
             ))}
             <div className="t-contextMenuDivider" />
-            <button
-              type="button"
-              className="t-contextMenuItem system t-pressable"
-              onClick={() =>
-                openSystemMenu(contextMenu.sourceEvent || undefined)
-              }
-            >
-              <span>System Menu &gt;</span>
-              <small>let the OS do its thing</small>
-            </button>
           </div>
         ) : null}
         {easterEggMode ? (
