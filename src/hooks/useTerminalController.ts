@@ -598,18 +598,21 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       setState((prev) => ({ ...prev, input: "" }));
       focusInput();
 
+      let typingFinished = false;
       const { tick } = getTypeSfx();
       const typing = simulateTypingSequence(normalized, {
         onChar: (typed, ch) => {
+          if (typingFinished) return;
           setState((prev) => ({ ...prev, input: typed }));
           if (ch !== " ") tick();
         },
       });
 
       const finalTimer = window.setTimeout(() => {
-        void runCommand(normalized);
+        typingFinished = true;
         setState((prev) => ({ ...prev, input: "" }));
-      }, typing.duration);
+        void runCommand(normalized);
+      }, typing.duration + 10);
 
       typingTimersRef.current = [...typing.timers, finalTimer];
     },
