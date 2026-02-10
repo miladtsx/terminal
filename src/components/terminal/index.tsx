@@ -68,6 +68,13 @@ export default function Terminal(props: TerminalProps) {
     (state) => state.setTerminalFontSize,
   );
   const [collapsedCommands, setCollapsedCommands] = useState<Record<number, boolean>>({});
+  const caretShellRef = useRef<HTMLDivElement | null>(null);
+  const caretMetricsRef = useRef<{ font: string; charWidth: number; lineHeight: number } | null>(
+    null,
+  );
+  const [caretStyle, setCaretStyle] = useState<React.CSSProperties | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<number | null>(null);
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -323,6 +330,105 @@ export default function Terminal(props: TerminalProps) {
     return map;
   }, [commandLines]);
 
+  const markTyping = useCallback(() => {
+    setIsTyping(true);
+    if (typingTimeoutRef.current) {
+      window.clearTimeout(typingTimeoutRef.current);
+    }
+    typingTimeoutRef.current = window.setTimeout(() => setIsTyping(false), 520);
+  }, []);
+
+  const updateCaretPosition = useCallback(() => {
+    const inputEl = inputRef.current;
+    const shellEl = caretShellRef.current;
+    if (!inputEl || !shellEl) return;
+
+    const selection = inputEl.selectionStart ?? inputEl.value.length;
+    const valueBeforeCaret = inputEl.value.slice(0, selection);
+    const styles = window.getComputedStyle(inputEl);
+
+    const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+    const paddingRight = parseFloat(styles.paddingRight) || 0;
+    const paddingTop = parseFloat(styles.paddingTop) || 0;
+    const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+
+    const font = `${styles.fontWeight} ${styles.fontSize} ${styles.fontFamily}`;
+    const charMeasure = (() => {
+      if (caretMetricsRef.current?.font === font) return caretMetricsRef.current;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return { font, charWidth: 8, lineHeight: 20 };
+      ctx.font = font;
+      const metrics = ctx.measureText("M");
+      const lineHeight =
+        parseFloat(styles.lineHeight) ||
+        metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent ||
+        parseFloat(styles.fontSize) * 1.4;
+      const measure = { font, charWidth: metrics.width || 8, lineHeight };
+      caretMetricsRef.current = measure;
+      return measure;
+    })();
+
+    const usableWidth = inputEl.clientWidth - paddingLeft - paddingRight;
+    const columns = Math.max(1, Math.floor(usableWidth / Math.max(charMeasure.charWidth, 1)));
+
+    const lines = valueBeforeCaret.split("\n");
+    let row = 0;
+    for (let i = 0; i < lines.length - 1; i += 1) {
+      const line = lines[i];
+      row += Math.max(1, Math.ceil(Math.max(line.length, 1) / columns));
+    }
+    const lastLine = lines[lines.length - 1] ?? "";
+    row += Math.floor(lastLine.length / columns);
+    const col = lastLine.length % columns;
+
+    const left = paddingLeft + col * charMeasure.charWidth;
+    const top = paddingTop + row * charMeasure.lineHeight;
+    const height = Math.max(charMeasure.lineHeight - paddingBottom * 0.4, 14);
+
+    setCaretStyle({
+      transform: `translate3d(${left}px, ${top}px, 0)`,
+      height,
+      opacity: showInput ? 1 : 0,
+    });
+  }, [inputRef, caretShellRef, showInput]);
+
+  useEffect(() => {
+    const inputEl = inputRef.current;
+    if (!inputEl) return;
+
+    const rerender = () => {
+      window.requestAnimationFrame(updateCaretPosition);
+    };
+
+    rerender();
+    inputEl.addEventListener("input", rerender);
+    inputEl.addEventListener("keyup", rerender);
+    inputEl.addEventListener("click", rerender);
+    inputEl.addEventListener("mouseup", rerender);
+
+    const resizeObserver = new ResizeObserver(rerender);
+    resizeObserver.observe(inputEl);
+
+    return () => {
+      inputEl.removeEventListener("input", rerender);
+      inputEl.removeEventListener("keyup", rerender);
+      inputEl.removeEventListener("click", rerender);
+      inputEl.removeEventListener("mouseup", rerender);
+      resizeObserver.disconnect();
+    };
+  }, [updateCaretPosition, inputRef]);
+
+  useEffect(() => {
+    updateCaretPosition();
+  }, [input, terminalFontSize, updateCaretPosition]);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) window.clearTimeout(typingTimeoutRef.current);
+    };
+  }, []);
+
   const suggestStyle: React.CSSProperties = {
     margin: "4px 0 8px",
     padding: "4px 6px",
@@ -343,6 +449,22 @@ export default function Terminal(props: TerminalProps) {
     borderRadius: 4,
     transition: "background-color 120ms ease, color 120ms ease",
   };
+
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      markTyping();
+      onInputChange(event);
+    },
+    [markTyping, onInputChange],
+  );
+
+  const handleInputKeyDownWrapper = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      markTyping();
+      handleKeyDown(event);
+    },
+    [markTyping, handleKeyDown],
+  );
 
   return (
     <div
@@ -403,18 +525,25 @@ export default function Terminal(props: TerminalProps) {
           aria-hidden={!showInput}
         >
           {<span className="t-prompt">{prompt}</span>}
-          <textarea
-            ref={inputRef}
-            className="t-input"
-            value={input}
-            onChange={onInputChange}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
-            autoCapitalize="none"
-            autoCorrect="off"
-            rows={1}
-            aria-label="Terminal input"
-          />
+          <div className="t-inputShell" ref={caretShellRef}>
+            <textarea
+              ref={inputRef}
+              className="t-input"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDownWrapper}
+              spellCheck={false}
+              autoCapitalize="none"
+              autoCorrect="off"
+              rows={1}
+              aria-label="Terminal input"
+            />
+            <span
+              className={`t-caret${isTyping ? " is-solid" : ""}`}
+              style={caretStyle || undefined}
+              aria-hidden="true"
+            />
+          </div>
         </div>
         {tabVisible && tabMatches.length ? (
           <div

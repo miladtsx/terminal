@@ -167,11 +167,22 @@
     pointer-events: none;
   }
 
+  .t-inputRow.intro-hidden .t-caret {
+    opacity: 0;
+  }
+
   .t-inputRow {
     display: flex;
     align-items: flex-start;
     gap: 10px;
     margin-top: 30px;
+  }
+
+  .t-inputShell {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-width: 12ch;
   }
 
   .t-prompt {
@@ -244,8 +255,28 @@
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.45;
-    caret-color: rgba(235, 245, 255, 0.95);
+    caret-color: transparent;
     caret-shape: block;
+  }
+
+  .t-caret {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.9ch;
+    background: var(--caret, rgba(235, 245, 255, 0.95));
+    border-radius: 2px;
+    animation: blink 1.05s steps(1) infinite;
+    transition: transform 100ms ease, opacity 140ms ease;
+    pointer-events: none;
+    will-change: transform, opacity;
+    opacity: 0.92;
+    z-index: 1;
+  }
+
+  .t-caret.is-solid {
+    animation: none;
+    opacity: 1;
   }
 
   /* shared press/hover behavior; visuals come from the consumer via vars */
@@ -652,7 +683,7 @@
 
   .t-input {
     color: var(--text);
-    caret-color: var(--caret);
+    caret-color: transparent;
   }
 
   .t-input::placeholder {
