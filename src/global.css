@@ -2347,6 +2347,69 @@
   }
 }
 
+/* Respect OS motion preferences; also toggled via .motion-reduce class */
+@media (prefers-reduced-motion: reduce) {
+  .t-root,
+  .intro-start-line {
+    transition: none !important;
+  }
+
+  .t-caret {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  .terminal-toolbar,
+  .terminal-toolbar-button,
+  .t-commandLink,
+  .t-lineCommand,
+  .t-avatarPhoto,
+  .t-contextMenu,
+  .t-suggestItem,
+  .t-output,
+  .t-wrap {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
+  .terminal-toolbar-button,
+  .t-commandLink,
+  .t-lineCommand,
+  .t-avatarPhoto {
+    transform: none !important;
+  }
+}
+
+:root.motion-reduce .t-root,
+:root.motion-reduce .intro-start-line {
+  transition: none !important;
+}
+
+:root.motion-reduce .t-caret {
+  animation: none !important;
+  opacity: 1;
+}
+
+:root.motion-reduce .terminal-toolbar,
+:root.motion-reduce .terminal-toolbar-button,
+:root.motion-reduce .t-commandLink,
+:root.motion-reduce .t-lineCommand,
+:root.motion-reduce .t-avatarPhoto,
+:root.motion-reduce .t-contextMenu,
+:root.motion-reduce .t-suggestItem,
+:root.motion-reduce .t-output,
+:root.motion-reduce .t-wrap {
+  transition-duration: 0.01ms !important;
+  animation-duration: 0.01ms !important;
+}
+
+:root.motion-reduce .terminal-toolbar-button,
+:root.motion-reduce .t-commandLink,
+:root.motion-reduce .t-lineCommand,
+:root.motion-reduce .t-avatarPhoto {
+  transform: none !important;
+}
+
 @keyframes blink {
   50% {
     opacity: 0;

@@ -55,6 +55,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   const themePreviewingRef = useRef(false);
   const [allowProgrammaticFocus, setAllowProgrammaticFocus] = useState(true);
   const coarsePointerRef = useRef(false);
+  const isMotionReduced = useCallback(() => {
+    if (typeof document === "undefined") return false;
+    return document.documentElement.classList.contains("motion-reduce");
+  }, []);
 
   const detectCoarsePointer = useCallback(() => {
     if (typeof window === "undefined") return false;
@@ -321,6 +325,56 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     introTypingRef.current = true;
     // const greeting = getGreeting();
 
+    const suggested =
+      initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
+
+    const startLines = formatCommandToButton(
+      `I help teams operate critical backend systems reliably and ship changes safely in growing production environments.
+
+10+ yrs in production systems across high-stake industries.
+      `,
+      suggested,
+    )();
+
+    if (startLines.length && typeof startLines[0] === "string") {
+      startLines[0] = [
+        buildAvatarSegment([startLines[0]], {
+          label: "Software Backend Engineer",
+          meta: "(Reliability / Infrastructure)",
+        }),
+      ];
+    }
+
+    if (!startLines.length) {
+      introTypingRef.current = false;
+      setShowIntroInput(true);
+      focusInput();
+      return;
+    }
+
+    setShowIntroInput(false);
+
+    const renderIntroInstantly = () => {
+      const blankIndex = model.lines.length;
+      model.pushLine("");
+      model.pushLines(startLines);
+      setLinesFromModel();
+      setIntroStartLineRange({
+        start: blankIndex + 1,
+        count: startLines.length,
+      });
+      setIntroStartVisible(true);
+      introTypingRef.current = false;
+      setShowIntroInput(true);
+      focusInput();
+    };
+
+    // If motion is reduced, render intro content immediately without typing animation.
+    if (isMotionReduced()) {
+      renderIntroInstantly();
+      return;
+    }
+
     model.pushLine("");
     setLinesFromModel();
 
@@ -331,31 +385,9 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       },
     });
 
-    // const timers: number[] = [...typing.timers];
     const timers: number[] = [];
 
-    const suggested =
-      initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
-    setShowIntroInput(false);
-
     const typeIntroStartLines = (extraTimers: number[]) => {
-      const startLines = formatCommandToButton(
-        `I help teams operate critical backend systems reliably and ship changes safely in growing production environments.
-
-10+ yrs in production systems across high-stake industries.
-        `,
-        suggested,
-      )();
-
-      if (startLines.length && typeof startLines[0] === "string") {
-        startLines[0] = [
-          buildAvatarSegment([startLines[0]], {
-            label: "Software Backend Engineer",
-            meta: "(Reliability / Infrastructure)",
-          }),
-        ];
-      }
-
       if (!startLines.length) {
         setShowIntroInput(true);
         focusInput();
@@ -527,6 +559,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     setIntroStartLineRange,
     setIntroStartVisible,
     setShowIntroInput,
+    isMotionReduced,
   ]);
 
   const runCommand = useCallback(
@@ -598,6 +631,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       setState((prev) => ({ ...prev, input: "" }));
       focusInput();
 
+      if (isMotionReduced()) {
+        setState((prev) => ({ ...prev, input: "" }));
+        void runCommand(normalized);
+        return;
+      }
+
       let typingFinished = false;
       const { tick } = getTypeSfx();
       const typing = simulateTypingSequence(normalized, {
@@ -616,7 +655,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       typingTimersRef.current = [...typing.timers, finalTimer];
     },
-    [cancelTyping, focusInput, resetTabState, runCommand],
+    [cancelTyping, focusInput, resetTabState, runCommand, isMotionReduced],
   );
 
   const triggerSharedRunSequence = useCallback(() => {

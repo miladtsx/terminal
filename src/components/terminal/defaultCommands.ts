@@ -197,7 +197,51 @@ const FAQ_ITEMS = [
     answer:
       "I join your Slack/Teams, ship in your repos, and keep PRs small. If you lack process, I bring a light one.",
   },
+  {
+    question: "Do you respect accessibility preferences?",
+    answer:
+      "Yes. Prefers-reduced-motion is honored automatically; run `motion status|reduce|allow|auto` to tune animations if you want explicit control.",
+  },
 ];
+
+type MotionMode = "auto" | "reduce" | "allow";
+const MOTION_STORAGE_KEY = "terminal.motion";
+
+const readStoredMotion = (): MotionMode => {
+  try {
+    const stored = localStorage.getItem(MOTION_STORAGE_KEY);
+    if (stored === "reduce" || stored === "allow" || stored === "auto") {
+      return stored;
+    }
+  } catch {
+    // ignore
+  }
+  return "auto";
+};
+
+const writeStoredMotion = (mode: MotionMode) => {
+  try {
+    localStorage.setItem(MOTION_STORAGE_KEY, mode);
+  } catch {
+    // ignore
+  }
+};
+
+const prefersReducedMotion = () =>
+  typeof matchMedia === "function" &&
+  matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const applyMotionMode = (mode: MotionMode) => {
+  const root = document.documentElement;
+  root.classList.remove("motion-reduce");
+  if (mode === "reduce") {
+    root.classList.add("motion-reduce");
+    return;
+  }
+  if (mode === "auto" && prefersReducedMotion()) {
+    root.classList.add("motion-reduce");
+  }
+};
 
 async function getTextForFile(meta: FileMeta): Promise<string> {
   const cached = textCache.get(meta.path);
@@ -293,6 +337,9 @@ export function registerDefaultCommands({
   const contact = props.contact || {
     email: "miladtsx+terminal@gmail.com",
   };
+  if (typeof document !== "undefined") {
+    applyMotionMode(readStoredMotion());
+  }
 
   const themes = listThemes();
 
@@ -1166,11 +1213,7 @@ in systems that can’t afford to be wrong.
           ),
         ];
 
-        return [
-          `downloading ${downloadName}...`,
-          integrityLine,
-          verifyLine,
-        ];
+        return [`downloading ${downloadName}...`, integrityLine, verifyLine];
       },
       { desc: "download file from /files" },
     )
@@ -1378,6 +1421,49 @@ in systems that can’t afford to be wrong.
       },
     )
     .register(
+      "motion",
+      ({ args }) => {
+        const input = (args[0] || "status").toLowerCase();
+        const normalize = (token: string): MotionMode | "status" | null => {
+          if (!token || token === "status") return "status";
+          if (token === "reduce" || token === "off") return "reduce";
+          if (token === "allow" || token === "on") return "allow";
+          if (token === "auto" || token === "system") return "auto";
+          return null;
+        };
+
+        const mode = normalize(input);
+        if (mode === null) {
+          return ["usage: motion status|reduce|allow|auto"];
+        }
+
+        if (typeof document === "undefined") {
+          return ["motion: unavailable in this environment"];
+        }
+
+        if (mode !== "status") {
+          writeStoredMotion(mode);
+          applyMotionMode(mode);
+        }
+
+        const stored = readStoredMotion();
+        const systemPrefers = prefersReducedMotion();
+        const active =
+          document.documentElement.classList.contains("motion-reduce");
+
+        return [
+          `motion mode: ${stored}`,
+          `system prefers-reduced-motion: ${systemPrefers ? "reduce" : "no preference"}`,
+          `active setting: ${active ? "reduced motion" : "full motion"}`,
+          "use: motion reduce | motion allow | motion auto",
+        ];
+      },
+      {
+        desc: "motion status | reduce | allow | auto (respects prefers-reduced-motion)",
+        subcommands: ["status", "reduce", "allow", "auto"],
+      },
+    )
+    .register(
       "resume",
       () => {
         const target = findFileByName("cv.pdf");
@@ -1442,6 +1528,12 @@ in systems that can’t afford to be wrong.
             "theme list — show bundled font+color presets",
             "theme current — show active preset (or custom)",
             "theme <id> — apply preset (updates font + theme)",
+          ],
+          motion: [
+            "motion status — show whether reduced motion is active",
+            "motion reduce — force low-motion mode",
+            "motion allow — force full-motion mode",
+            "motion auto — follow OS prefers-reduced-motion",
           ],
         };
 
