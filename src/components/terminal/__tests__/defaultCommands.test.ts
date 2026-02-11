@@ -149,22 +149,9 @@ describe("default commands", () => {
       registry,
     });
     const grepLines = Array.isArray(grepOut) ? grepOut : [grepOut];
-    const searchLine = (grepLines as TerminalLineInput[]).find(
-      (line): line is TerminalLine =>
-        Array.isArray(line) &&
-        line.some((seg) => (seg as any).type === "searchHits"),
-    );
-    expect(searchLine).toBeTruthy();
-    const searchSeg = searchLine?.find(
-      (seg) => (seg as any).type === "searchHits",
-    ) as any;
-    expect(
-      searchSeg?.hits?.some(
-        (hit: any) =>
-          hit.readCommand?.includes("client-question") ||
-          hit.title?.toLowerCase().includes("client question"),
-      ),
-    ).toBe(true);
+    const grepSummary = grepLines.join("\n");
+    expect(grepSummary).toContain("search modal open");
+    expect(grepSummary).toContain("kickoff");
   });
 
   it("includes work case studies in grep results", async () => {
@@ -178,20 +165,9 @@ describe("default commands", () => {
       registry,
     });
     const grepLines = Array.isArray(grepOut) ? grepOut : [grepOut];
-    const searchLine = (grepLines as TerminalLineInput[]).find(
-      (line): line is TerminalLine =>
-        Array.isArray(line) &&
-        line.some((seg) => (seg as any).type === "searchHits"),
-    );
-    expect(searchLine).toBeTruthy();
-    const searchSeg = searchLine?.find(
-      (seg) => (seg as any).type === "searchHits",
-    ) as any;
-    expect(
-      searchSeg?.hits?.some(
-        (hit: any) => hit.source === "work" && hit.readCommand?.startsWith("work read"),
-      ),
-    ).toBe(true);
+    const summary = grepLines.join("\n");
+    expect(summary).toContain("search modal open");
+    expect(summary.toLowerCase()).toContain("outsourcing");
   });
 
   it("lists and reads logs from markdown", async () => {

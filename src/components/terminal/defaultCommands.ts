@@ -527,33 +527,16 @@ export function registerDefaultCommands({
     }
 
     const { hits, total } = await runSearch(query);
-    if (!hits.length) return [`no matches for "${query}"`];
-
-    const maxResults = 12;
-    const trimmed = hits.slice(0, maxResults);
-    const output: TerminalLineInput[] = [
-      `search results (${trimmed.length}/${total})`,
-      [
-        {
-          type: "searchHits",
-          query,
-          hits: trimmed,
-        },
-      ],
-    ];
-
-    if (total > trimmed.length) {
-      output.push(
-        `… ${total - trimmed.length} more matches hidden — refine your query to narrow.`,
-      );
-    }
-
-    // keep modal state in sync
     searchStore.setQuery(query);
     searchStore.setResults(hits, total);
     searchStore.open();
 
-    return output;
+    if (!hits.length) {
+      return [`no matches for "${query}" (search modal open)`];
+    }
+
+    const summary = `search modal open — ${total} match${total === 1 ? "" : "es"} for "${query}"`;
+    return [summary];
   };
 
   const files = listFiles();
