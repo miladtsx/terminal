@@ -1033,7 +1033,7 @@
 
   .t-searchInput {
     width: 100%;
-    padding: 9px 32px 9px 12px;
+    padding: 9px 42px 9px 12px;
     border-radius: 10px;
     border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
     background: color-mix(in srgb, var(--surface) 95%, var(--accent) 5%);
@@ -1045,12 +1045,30 @@
     right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    border: none;
-    background: transparent;
-    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+    color: color-mix(in srgb, var(--muted) 80%, var(--text) 20%);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 1;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+
+  .t-searchClear:hover {
+    background: color-mix(in srgb, var(--surface) 80%, var(--accent) 20%);
+    color: var(--text);
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border) 50%);
+  }
+
+  .t-searchClear:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+    outline-offset: 2px;
   }
 
   .t-searchClose {

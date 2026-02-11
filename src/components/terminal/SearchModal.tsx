@@ -38,31 +38,6 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
     }
   }, [isOpen]);
 
-  // Keep focus inside the search input while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const enforceFocus = (target: EventTarget | null) => {
-      if (!inputRef.current) return;
-      const el = target as HTMLElement | null;
-      const inModal = el?.closest?.(".t-searchModal");
-      const alreadyOnInput = el === inputRef.current;
-      if (inModal && !alreadyOnInput) {
-        requestAnimationFrame(() => inputRef.current?.focus());
-      }
-    };
-
-    const onFocusIn = (event: FocusEvent) => enforceFocus(event.target);
-    const onPointerDown = (event: PointerEvent) => enforceFocus(event.target);
-
-    document.addEventListener("focusin", onFocusIn, true);
-    document.addEventListener("pointerdown", onPointerDown, true);
-    return () => {
-      document.removeEventListener("focusin", onFocusIn, true);
-      document.removeEventListener("pointerdown", onPointerDown, true);
-    };
-  }, [isOpen]);
-
   // ESC closes but keeps state
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
