@@ -7,3 +7,4 @@ export * from "./terminalColors";
 export * from "./terminalThemes";
 export * from "./shareLink";
 export * from "./avatar";
+export * from "./fileMeta";

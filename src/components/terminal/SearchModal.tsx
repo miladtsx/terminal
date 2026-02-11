@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchStore } from "@stores/searchStore";
 import { runSearch, sanitizeSearchQuery } from "@data/searchIndex";
 import { SearchHit } from "@types";
+import { DownloadIntegrity } from "./DownloadIntegrity";
 
 const debounce = (fn: (...args: any[]) => void, wait = 200) => {
   let timer: number | undefined;
@@ -248,6 +249,9 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
                           </button>
                         ) : null}
                       </div>
+                      {entry.downloadCommand ? (
+                        <DownloadIntegrity command={entry.downloadCommand} />
+                      ) : null}
                     </details>
                   ))}
                 </div>

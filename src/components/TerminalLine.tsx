@@ -14,6 +14,7 @@ import {
   AvatarSegment,
   SearchHitsSegment as SearchHitsSegmentType,
 } from "@types";
+import { DownloadIntegrity } from "./terminal/DownloadIntegrity";
 
 function CopyIcon({ active }: { active: boolean }) {
   return (
@@ -373,6 +374,9 @@ function SearchHits({
                                   </button>
                                 ) : null}
                               </div>
+                              {entry.downloadCommand ? (
+                                <DownloadIntegrity command={entry.downloadCommand} />
+                              ) : null}
                             </>
                           ) : null}
                         </div>

@@ -25,6 +25,7 @@ import {
   listThemes,
   matchTheme,
 } from "@utils";
+import { formatBytes, formatMtime, resolveFileMeta } from "@utils/fileMeta";
 import { openChat } from "@stores/chatStore";
 import { findFileByName, listFiles, listTextFiles } from "../../data/files";
 import { blogIndex } from "../../data/blogIndex";
@@ -174,13 +175,6 @@ export function formatCommandToButton(
   };
 }
 
-const FILE_ALIASES: Record<string, string> = {
-  backend: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  fullstack: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  resume: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  llm: "llm_tsx.txt",
-};
-
 const textCache = new Map<string, string>();
 
 const FAQ_ITEMS = [
@@ -204,12 +198,6 @@ const FAQ_ITEMS = [
       "I join your Slack/Teams, ship in your repos, and keep PRs small. If you lack process, I bring a light one.",
   },
 ];
-
-export const formatBytes = (value: number): string => {
-  if (value < 1024) return `${value} B`;
-  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
-  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
-};
 
 async function getTextForFile(meta: FileMeta): Promise<string> {
   const cached = textCache.get(meta.path);
@@ -237,11 +225,7 @@ function formatFileRow(file: FileMeta) {
 }
 
 function resolveFile(token: string): FileMeta | undefined {
-  if (!token) return undefined;
-  const normalized = token.toLowerCase();
-  const aliasTarget = FILE_ALIASES[normalized];
-  if (aliasTarget) return findFileByName(aliasTarget);
-  return findFileByName(token);
+  return resolveFileMeta(token);
 }
 
 function buildManPage(entries: Record<string, string[]>): string[] {
@@ -1152,6 +1136,9 @@ in systems that can’t afford to be wrong.
         const downloadName =
           target.path.split("/").filter(Boolean).pop() || target.name;
 
+        const verifyToken = args[0] || target.name;
+        const updated = formatMtime(target.mtime);
+
         const link = document.createElement("a");
         link.href = target.path;
         link.download = downloadName;
@@ -1159,7 +1146,31 @@ in systems that can’t afford to be wrong.
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        return [`downloading ${downloadName}...`];
+        const integrityLine: LineSegment[] = [
+          createTextSegment("sha256 "),
+          createCopySegment(target.sha256, "copy hash"),
+          createTextSegment(`  ${formatBytes(target.size)}`),
+        ];
+
+        if (updated) {
+          integrityLine.push(createTextSegment(`  updated ${updated}`));
+        }
+
+        const verifyLine: LineSegment[] = [
+          createTextSegment("verify: "),
+          createCommandSegment(
+            `verify ${verifyToken}`,
+            `verify ${verifyToken}`,
+            `Verify ${verifyToken}`,
+            "link",
+          ),
+        ];
+
+        return [
+          `downloading ${downloadName}...`,
+          integrityLine,
+          verifyLine,
+        ];
       },
       { desc: "download file from /files" },
     )
@@ -1185,7 +1196,7 @@ in systems that can’t afford to be wrong.
             `  size: ${formatBytes(target.size)}`,
             `  expected: ${target.sha256}`,
             `  actual:   ${actual}`,
-            match ? "✓ hash match" : "✗ hash mismatch",
+            match ? "✅ hash match" : "✗ hash mismatch",
           ];
         } catch (error) {
           return [
