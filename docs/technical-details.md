@@ -37,6 +37,24 @@ This document dives into the runtime, command system, assets, and helpers that m
 - `src/utils/shareLink.ts:1` supports the `buildShareLink`/`parseShareCommandsFromLocation` flow, which lets the UI consume `?run=` query parameters to auto-execute whitelisted `blog read` and `logs read` commands.
 - Clipboard access, typing simulations, and greeting copy originate from `src/utils/index.ts:1` (which re-exports `clipboard.ts`, `greeting.ts`, and `typingSimulation.ts`). These helpers keep the terminal feel consistent without polluting the core controller.
 
+## Constellation network simulator (for fun)
+
+- The constellation mode in `src/components/Starfield.tsx:1` includes a small **network simulator** that is intentionally playful and visual-first.
+- It models moving nodes, links, packets, route discovery, and failures to make the background feel alive. This is not a protocol-accurate networking stack.
+
+### What it simulates
+
+- **Mobile-like nodes:** nodes gently float and slowly move over time (bounded random walk + drift), so the topology feels like mobile peers rather than fixed points.
+- **Mesh routing:** packets are routed over currently healthy multi-hop paths using runtime path-finding.
+- **No endpoint shortcut:** endpoints A and B do not directly communicate; messages are injected into the mesh and delivered by the network.
+- **Route break handling:** if a hop/node becomes unavailable, packets attempt reroute; if no route exists, delivery fails loudly via endpoint failure pulses.
+
+### Why it exists
+
+- It gives the terminal background a systems-flavored narrative: discovery, traffic, retries, and failure.
+- It provides a richer interactive feel without requiring external services or backend state.
+- Again, this is intentionally an aesthetic simulator for storytelling and interaction.
+
 ## Tests & extension points
 
 - Unit tests live under `src/components/terminal/__tests__/Terminal.test.tsx` (and related helpers) to guard command behavior and rendering.
