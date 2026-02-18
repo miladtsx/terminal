@@ -5,7 +5,8 @@ import { useTerminalColors } from "@hooks/useTerminalColors";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
-import { TerminalProps } from "@types";
+import { Starfield } from "@components/Starfield";
+import { TerminalLineInput, TerminalProps } from "@types";
 import {
   FONT_SIZE_MAX,
   FONT_SIZE_MIN,
@@ -18,9 +19,25 @@ import { SearchModal } from "./SearchModal";
 import { TerminalToolbar } from "./Toolbar";
 import { searchStore } from "@stores/searchStore";
 
+const MENU_WIDTH = 260;
+const MENU_HEIGHT = 200;
+const CLAMP_MARGIN = 6;
+
+const isLineBlank = (line: TerminalLineInput) => {
+  if (typeof line === "string") {
+    return line.trim().length === 0;
+  }
+
+  return line.every(
+    (segment) => segment.type === "text" && segment.text.trim().length === 0,
+  );
+};
+
 export default function Terminal(props: TerminalProps) {
   const fontController = useTerminalFonts();
   const colorController = useTerminalColors();
+  const currentColor = colorController.getCurrentColor();
+  const isNightSky = currentColor.id === "night_sky";
   const appearanceController = useMemo(
     () => ({ font: fontController, color: colorController }),
     [fontController, colorController],
@@ -49,12 +66,7 @@ export default function Terminal(props: TerminalProps) {
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
-    sourceEvent?: MouseEvent;
   } | null>(null);
-  const allowSystemMenuRef = useRef(false);
-  const [easterEggMode, setEasterEggMode] = useState<
-    "portfolio" | "autobot" | null
-  >(null);
   const { notification, dismiss } = useNotificationOverlay();
   const fontLoading = useUiStore(
     useShallow((state) => ({
@@ -75,6 +87,10 @@ export default function Terminal(props: TerminalProps) {
   const [caretStyle, setCaretStyle] = useState<React.CSSProperties | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<number | null>(null);
+  const isPlaygroundFocused = useMemo(() => {
+    if (lines.length === 0) return true;
+    return lines.every(isLineBlank);
+  }, [lines]);
   const showInput = showIntroInput;
   const introRange = introStartLineRange;
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -85,9 +101,6 @@ export default function Terminal(props: TerminalProps) {
     },
     [scrollRef],
   );
-  const MENU_WIDTH = 260;
-  const MENU_HEIGHT = 200;
-  const CLAMP_MARGIN = 6;
   const clampX = useCallback(
     (rawX: number) => {
       const rect = wrapRef.current?.getBoundingClientRect();
@@ -134,42 +147,30 @@ export default function Terminal(props: TerminalProps) {
     [focusInput]
   );
 
+  const openPlayground = useCallback(() => {
+    executeCommand("clear");
+  }, [executeCommand]);
+
   const contextMenuItems = useMemo(
     () => [
       {
         id: "human",
-        label: "I want to talk to a human",
-        meta: "runs `contact`",
+        label: "Lets talk",
+        meta: "",
         action: () => executeCommand("contact"),
       },
       {
-        id: "portfolio",
-        label: "Launch portfolio view",
-        meta: "auto-typifies a landing experience",
-        action: () => {
-          executeCommand("portfolio");
-          setEasterEggMode("portfolio");
-        },
-      },
-      {
-        id: "magic",
-        label: "Transform now!",
-        meta: "It all started from a terminal ...!",
-        action: () => {
-          executeCommand("transformer");
-          setEasterEggMode("autobot");
-        },
+        id: "starfield-fullscreen",
+        label: "Playground",
+        meta: "Clear the terminal and show a Distributed Network",
+        action: openPlayground,
       },
     ],
-    [executeCommand]
+    [executeCommand, openPlayground]
   );
 
   const handleContextMenu = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if (allowSystemMenuRef.current) {
-        allowSystemMenuRef.current = false;
-        return;
-      }
       event.preventDefault();
       const target = event.target as Element | null;
       if (target && target.closest("input, textarea, button")) {
@@ -179,7 +180,6 @@ export default function Terminal(props: TerminalProps) {
       setContextMenu({
         x: event.clientX,
         y: event.clientY,
-        sourceEvent: event.nativeEvent,
       });
     },
     [focusInput]
@@ -188,26 +188,6 @@ export default function Terminal(props: TerminalProps) {
   const closeContextMenu = useCallback(() => {
     setContextMenu(null);
   }, []);
-
-  const openSystemMenu = useCallback(
-    (source?: MouseEvent) => {
-      closeContextMenu();
-      const coords = source
-        ? { x: source.clientX, y: source.clientY }
-        : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-      setTimeout(() => {
-        allowSystemMenuRef.current = true;
-        const synthetic = new MouseEvent("contextmenu", {
-          bubbles: true,
-          cancelable: true,
-          clientX: coords.x,
-          clientY: coords.y,
-        });
-        document.dispatchEvent(synthetic);
-      });
-    },
-    [closeContextMenu]
-  );
 
   useEffect(() => {
     const handleClick = (ev: Event) => {
@@ -477,6 +457,16 @@ export default function Terminal(props: TerminalProps) {
       role="application"
       aria-label="Terminal portfolio"
     >
+      <Starfield
+        enabled={isNightSky}
+        density={4}
+        speed={0.3}
+        twinkleRate={0.4}
+        layers={3}
+        mode="constellation"
+        focused={isPlaygroundFocused}
+        visualScale={terminalFontSize / 15}
+      />
       {notification ? (
         <NotificationOverlay notification={notification} onDismiss={dismiss} />
       ) : null}
@@ -602,13 +592,6 @@ export default function Terminal(props: TerminalProps) {
               </button>
             ))}
             <div className="t-contextMenuDivider" />
-          </div>
-        ) : null}
-        {easterEggMode ? (
-          <div className="t-contextHint" role="status" aria-live="polite">
-            {easterEggMode === "portfolio"
-              ? "Synthesizing portfolio graphics… Visual mode queued."
-              : "Autobot transformation online. Expect cinematic mode."}
           </div>
         ) : null}
       </div>

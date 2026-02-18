@@ -40,6 +40,13 @@ const THEMES: TerminalTheme[] = [
     colorId: "hacker_light",
     fontId: "vt323",
   },
+  {
+    id: "night_sky",
+    label: "Blackhole",
+    colorId: "night_sky",
+    fontId: "fira",
+    description: "Deep Space",
+  },
 ];
 
 const normalize = (value: string) => value.trim().toLowerCase();

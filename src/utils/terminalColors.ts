@@ -34,7 +34,7 @@ export type TerminalColorController = {
 };
 
 const STORAGE_KEY = "terminal.color";
-const DEFAULT_COLOR_ID = "clarity_light";
+const DEFAULT_COLOR_ID = "night_sky";
 
 const buildLayer = (base: string, a: string, b: string) =>
   `radial-gradient(circle at 18% 18%, ${a}, transparent 38%), radial-gradient(circle at 82% 12%, ${b}, transparent 32%), ${base}`;
@@ -265,6 +265,35 @@ const COLOR_OPTIONS: TerminalColorOption[] = [
   },
 
   {
+    id: "night_sky",
+    label: "Night Sky",
+    group: "dark",
+    tone: "dark",
+    description: "Deep indigo night with subtle star-ready contrast",
+    background: "#050711",
+    layer:
+      "radial-gradient(130% 150% at 16% 12%, rgba(116, 131, 255, 0.14), transparent 48%)," +
+      "radial-gradient(130% 140% at 82% 10%, rgba(146, 99, 255, 0.10), transparent 46%)," +
+      "linear-gradient(160deg, #050711 0%, #060a16 44%, #070b1b 100%)",
+    surface: "rgba(10, 15, 31, 0.85)",
+    text: "#eef3ff",
+    muted: "#c7d0ee",
+    accent: "#9dc3ff",
+    border: "rgba(230, 239, 255, 0.2)",
+    card: "rgba(255, 255, 255, 0.06)",
+    shadow: "0 30px 82px rgba(1, 4, 18, 0.72)",
+    selection: "rgba(157, 195, 255, 0.24)",
+    caret: "#f3f7ff",
+    chipBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08) 52%, rgba(6, 10, 22, 0.62))",
+    chipHoverBg:
+      "linear-gradient(180deg, rgba(255, 255, 255, 0.27), rgba(255, 255, 255, 0.11) 52%, rgba(6, 10, 22, 0.68))",
+    chipColor: "#f2f7ff",
+    chipHoverColor: "#ffffff",
+    chipActiveShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.72)",
+  },
+
+  {
     id: "hacker_dark",
     label: "Hacker (Neon)",
     group: "dark",
@@ -352,7 +381,9 @@ const applyTheme = (theme: TerminalColorOption) => {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   root.style.setProperty("--bg", theme.background);
+  root.style.setProperty("--bg0", theme.background);
   root.style.setProperty("--bg-layer", theme.layer || theme.background);
+  root.style.setProperty("--bg1", theme.surface);
   root.style.setProperty("--surface", theme.surface);
   root.style.setProperty("--text", theme.text);
   root.style.setProperty("--muted", theme.muted);
@@ -386,6 +417,11 @@ const applyTheme = (theme: TerminalColorOption) => {
       (theme.tone === "light"
         ? "inset 0 1px 2px rgba(0, 0, 0, 0.38)"
         : "inset 0 1px 2px rgba(0, 0, 0, 0.7)"),
+  );
+  root.style.setProperty("--button-bg", theme.accent);
+  root.style.setProperty(
+    "--button-text",
+    theme.tone === "light" ? "#0b0f19" : "#f8fbff",
   );
   const suggestBg =
     theme.tone === "light" ? "rgba(15, 23, 42, 0.08)" : "rgba(0, 0, 0, 0.6)";
