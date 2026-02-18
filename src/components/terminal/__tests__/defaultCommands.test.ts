@@ -35,9 +35,36 @@ describe("default commands", () => {
     expect(lsHandler).toBeTruthy();
     const output = await lsHandler?.({ args: [], raw: "ls", model, registry });
     const lines = Array.isArray(output) ? output : [output];
-    const joined = lines.join("\n");
-    expect(joined).toContain("llm_tsx.txt");
-    expect(joined).toContain("miladtsx_software_engineer_resume.pdf");
+
+    const fileRows = lines.filter((line): line is TerminalLine =>
+      Array.isArray(line),
+    );
+    const textRows = fileRows
+      .flatMap((line) => line)
+      .filter((segment): segment is { type: "text"; text: string } => {
+        return typeof segment !== "string" && segment.type === "text";
+      })
+      .map((segment) => segment.text)
+      .join("\n");
+
+    const downloadCommands = fileRows
+      .flatMap((line) => line)
+      .filter((segment): segment is { type: "command"; command: string; label: string } => {
+        return typeof segment !== "string" && segment.type === "command";
+      });
+
+    expect(textRows).toContain("llm_tsx.txt");
+    expect(textRows).toContain("miladtsx_software_engineer_resume.pdf");
+    expect(
+      downloadCommands.some((segment) => segment.command === "download llm_tsx.txt"),
+    ).toBe(true);
+    expect(
+      downloadCommands.some(
+        (segment) =>
+          segment.command === "download miladtsx_software_engineer_resume.pdf",
+      ),
+    ).toBe(true);
+    expect(downloadCommands.every((segment) => segment.label === "⬇")).toBe(true);
   });
 
   it("verify reports hash match for empty file", async () => {

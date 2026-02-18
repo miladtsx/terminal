@@ -262,10 +262,17 @@ async function computeSha256(buffer: ArrayBuffer): Promise<string> {
 }
 
 function formatFileRow(file: FileMeta) {
-  const displayPath = file.path.startsWith("/") ? file.path : `/${file.path}`;
-  return `  ${file.name.padEnd(18)} ${formatBytes(file.size).padStart(
-    8,
-  )}  ${displayPath}`;
+  return [
+    createTextSegment(
+      `  ${file.name.padEnd(18)}   ${formatBytes(file.size).padStart(8)}  `,
+    ),
+    createCommandSegment(
+      `download ${file.name}`,
+      "⬇",
+      `Download ${file.name}`,
+      "link",
+    ),
+  ];
 }
 
 function resolveFile(token: string): FileMeta | undefined {
@@ -1111,7 +1118,7 @@ in systems that can’t afford to be wrong.
 
         if (atHome || atFiles) {
           if (!files.length) return ["(no files in files/ yet)"];
-          return ["files:", ...files.map((file) => formatFileRow(file))];
+          return ["./files", ...files.map((file) => formatFileRow(file))];
         }
 
         return ["ls: unsupported directory"];
