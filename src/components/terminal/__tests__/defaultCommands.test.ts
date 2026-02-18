@@ -37,7 +37,7 @@ describe("default commands", () => {
     const lines = Array.isArray(output) ? output : [output];
     const joined = lines.join("\n");
     expect(joined).toContain("llm_tsx.txt");
-    expect(joined).toContain("Milad_TSX_Senior_Backend_Engineer_Resume.pdf");
+    expect(joined).toContain("miladtsx_software_engineer_resume.pdf");
   });
 
   it("verify reports hash match for empty file", async () => {
@@ -76,8 +76,8 @@ describe("default commands", () => {
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     const output = await verifyHandler?.({
-      args: ["Milad_TSX_Senior_Backend_Engineer_Resume.pdf"],
-      raw: "verify Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+      args: ["miladtsx_software_engineer_resume.pdf"],
+      raw: "verify miladtsx_software_engineer_resume.pdf",
       model,
       registry,
     });
@@ -89,8 +89,8 @@ describe("default commands", () => {
     const { registry, model } = buildRegistry();
     const catHandler = registry.get("cat")?.handler;
     const output = await catHandler?.({
-      args: ["Milad_TSX_Senior_Backend_Engineer_Resume.pdf"],
-      raw: "cat Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+      args: ["miladtsx_software_engineer_resume.pdf"],
+      raw: "cat miladtsx_software_engineer_resume.pdf",
       model,
       registry,
     });

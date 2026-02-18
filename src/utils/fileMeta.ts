@@ -2,9 +2,8 @@ import { FileMeta } from "@types";
 import { findFileByName } from "@data/files";
 
 export const FILE_ALIASES: Record<string, string> = {
-  backend: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  fullstack: "Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
-  resume: "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
+  cv: "miladtsx_software_engineer_resume.pdf",
+  resume: "miladtsx_software_engineer_resume.pdf",
   llm: "llm_tsx.txt",
 };
 

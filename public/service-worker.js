@@ -3,8 +3,7 @@ const BASE_PATH = new URL(".", self.location).pathname;
 const CORE_ASSETS = [
   "",
   "index.html",
-  "files/Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-  "files/Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
+  "files/miladtsx_software_engineer_resume.pdf",
   "files/llm_tsx.txt",
 ].map((relative) => `${BASE_PATH}${relative}`);
 const INDEX_FALLBACK = `${BASE_PATH}index.html`;

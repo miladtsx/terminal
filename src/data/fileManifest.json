@@ -1,26 +1,18 @@
 [
   {
-    "name": "Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-    "path": "files/Milad_TSX_Senior_Backend_Engineer_Resume.pdf",
-    "size": 130767,
-    "sha256": "1841eecc3ad615334485ade7a5da63b41776deb8b1416f2c555fc3e0df3810e2",
-    "text": false,
-    "mtime": "2026-01-30T20:29:10.815Z"
-  },
-  {
-    "name": "Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
-    "path": "files/Milad_TSX_Senior_Fullstack_Engineer_Resume.pdf",
-    "size": 131621,
-    "sha256": "c96551960383051a0a325e843c160fc3cbde435c5985be8bde75c994719bce4c",
-    "text": false,
-    "mtime": "2026-01-30T20:28:04.508Z"
-  },
-  {
     "name": "llm_tsx.txt",
     "path": "files/llm_tsx.txt",
-    "size": 6890,
-    "sha256": "cc962eb5f6b7fedfaec51a2be4bc888291b493dd6e968d712de27ea6d34b3354",
+    "size": 9442,
+    "sha256": "dda6c893cdfcb3029da9d69c34b1143feb2c398dc361533f51bfe225e4767867",
     "text": true,
-    "mtime": "2026-01-28T21:15:56.466Z"
+    "mtime": "2026-02-16T22:20:14.574Z"
+  },
+  {
+    "name": "miladtsx_software_engineer_resume.pdf",
+    "path": "files/miladtsx_software_engineer_resume.pdf",
+    "size": 328811,
+    "sha256": "2d41151cab29abb0383a8ca73a7aa518dd37b02fe757e14bf032cda867f2c7d2",
+    "text": false,
+    "mtime": "2026-02-17T08:51:15.687Z"
   }
 ]
