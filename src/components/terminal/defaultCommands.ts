@@ -44,7 +44,6 @@ export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
   { command: "contact", label: "Talk", variant: "primary" },
   { command: "work", label: "See Proof", variant: "link" },
   { command: "download resume", label: "CV", variant: "link" },
-  { command: "about", label: "About", variant: "link" },
 ];
 
 const APP_VERSION = packageJson.version;

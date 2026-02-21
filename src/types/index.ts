@@ -131,6 +131,8 @@ export type AvatarSegment = {
   label?: string;
   meta?: string;
   emphasizeLines?: number[];
+  onClickCommand?: string;
+  disableModal?: boolean;
 };
 
 export type MarkdownSegment = {

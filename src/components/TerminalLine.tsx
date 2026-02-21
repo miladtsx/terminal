@@ -101,17 +101,41 @@ function CopyButton({
   );
 }
 
-function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
+function AvatarMessageSegment({
+  segment,
+  executeCommand,
+}: {
+  segment: AvatarSegment;
+  executeCommand: (command: string) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const allowModal = useMemo(
+    () => !segment.disableModal && !segment.onClickCommand,
+    [segment.disableModal, segment.onClickCommand],
+  );
+
   useEffect(() => {
-    if (!isOpen) return;
+    if (!allowModal || !isOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setIsOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen]);
+  }, [allowModal, isOpen]);
+
+  const handleAvatarClick = () => {
+    if (segment.onClickCommand) {
+      executeCommand(segment.onClickCommand);
+      return;
+    }
+    if (!allowModal) return;
+    setIsOpen(true);
+  };
+
+  const avatarAriaLabel = segment.onClickCommand
+    ? `Run ${segment.onClickCommand}`
+    : "Open profile photo";
 
   return (
     <>
@@ -120,8 +144,8 @@ function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
           <button
             type="button"
             className="t-avatarPhoto"
-            aria-label="Open profile photo"
-            onClick={() => setIsOpen(true)}
+            aria-label={avatarAriaLabel}
+            onClick={handleAvatarClick}
           >
             <img
               src={segment.image}
@@ -152,7 +176,7 @@ function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
         </span>
       </span>
 
-      {isOpen ? (
+      {allowModal && isOpen ? (
         <div className="t-avatarModal" role="dialog" aria-modal="true">
           <div className="t-avatarModal__backdrop" onClick={() => setIsOpen(false)} />
           <div className="t-avatarModal__content">
@@ -429,7 +453,13 @@ function renderSegment(
       );
     }
     case "avatar":
-      return <AvatarMessageSegment key={key} segment={segment as AvatarSegment} />;
+      return (
+        <AvatarMessageSegment
+          key={key}
+          segment={segment as AvatarSegment}
+          executeCommand={executeCommand}
+        />
+      );
     case "command": {
       const attrs = segment as CommandSegment;
       const ariaLabel = attrs.ariaLabel || `Run ${attrs.command}`;

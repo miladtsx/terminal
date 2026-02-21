@@ -7,6 +7,8 @@ type AvatarOptions = {
   meta?: string;
   image?: string;
   emphasizeLines?: number[];
+  onClickCommand?: string;
+  disableModal?: boolean;
 };
 
 export function buildAvatarSegment(lines: string[], options?: AvatarOptions): AvatarSegment {
@@ -17,5 +19,7 @@ export function buildAvatarSegment(lines: string[], options?: AvatarOptions): Av
     label: options?.label,
     meta: options?.meta,
     emphasizeLines: options?.emphasizeLines,
+    onClickCommand: options?.onClickCommand,
+    disableModal: options?.disableModal,
   };
 }

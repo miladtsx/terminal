@@ -343,14 +343,14 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       type: "markdown",
       markdown: `
 <div class="intro-hero">
-  <div class="intro-headline">KEEP YOUR PRODUCT ALIVE THROUGH GROWTH</div>
-  <div class="intro-subline">I stabilize systems before they break.</div>
+  <div class="intro-headline">Hi, I'm Milad</div>
+  <div class="intro-subline">I keep your product alive through growth & change.</div>
   <div class="intro-proof">
-    <div class="intro-proofLabel">PROOF</div>
+    <div class="intro-proofLabel">examples</div>
     <div class="intro-proofList">
-      <div><span class="intro-proofMetric">Cloud cost −60%</span><span class="intro-proofContext">AWS backend</span></div>
-      <div><span class="intro-proofMetric">Reliability 65 → 92</span><span class="intro-proofContext">production</span></div>
-      <div><span class="intro-proofMetric">Throughput ~10×</span><span class="intro-proofContext">under real load</span></div>
+      <div><span class="intro-proofMetric">Increased runaway</span><span class="intro-proofContext">Cut AWS spend −60%</span></div>
+      <div><span class="intro-proofMetric">Less unhappy users</span><span class="intro-proofContext">Reliability 65% → 92%</span></div>
+      <div><span class="intro-proofMetric">10× More users, same cost</span><span class="intro-proofContext">Replacing inefficient parts</span></div>
     </div>
   </div>
 </div>
@@ -378,7 +378,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       }
 
       if (navCtaLine.length) {
-        navCtaLine.push({ type: "text", text: " · " });
+        navCtaLine.push({ type: "text", text: " " });
       }
       navCtaLine.push(button);
     });
@@ -388,6 +388,8 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         buildAvatarSegment([""], {
           label: "",
           meta: undefined,
+          onClickCommand: "about",
+          disableModal: true,
         }),
         introMarkdown,
       ],
