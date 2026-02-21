@@ -13,6 +13,8 @@ import {
   WorkSegment,
   AvatarSegment,
   SearchHitsSegment as SearchHitsSegmentType,
+  ActivityTreeNode,
+  ActivityTreeSegment,
 } from "@types";
 import { DownloadIntegrity } from "./terminal/DownloadIntegrity";
 
@@ -114,33 +116,39 @@ function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
   return (
     <>
       <span className="t-avatarMessage">
-        <button
-          type="button"
-          className="t-avatarPhoto"
-          aria-label="Open profile photo"
-          onClick={() => setIsOpen(true)}
-        >
-          <img
-            src={segment.image}
-            alt={segment.label ? `${segment.label} avatar` : "avatar"}
-          />
-        </button>
+        <span className="t-avatarMedia">
+          <button
+            type="button"
+            className="t-avatarPhoto"
+            aria-label="Open profile photo"
+            onClick={() => setIsOpen(true)}
+          >
+            <img
+              src={segment.image}
+              alt={segment.label ? `${segment.label} avatar` : "avatar"}
+            />
+          </button>
+          {segment.label ? (
+            <span className="t-avatarCaption">{segment.label}</span>
+          ) : null}
+        </span>
         <span className="t-avatarContent">
-          {(segment.label || segment.meta) ? (
+          {segment.meta ? (
             <span className="t-avatarHead">
-              {segment.label ? (
-                <span className="t-avatarLabel">{segment.label}</span>
-              ) : null}
-              {segment.meta ? (
-                <span className="t-avatarMeta">{segment.meta}</span>
-              ) : null}
+              <span className="t-avatarMeta">{segment.meta}</span>
             </span>
           ) : null}
-          {segment.lines.map((line, lineIdx) => (
-            <span key={`avatar-line-${lineIdx}`} className="t-avatarLine">
-              {line}
-            </span>
-          ))}
+          {segment.lines.map((line, lineIdx) => {
+            const isEmphasis = segment.emphasizeLines?.includes(lineIdx);
+            return (
+              <span
+                key={`avatar-line-${lineIdx}`}
+                className={`t-avatarLine${isEmphasis ? " is-emphasis" : ""}`}
+              >
+                {line}
+              </span>
+            );
+          })}
         </span>
       </span>
 
@@ -160,6 +168,9 @@ function AvatarMessageSegment({ segment }: { segment: AvatarSegment }) {
               src={segment.image}
               alt={segment.label ? `${segment.label} avatar full view` : "avatar full view"}
             />
+            {segment.label ? (
+              <span className="t-avatarModal__caption">{segment.label}</span>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -466,6 +477,15 @@ function renderSegment(
         <WorkGrid key={key} segment={segment as WorkSegment} />
       );
     }
+    case "activityTree": {
+      return (
+        <ActivityTree
+          key={key}
+          segment={segment as ActivityTreeSegment}
+          executeCommand={executeCommand}
+        />
+      );
+    }
     case "searchHits": {
       return (
         <SearchHits
@@ -595,37 +615,65 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [openIndex]);
 
-  const detailMarkdown =
-    openItem &&
-    [
-      openItem.problem ? `### Problem\n${openItem.problem}` : null,
-      openItem.approach ? `### Approach\n${openItem.approach}` : null,
-      openItem.result ? `### Result\n${openItem.result}` : null,
-    ]
+  const renderParagraphs = (text: string) =>
+    text
+      .split(/\n+/)
+      .map((paragraph) => paragraph.trim())
       .filter(Boolean)
-      .join("\n\n");
+      .map((paragraph, idx) => <p key={idx}>{paragraph}</p>);
+
+  const renderTechnicalDetails = (text: string) => {
+    const lines = text
+      .split(/\n+/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+
+    if (!lines.length) return null;
+
+    return (
+      <ul className="t-proofList t-proofTechList">
+        {lines.map((line, idx) => (
+          <li key={`tech-${idx}`}>{line}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  const modalSections = openItem
+    ? (
+        [
+          { label: "Before", content: openItem.beforeBullets || openItem.problem },
+          { label: "What I did", content: openItem.approachBullets || openItem.approach },
+          { label: "Result", content: openItem.resultBullets || openItem.result },
+        ] as const
+      ).filter(
+        (entry): entry is { label: string; content: string | string[] } =>
+          Boolean(entry.content),
+      )
+    : [];
 
   return (
     <div className="t-work">
+      <div className="t-proofHeader">
+        <div className="t-proofTitle">Proof: results in production</div>
+        <div className="t-proofSubtitle">Cost down. Reliability up. MVPs shipped.</div>
+      </div>
+
       <div className="t-workGrid">
         {items.map((item, idx) => (
           <button
             key={idx}
             type="button"
-            className="t-workCard"
+            className="t-workCard t-proofCard"
             onClick={() => setOpenIndex(idx)}
-            aria-label={`Open details for ${item.title}`}
+            aria-label={`Open ${item.title} details`}
           >
-            <div className="t-workIntro">{item.intro || item.title}</div>
-            {item.tags && item.tags.length ? (
-              <div className="t-workTags t-workTagsBottom" aria-hidden="true">
-                {item.tags.map((tag, tagIdx) => (
-                  <span key={tagIdx} className="t-workTag">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+            <div className="t-proofOutcome">{item.outcome || item.desc || item.result}</div>
+            {item.timeframe ? <div className="t-proofTimeframe">{item.timeframe}</div> : null}
+            <div className="t-proofFooter">
+              <span className="t-proofCta">Open</span>
+            </div>
           </button>
         ))}
       </div>
@@ -646,8 +694,19 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
               <div>
                 <div className="t-workModalEyebrow">Case study</div>
                 <div className="t-workModalTitle">{openItem.title}</div>
-                {openItem.intro ? (
-                  <div className="t-workModalIntro">{openItem.intro}</div>
+                {(openItem.outcome || openItem.outcomeSummary || openItem.timeframe || openItem.whyItMatters) ? (
+                  <div className="t-proofStats" aria-label="Outcome summary">
+                    {[openItem.outcome || openItem.outcomeSummary, openItem.timeframe, openItem.whyItMatters]
+                      .filter(Boolean)
+                      .map((stat, statIdx, arr) => (
+                        <span key={`stat-${statIdx}`} className="t-proofStat">
+                          {stat}
+                          {statIdx < arr.length - 1 ? (
+                            <span className="t-proofStatDot" aria-hidden="true">·</span>
+                          ) : null}
+                        </span>
+                      ))}
+                  </div>
                 ) : null}
               </div>
               <button
@@ -659,16 +718,165 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
                 ×
               </button>
             </div>
-            <MarkdownBlock
-              segment={{
-                type: "markdown",
-                title: undefined,
-                markdown: detailMarkdown || "Details coming soon.",
-              }}
-            />
+            <div className="t-proofModalBody">
+              <div className="t-proofModalSections">
+                {modalSections.length
+                  ? modalSections.map((section) => (
+                      <div className="t-proofModalSection" key={section.label}>
+                        <div className="t-proofModalLabel">{section.label}</div>
+                        {Array.isArray(section.content) ? (
+                          <ul className="t-proofList">
+                            {(section.content as string[]).map((bullet, bulletIdx) => (
+                              <li key={`${section.label}-${bulletIdx}`}>{bullet}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="t-proofModalCopy">{renderParagraphs(section.content)}</div>
+                        )}
+                      </div>
+                    ))
+                  : (
+                    <div className="t-proofModalSection">
+                      <div className="t-proofModalLabel">Details</div>
+                      <div className="t-proofModalCopy">
+                        <p>Details coming soon.</p>
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              {openItem.technicalDetails ? (
+                <details className="t-proofDetails">
+                  <summary>Technical details (for engineers)</summary>
+                  <div className="t-proofModalCopy">
+                    {renderTechnicalDetails(openItem.technicalDetails) || renderParagraphs(openItem.technicalDetails)}
+                  </div>
+                </details>
+              ) : null}
+
+              {openItem.tags?.length ? (
+                <div className="t-proofModalTags" aria-label="Tags">
+                  {openItem.tags.map((tag) => (
+                    <span key={`tag-${openItem.title}-${tag}`} className="t-workTag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function ActivityTree({
+  segment,
+  executeCommand,
+}: {
+  segment: ActivityTreeSegment;
+  executeCommand: (command: string) => void;
+}) {
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const state: Record<string, boolean> = {};
+    const walk = (nodes: ActivityTreeNode[]) => {
+      nodes.forEach((node) => {
+        state[node.id] = false;
+        if (node.children?.length) walk(node.children);
+      });
+    };
+    walk(segment.nodes);
+    return state;
+  });
+  const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+
+  const toggleNode = (id: string) => {
+    setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const renderNodes = (nodes: ActivityTreeNode[]) => (
+    <ul className="t-activityTreeList">
+      {nodes.map((node) => {
+        const hasChildren = Boolean(node.children?.length);
+        const isOpen = hasChildren ? open[node.id] !== false : false;
+        const isActive = activeNodeId === node.id;
+
+        const handleSelect = () => {
+          setActiveNodeId((prev) => (prev === node.id ? null : node.id));
+        };
+
+        return (
+          <li key={node.id} className="t-activityTreeNode">
+            <div className="t-activityTreeHead">
+              {hasChildren ? (
+                <button
+                  type="button"
+                  className="t-activityTreeToggle"
+                  aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.title}`}
+                  aria-expanded={isOpen}
+                  onClick={() => toggleNode(node.id)}
+                >
+                  {isOpen ? "▾" : "▸"}
+                </button>
+              ) : (
+                <span className="t-activityTreeSpacer" aria-hidden="true" />
+              )}
+
+              <div className="t-activityTreeContent">
+                <div className="t-activityTreeTitleRow">
+                  {node.command ? (
+                    <button
+                      type="button"
+                      className="t-activityTreeAction"
+                      onClick={() => {
+                        handleSelect();
+                        if (node.command) executeCommand(node.command);
+                      }}
+                    >
+                      {node.title}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="t-activityTreeTitleButton"
+                      onClick={handleSelect}
+                    >
+                      <span className="t-activityTreeTitle">{node.title}</span>
+                    </button>
+                  )}
+                  {node.period ? (
+                    <span className="t-activityTreePeriod">{node.period}</span>
+                  ) : null}
+                </div>
+
+                {node.summary && isActive ? (
+                  <div className="t-activityTreeSummary">{node.summary}</div>
+                ) : null}
+
+                {node.tags?.length && isActive ? (
+                  <div className="t-activityTreeTags">
+                    {node.tags.map((tag) => (
+                      <span key={`${node.id}-${tag}`} className="t-activityTreeTag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {hasChildren && isOpen ? renderNodes(node.children!) : null}
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  return (
+    <div className="t-activityTree">
+      {segment.title ? <div className="t-activityTreeHeading">{segment.title}</div> : null}
+      {renderNodes(segment.nodes)}
     </div>
   );
 }

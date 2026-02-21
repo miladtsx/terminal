@@ -483,8 +483,16 @@ export default function Terminal(props: TerminalProps) {
               !!introRange &&
               index >= introRange.start &&
               index < introRange.start + introRange.count;
+            const introOffset =
+              isIntroLine && introRange ? index - introRange.start : null;
+            const introClassSuffix =
+              introOffset === 1
+                ? " intro-ctaPrimary"
+                : introOffset === 2
+                  ? " intro-ctaNav"
+                  : "";
             const className = isIntroLine
-              ? `intro-start-line${introStartVisible ? " is-visible" : ""}`
+              ? `intro-start-line${introStartVisible ? " is-visible" : ""}${introClassSuffix}`
               : undefined;
 
             if (hiddenLines.has(index)) return null;

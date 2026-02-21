@@ -4,7 +4,6 @@ import { CommandRegistry } from "@components/terminal/commandRegistry";
 import {
   registerDefaultCommands,
   DEFAULT_SUGGESTED_COMMANDS,
-  formatCommandToButton,
 } from "@components/terminal/defaultCommands";
 import { TerminalModel } from "@components/terminal/terminalModel";
 import { appendHistory, loadHistory } from "@components/terminal/historyStore";
@@ -16,6 +15,8 @@ import {
   CommandOutput,
   LineSegment,
   AvatarSegment,
+  MarkdownSegment,
+  CommandButton,
 } from "@types";
 import {
   buildAvatarSegment,
@@ -323,27 +324,77 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
     if (!model) return;
 
     introTypingRef.current = true;
-    // const greeting = getGreeting();
-
     const suggested =
       initialPropsRef.current.suggestedCommands || DEFAULT_SUGGESTED_COMMANDS;
 
-    const startLines = formatCommandToButton(
-      `I help teams operate critical backend systems reliably and ship changes safely in growing production environments.
+    const createCommandSegment = (
+      command: string,
+      label: string,
+      variant?: CommandButton["variant"],
+    ): LineSegment => ({
+      type: "command",
+      command,
+      label,
+      ariaLabel: label,
+      variant,
+    });
 
-10+ yrs in production systems across high-stake industries.
-      `,
-      suggested,
-    )();
+    const introMarkdown: MarkdownSegment = {
+      type: "markdown",
+      markdown: `
+<div class="intro-hero">
+  <div class="intro-headline">KEEP YOUR PRODUCT ALIVE THROUGH GROWTH</div>
+  <div class="intro-subline">I stabilize systems before they break.</div>
+  <div class="intro-proof">
+    <div class="intro-proofLabel">PROOF</div>
+    <div class="intro-proofList">
+      <div><span class="intro-proofMetric">Cloud cost −60%</span><span class="intro-proofContext">AWS backend</span></div>
+      <div><span class="intro-proofMetric">Reliability 65 → 92</span><span class="intro-proofContext">production</span></div>
+      <div><span class="intro-proofMetric">Throughput ~10×</span><span class="intro-proofContext">under real load</span></div>
+    </div>
+  </div>
+</div>
+      `.trim(),
+    };
 
-    if (startLines.length && typeof startLines[0] === "string") {
-      startLines[0] = [
-        buildAvatarSegment([startLines[0]], {
-          label: "Software Backend Engineer",
-          meta: "(Reliability / Infrastructure)",
+    const primaryCtaLine: LineSegment[] = [];
+    const navCtaLine: LineSegment[] = [];
+
+    suggested.forEach((cmd, index) => {
+      const label = cmd.label || cmd.command;
+      const button = createCommandSegment(cmd.command, label, cmd.variant);
+
+      if (index === 0) {
+        primaryCtaLine.push(button);
+        return;
+      }
+
+      if (index === 1) {
+        if (primaryCtaLine.length) {
+          primaryCtaLine.push({ type: "text", text: "  " });
+        }
+        primaryCtaLine.push(button);
+        return;
+      }
+
+      if (navCtaLine.length) {
+        navCtaLine.push({ type: "text", text: " · " });
+      }
+      navCtaLine.push(button);
+    });
+
+    const startLines: TerminalLineInput[] = [
+      [
+        buildAvatarSegment([""], {
+          label: "",
+          meta: undefined,
         }),
-      ];
-    }
+        introMarkdown,
+      ],
+      primaryCtaLine,
+      navCtaLine,
+      "",
+    ];
 
     if (!startLines.length) {
       introTypingRef.current = false;
@@ -394,6 +445,20 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
         return;
       }
 
+      const richSegmentLength = (segment: LineSegment) => {
+        if (segment.type === "markdown") {
+          const plain = segment.markdown
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          // Keep markdown reveal snappy so it appears alongside the CTA buttons.
+          return Math.min(Math.max(plain.length, 6), 12);
+        }
+
+        // Fallback length for other rich segments so they reveal after the rest of the line.
+        return 48;
+      };
+
       const flattenLine = (line: TerminalLineInput) => {
         if (typeof line === "string") return line;
         return line
@@ -402,7 +467,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
             if (segment.type === "command") return segment.label;
             if (segment.type === "copy") return segment.label || segment.value;
             if (segment.type === "avatar") return segment.lines.join(" ");
-            return "";
+            return " ".repeat(richSegmentLength(segment));
           })
           .join("");
       };
@@ -473,7 +538,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
           }
           default: {
             // For rich blocks (faq/log/markdown), only show when fully revealed
-            const len = flattenLine([segment]).length;
+            const len = richSegmentLength(segment);
             return remaining >= len ? [segment, len] : [null, 0];
           }
         }

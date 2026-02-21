@@ -161,11 +161,19 @@
     opacity: 0;
     transform: translateY(8px);
     transition: opacity 380ms ease, transform 380ms ease;
+    display: block;
+    position: relative;
+    padding-left: 88px;
+    line-height: 1.5;
   }
 
   .intro-start-line.is-visible {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  .intro-start-line + .intro-start-line {
+    margin-top: 12px;
   }
 
   .t-inputRow.intro-hidden {
@@ -494,6 +502,12 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
+  .t-avatarMedia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
   .t-avatarMessage::after {
     content: "";
     position: absolute;
@@ -505,6 +519,8 @@
   }
 
   .t-avatarPhoto {
+    position: relative;
+    isolation: isolate;
     width: 100%;
     aspect-ratio: 4 / 5;
     border-radius: 16px;
@@ -514,11 +530,21 @@
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.42);
     flex-shrink: 0;
     cursor: pointer;
+    transform: scale(0.9);
+    transform-origin: center;
     transition: transform 150ms ease, box-shadow 150ms ease;
   }
 
+  .t-avatarPhoto::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+  }
+
   .t-avatarPhoto:hover {
-    transform: translateY(-2px);
+    transform: scale(0.9) translateY(-2px);
     box-shadow: 0 20px 38px rgba(0, 0, 0, 0.5);
   }
 
@@ -547,11 +573,13 @@
     color: var(--muted);
   }
 
-  .t-avatarLabel {
-    font-size: 15px;
-    font-weight: 700;
+  .t-avatarCaption {
+    font-size: 12px;
+    letter-spacing: 0.12px;
+    color: var(--muted);
     text-transform: none;
-    color: var(--text);
+    line-height: 1.4;
+    text-align: center;
   }
 
   .t-avatarMeta {
@@ -568,6 +596,11 @@
     white-space: pre-wrap;
     line-height: 1.7;
     letter-spacing: 0.08px;
+  }
+
+  .t-avatarLine.is-emphasis {
+    font-weight: 700;
+    letter-spacing: 0.16px;
   }
 
   .t-avatarModal {
@@ -589,6 +622,8 @@
     position: relative;
     max-width: min(90vw, 640px);
     width: 90vw;
+    display: flex;
+    flex-direction: column;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
@@ -597,8 +632,19 @@
   .t-avatarModal__content img {
     display: block;
     width: 100%;
-    height: 100%;
+    height: auto;
+    max-height: 70vh;
     object-fit: cover;
+  }
+
+  .t-avatarModal__caption {
+    padding: 10px 14px 14px;
+    font-size: 12px;
+    letter-spacing: 0.14px;
+    color: var(--text);
+    text-align: center;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.72));
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .t-avatarModal__close {
@@ -641,11 +687,13 @@
     }
   }
 
-  /* Intro avatar: keep original compact sizing */
+  /* Intro avatar and stack */
   .intro-start-line .t-avatarMessage {
+    position: absolute;
+    left: 0;
+    top: 2px;
     display: flex;
-    grid-template-columns: unset;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
     padding: 0;
     margin: 0;
@@ -658,15 +706,94 @@
     display: none;
   }
 
+  .intro-start-line .t-avatarHead {
+    display: none;
+  }
+
   .intro-start-line .t-avatarPhoto {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     aspect-ratio: auto;
     border-radius: 50%;
   }
 
   .intro-start-line .t-avatarContent {
-    gap: 6px;
+    gap: 4px;
+  }
+
+  .intro-start-line .intro-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .intro-start-line .t-markdown {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+  }
+
+  .intro-start-line .t-markdownBody {
+    color: inherit;
+  }
+
+  .intro-start-line .intro-headline {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.32px;
+    line-height: 1.28;
+    color: var(--text);
+  }
+
+  .intro-start-line .intro-subline {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text);
+    opacity: 0.88;
+    line-height: 1.45;
+  }
+
+  .intro-start-line .intro-proof {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .intro-start-line .intro-proofLabel {
+    font-size: 11px;
+    letter-spacing: 0.26px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .intro-start-line .intro-proofList {
+    display: grid;
+    gap: 8px;
+    margin: 6px 0 0;
+    padding: 0;
+    max-width: 520px;
+  }
+
+  .intro-start-line .intro-proofList > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .intro-proofMetric {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .intro-proofContext {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    letter-spacing: 0.08px;
   }
 
   /* theme-aware overrides for the terminal shell */
@@ -742,37 +869,143 @@
     border-color: var(--border);
   }
 
-  @media (max-width: 1024px) {
-    .intro-start-line.has-commands {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: stretch;
-      gap: 12px;
-      width: 100%;
-      margin: 8px 0 6px;
+  .intro-start-line.has-commands {
+    margin-top: 24px;
+    padding-left: 88px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .intro-start-line.has-commands .t-commandLink {
+    margin: 0;
+  }
+
+  .intro-start-line.has-commands>span {
+    margin: 0 4px;
+    color: var(--muted);
+  }
+
+  .intro-ctaPrimary {
+    flex-wrap: nowrap;
+  }
+
+  .intro-ctaPrimary .t-commandLink:nth-of-type(1) {
+    min-width: 132px;
+    justify-content: center;
+  }
+
+  .intro-ctaPrimary .t-commandLink.is-link {
+    padding: 7px 14px;
+  }
+
+  .intro-ctaNav {
+    margin-top: 10px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .intro-ctaNav .t-commandLink {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--muted);
+    letter-spacing: 0.18px;
+  }
+
+  .intro-ctaNav .t-commandLink:hover,
+  .intro-ctaNav .t-commandLink:focus-visible {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .intro-start-line {
+      padding-left: 72px;
     }
 
-    .intro-start-line.has-commands>span {
+    .intro-start-line .intro-headline {
+      font-size: 16.5px;
+    }
+
+    .intro-start-line.has-commands {
+      gap: 10px;
+      row-gap: 6px;
+      margin-top: 22px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .intro-start-line {
+      padding-left: 60px;
+    }
+
+    .intro-start-line .t-avatarPhoto {
+      width: 36px;
+      height: 36px;
+      box-shadow: 0 12px 22px rgba(0, 0, 0, 0.34);
+      transform: scale(0.82);
+    }
+
+    .intro-start-line .t-avatarPhoto:hover {
+      transform: scale(0.82) translateY(-1px);
+      box-shadow: 0 14px 24px rgba(0, 0, 0, 0.36);
+    }
+
+    .intro-start-line .intro-proofList {
+      gap: 7px;
+      max-width: 420px;
+    }
+
+    .intro-proofMetric {
+      font-size: 13.5px;
+    }
+
+    .intro-proofContext {
+      display: block;
+    }
+
+    .intro-ctaPrimary {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .intro-ctaPrimary > span {
       display: none;
     }
 
-    .intro-start-line.has-commands .t-commandLink {
-      flex: 1 1 calc(50% - 12px);
-      min-width: 180px;
-      display: inline-flex;
+    .intro-ctaPrimary .t-commandLink {
+      width: 100%;
       justify-content: center;
-      text-align: center;
+      margin: 0;
     }
 
-    .intro-start-line.has-commands .t-commandLink.is-link {
-      flex: 0 0 auto;
-      min-width: unset;
-      padding: 4px 6px;
-      margin: 0 8px;
-      box-shadow: none;
-      background: none;
-      text-align: left;
+    .intro-ctaPrimary .t-commandLink:nth-of-type(2) {
+      --chip-bg: transparent;
+      --chip-hover-bg: color-mix(in srgb, transparent 85%, var(--accent) 15%);
+      --chip-border: color-mix(in srgb, var(--accent) 60%, var(--border) 60%);
+      --chip-color: var(--accent);
+      --chip-hover-color: var(--text);
+      --chip-shadow: none;
+    }
+
+    .intro-ctaNav {
+      justify-content: center;
+      gap: 12px;
+      font-size: 12.5px;
+      margin-top: 8px;
+    }
+
+    .intro-ctaNav > span {
+      margin: 0 6px;
     }
   }
 
@@ -1656,6 +1889,215 @@
     margin: 10px 0 14px;
   }
 
+  .t-proofHeader {
+    max-width: 960px;
+    margin: 0 auto 14px;
+    padding: 0 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .t-proofBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%);
+    font-size: 0.85em;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--accent) 78%, var(--text) 22%);
+    width: fit-content;
+  }
+
+  .t-proofTitle {
+    font-size: 1.35em;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .t-proofSubtitle {
+    color: color-mix(in srgb, var(--text) 80%, var(--muted) 20%);
+    font-size: 1.05em;
+    line-height: 1.5;
+    max-width: 70ch;
+  }
+
+  .t-activityTree {
+    margin: 8px 0 12px;
+    padding: 8px 10px;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface) 96%, var(--accent) 4%);
+  }
+
+  .t-activityTreeHeading {
+    margin-bottom: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: color-mix(in srgb, var(--muted) 72%, var(--text) 28%);
+    font-weight: 600;
+  }
+
+  .t-activityTreeList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .t-activityTreeNode {
+    position: relative;
+    padding-left: 14px;
+  }
+
+  .t-activityTreeNode::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0;
+    bottom: -4px;
+    width: 1px;
+    background: color-mix(in srgb, var(--border) 60%, var(--accent) 40%);
+    opacity: 0.75;
+  }
+
+  .t-activityTreeNode:last-child::before {
+    bottom: calc(100% - 14px);
+  }
+
+  .t-activityTreeHead {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 0 8px;
+  }
+
+  .t-activityTreeHead::before {
+    content: "";
+    position: absolute;
+    left: -11px;
+    top: 13px;
+    width: 8px;
+    height: 1px;
+    background: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+  }
+
+  .t-activityTreeToggle,
+  .t-activityTreeSpacer {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .t-activityTreeToggle {
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--border) 60%, var(--accent) 40%);
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    font-size: 10px;
+  }
+
+  .t-activityTreeToggle:hover,
+  .t-activityTreeToggle:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+    outline: none;
+  }
+
+  .t-activityTreeContent {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .t-activityTreeTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .t-activityTreeTitleButton,
+  .t-activityTreeTitle,
+  .t-activityTreeAction {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--text);
+  }
+
+  .t-activityTreeTitleButton {
+    all: unset;
+    cursor: pointer;
+  }
+
+  .t-activityTreeAction {
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .t-activityTreeAction:hover,
+  .t-activityTreeAction:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    outline: none;
+  }
+
+  .t-activityTreePeriod {
+    font-size: 10px;
+    letter-spacing: 0.15px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--border) 85%, var(--accent) 15%);
+    background: transparent;
+  }
+
+  .t-activityTreeSummary {
+    color: color-mix(in srgb, var(--text) 80%, var(--muted) 20%);
+    line-height: 1.45;
+    font-size: 12px;
+    max-width: 62ch;
+  }
+
+  .t-activityTreeTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .t-activityTreeTag {
+    padding: 1px 6px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
+    background: transparent;
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.1px;
+  }
+
+  .t-activityTreeNode>.t-activityTreeList {
+    margin-left: 4px;
+  }
+
   .t-workGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1680,6 +2122,11 @@
     box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
     transition: transform 160ms ease, border-color 160ms ease,
       box-shadow 160ms ease, background 160ms ease;
+  }
+
+  .t-proofCard {
+    gap: 10px;
+    align-items: flex-start;
   }
 
   .t-workCard:hover,
@@ -1726,6 +2173,59 @@
     text-align: center;
   }
 
+  .t-proofPain {
+    color: color-mix(in srgb, var(--text) 90%, var(--accent) 18%);
+    font-size: 1.12em;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+  }
+
+  .t-proofOutcome {
+    color: color-mix(in srgb, var(--muted) 20%, var(--text) 80%);
+    font-size: 1.02em;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    width: 100%;
+    text-align: left;
+  }
+
+  .t-proofTimeframe {
+    font-size: 0.95em;
+    color: color-mix(in srgb, var(--accent) 70%, var(--text) 30%);
+    letter-spacing: 0.2px;
+  }
+
+  .t-proofFooter {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .t-proofCta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    color: color-mix(in srgb, var(--text) 88%, var(--accent) 12%);
+    font-weight: 600;
+    font-size: 1em;
+    letter-spacing: 0.1px;
+  }
+
   .t-workModalBackdrop {
     position: fixed;
     inset: 0;
@@ -1735,7 +2235,7 @@
     align-items: center;
     justify-content: center;
     padding: 14px;
-    z-index: var(--z-work, 25);
+    z-index: var(--z-work, 40);
   }
 
   .t-workModal {
@@ -1750,6 +2250,102 @@
     color: var(--text);
     max-height: 90vh;
     overflow: auto;
+  }
+
+  @media (max-width: 768px) {
+    .t-workModal {
+      padding-bottom: 140px;
+    }
+  }
+
+  .t-proofModalBody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .t-proofModalSections {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  @media (min-width: 720px) {
+    .t-proofModalSections {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .t-proofModalSection {
+    border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 20%);
+    border-radius: 12px;
+    padding: 0.95em;
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+    min-height: 11em;
+  }
+
+  .t-proofModalLabel {
+    font-size: 0.85em;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--accent) 70%, var(--text) 30%);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .t-proofModalCopy {
+    color: color-mix(in srgb, var(--text) 82%, var(--muted) 18%);
+    font-size: 1em;
+    line-height: 1.45;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .t-proofModalCopy p {
+    margin: 0;
+  }
+
+  .t-proofList {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: color-mix(in srgb, var(--text) 82%, var(--muted) 18%);
+    font-size: 1em;
+    line-height: 1.45;
+  }
+
+  .t-proofTechList {
+    gap: 4px;
+    line-height: 1.35;
+  }
+
+  .t-proofModalTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .t-proofDetails {
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  }
+
+  .t-proofDetails summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--text) 88%, var(--accent) 12%);
+    outline: none;
+  }
+
+  .t-proofDetails[open] summary {
+    margin-bottom: 6px;
   }
 
   .t-workModalHead {
@@ -1772,6 +2368,30 @@
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.2px;
+  }
+
+  .t-proofStats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+    color: color-mix(in srgb, var(--text) 84%, var(--muted) 16%);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .t-proofStat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+
+  .t-proofStatDot {
+    color: color-mix(in srgb, var(--accent) 68%, var(--text) 32%);
+    margin-left: 4px;
+    margin-right: 2px;
+    font-weight: 700;
   }
 
   .t-workModalIntro {
@@ -2355,6 +2975,7 @@
 
 /* Respect OS motion preferences; also toggled via .motion-reduce class */
 @media (prefers-reduced-motion: reduce) {
+
   .t-root,
   .intro-start-line {
     transition: none !important;

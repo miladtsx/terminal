@@ -6,6 +6,7 @@ type AvatarOptions = {
   label?: string;
   meta?: string;
   image?: string;
+  emphasizeLines?: number[];
 };
 
 export function buildAvatarSegment(lines: string[], options?: AvatarOptions): AvatarSegment {
@@ -15,5 +16,6 @@ export function buildAvatarSegment(lines: string[], options?: AvatarOptions): Av
     image: options?.image ?? AVATAR_IMAGE,
     label: options?.label,
     meta: options?.meta,
+    emphasizeLines: options?.emphasizeLines,
   };
 }

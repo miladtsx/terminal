@@ -108,12 +108,29 @@ export type WorkSegment = {
   items: SampleWork[];
 };
 
+export type ActivityTreeNode = {
+  id: string;
+  title: string;
+  period?: string;
+  summary?: string;
+  tags?: string[];
+  command?: string;
+  children?: ActivityTreeNode[];
+};
+
+export type ActivityTreeSegment = {
+  type: "activityTree";
+  title?: string;
+  nodes: ActivityTreeNode[];
+};
+
 export type AvatarSegment = {
   type: "avatar";
   image: string;
   lines: string[];
   label?: string;
   meta?: string;
+  emphasizeLines?: number[];
 };
 
 export type MarkdownSegment = {
@@ -150,6 +167,7 @@ export type LineSegment =
   | LogSegment
   | MarkdownSegment
   | WorkSegment
+  | ActivityTreeSegment
   | AvatarSegment
   | SearchHitsSegment;
 export type TerminalLine = LineSegment[];
@@ -167,6 +185,15 @@ export type SampleWork = {
   problem?: string;
   approach?: string;
   result?: string;
+  technicalDetails?: string;
+  pain?: string;
+  outcome?: string;
+  timeframe?: string;
+  outcomeSummary?: string;
+  whyItMatters?: string;
+  beforeBullets?: string[];
+  approachBullets?: string[];
+  resultBullets?: string[];
 };
 
 export type NotificationOverlayProps = {

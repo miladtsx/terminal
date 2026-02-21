@@ -68,9 +68,18 @@ function workToLines(item: SampleWork): string[] {
     item.title,
     item.intro,
     item.desc,
+    item.pain,
+    item.outcome,
+    item.timeframe,
+    item.outcomeSummary,
+    item.whyItMatters,
     item.problem,
     item.approach,
     item.result,
+    item.technicalDetails,
+    ...(item.beforeBullets || []),
+    ...(item.approachBullets || []),
+    ...(item.resultBullets || []),
     tagLine,
   ].filter(Boolean) as string[];
 
