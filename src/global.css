@@ -2129,8 +2129,6 @@
   .t-proofCard {
     gap: 10px;
     align-items: stretch;
-    min-height: 120px;
-    max-height: 140px;
     overflow: hidden;
     justify-content: space-between;
   }
