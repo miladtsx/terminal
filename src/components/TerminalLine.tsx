@@ -665,12 +665,14 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
           <button
             key={idx}
             type="button"
-            className="t-workCard t-proofCard"
+            className={`t-workCard t-proofCard${idx < 3 ? " is-headline" : ""}`}
             onClick={() => setOpenIndex(idx)}
             aria-label={`Open ${item.title} details`}
           >
-            <div className="t-proofOutcome">{item.outcome || item.desc || item.result}</div>
-            {item.timeframe ? <div className="t-proofTimeframe">{item.timeframe}</div> : null}
+            <div className="t-proofMain">
+              <div className="t-proofOutcome">{item.outcome || item.desc || item.result}</div>
+              <div className="t-proofTimeframe">{item.timeframe || " "}</div>
+            </div>
             <div className="t-proofFooter">
               <span className="t-proofCta">Open</span>
             </div>

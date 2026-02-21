@@ -466,9 +466,9 @@ Verification: p95 release gate + canaries + cost dashboards`,
       desc: "Built the smart contract in-house and kept $47K in runway.",
       tags: ["cost", "ownership", "web3"],
       pain: "Vendor wanted $47k for smart contracts.",
-      outcome: "Avoided $47k vendor bill",
+      outcome: "$47k vendor cost avoided",
       timeframe: "2 weeks",
-      outcomeSummary: "Avoided $47k vendor bill; kept ownership in-house.",
+      outcomeSummary: "$47k vendor cost avoided; kept ownership in-house.",
       whyItMatters: "Runway + ownership",
       problem:
         "The team needed a point-allocation smart contract system and was about to outsource it to an external provider quoting around $47K.",
@@ -499,9 +499,9 @@ Verification: Hardhat tests + integration path through backend`,
       desc: "Investor-ready MVP in 10 days for <$300 (saved ~$10K agency fees).",
       tags: ["mvp", "founder"],
       pain: "Needed investor-ready demo before spending big.",
-      outcome: "Investor-ready MVP in 10 days",
+      outcome: "Investor-ready MVP — 10 days",
       timeframe: "10 days",
-      outcomeSummary: "Investor-ready MVP in 10 days for <$300.",
+      outcomeSummary: "Investor-ready MVP — 10 days",
       whyItMatters: "Fundraising speed",
       problem:
         "Early-stage founders needed working demos for fundraising but risked burning capital on slow, expensive outsourced builds.",
@@ -632,7 +632,7 @@ Verification: completion vs revert metrics; gas per tx down ~90–99%`,
       desc: "Freed ~3 hours/day of analyst time and improved visibility into threats.",
       tags: ["security", "automation", "efficiency"],
       pain: "Analysts burning hours on manual triage.",
-      outcome: "Saved ~3 hours/day",
+      outcome: "~3 hours/day reclaimed",
       timeframe: "3 weeks",
       outcomeSummary:
         "Freed ~3 hours/day of analyst time within 3 weeks by automating triage.",
@@ -661,15 +661,33 @@ Solution: scored alerts, playbooks, audit logs; pushed high-signal to Slack
 Verification: time-saved tracking + true-positive handling speed`,
     },
   ];
-  setSearchWorkItems(caseStudies);
+  const headlineOrder = [
+    "cloud spend -60%",
+    "no loss events over 36 months (~$4m tvl)",
+    "20× concurrency",
+  ];
+
+  const caseStudyPriority = (item: SampleWork) => {
+    const outcome = (item.outcome || "").toLowerCase();
+    const index = headlineOrder.findIndex((needle) => outcome.includes(needle));
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+  };
+
+  const orderedCaseStudies = [...caseStudies].sort(
+    (a, b) => caseStudyPriority(a) - caseStudyPriority(b),
+  );
+
+  setSearchWorkItems(orderedCaseStudies);
   const workIndex = new Map<string, SampleWork>();
-  caseStudies.forEach((item) => workIndex.set(makeWorkSlug(item.title), item));
+  orderedCaseStudies.forEach((item) =>
+    workIndex.set(makeWorkSlug(item.title), item),
+  );
 
   const findWorkEntry = (input: string) => {
     const token = input.toLowerCase().trim();
     return (
       workIndex.get(token) ||
-      caseStudies.find((item) => {
+      orderedCaseStudies.find((item) => {
         const slug = makeWorkSlug(item.title);
         return (
           slug === token ||
@@ -1296,7 +1314,7 @@ Verification: time-saved tracking + true-positive handling speed`,
             [
               {
                 type: "work",
-                items: caseStudies,
+                items: orderedCaseStudies,
               },
             ],
           ];
