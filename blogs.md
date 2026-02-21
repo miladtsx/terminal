@@ -1,4 +1,4 @@
-**Blog Post Themes for a Solo Contractor Software Engineer**  
+**Blog Post Themes for a Solo Contractor Backend-leaning Full-Stack Engineer**  
 *(Focus: Personal storytelling, mindset, and unique perspective)*  
 
 ---
