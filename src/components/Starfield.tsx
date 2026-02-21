@@ -590,6 +590,7 @@ export function Starfield({
       opacity += star.hoverBoost * 0.5;
 
       opacity *= visibility;
+      opacity *= 0.9;
       opacity = Math.max(0.05, Math.min(1, opacity));
       const drawX = star.x;
       const drawY = star.y;
