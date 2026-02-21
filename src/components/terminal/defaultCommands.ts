@@ -665,6 +665,10 @@ Verification: time-saved tracking + true-positive handling speed`,
     "cloud spend -60%",
     "no loss events over 36 months (~$4m tvl)",
     "20× concurrency",
+    "$47k vendor cost avoided",
+    "Investor-ready MVP — 10 days",
+    "Gas fees down ~90–99%",
+    "~3 hours/day reclaimed",
   ];
 
   const caseStudyPriority = (item: SampleWork) => {
@@ -1070,23 +1074,21 @@ Verification: time-saved tracking + true-positive handling speed`,
     .register(
       "about",
       () => {
-        const aboutLines =
-          props.aboutLines ||
-          [
-            "",
-            "",
-            "I build new systems fast — then make them safe to operate.",
-            "",
-            "",
-            "I focus on the paths that usually kill early startups:",
-            "- fewer incidents",
-            "- fast recovery",
-            "- lower cloud spend",
-            "",
-            "",
-            "How I do it:",
-            "fail-closed workflows, rate limits & validation, observability/SLOs, performance & cost tuning, and security hardening.",
-          ];
+        const aboutLines = props.aboutLines || [
+          "",
+          "",
+          "I build new systems fast — then make them safe to operate.",
+          "",
+          "",
+          "I focus on the paths that usually kill early startups:",
+          "- fewer incidents",
+          "- fast recovery",
+          "- lower cloud spend",
+          "",
+          "",
+          "How I do it:",
+          "fail-closed workflows, rate limits & validation, observability/SLOs, performance & cost tuning, and security hardening.",
+        ];
 
         return [
           [
