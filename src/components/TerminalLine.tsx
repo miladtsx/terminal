@@ -674,7 +674,7 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
             </div>
             <div className="t-proofFooter">
               <div className="t-proofTimeframe">{item.timeframe || "\u00a0"}</div>
-              <span className="t-proofCta">Open</span>
+              <span className="t-proofCta">Details →</span>
             </div>
           </button>
         ))}
