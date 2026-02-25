@@ -343,13 +343,13 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       type: "markdown",
       markdown: `
 <div class="intro-hero">
-  <div class="intro-headline">I help critical systems scale without expensive failure.</div>
-  <div class="intro-subline">I focus on the failures that damage trust, lock capital, or force manual recovery — so you can grow without emergency fire drills.</div>
+  <div class="intro-headline">I make sure your system doesn’t fall apart when it starts to matter.</div>
+  <div class="intro-subline">By focusing on reducing the blast radius of failure so growth, key events, and traffic spikes don’t turn into outages.</div>
   <div class="intro-proof">
     <div class="intro-proofLabel">Proof</div>
     <div class="intro-proofList">
        <div><span class="intro-proofMetric">~$4M secured</span><span class="intro-proofContext">Zero incidents across 3 years of live operations</span></div>
-      <div><span class="intro-proofMetric">65% → 92%</span><span class="intro-proofContext">Recovery design, guardrails, fast rollback</span></div>
+      <div><span class="intro-proofMetric">65% → 92% Correctness</span><span class="intro-proofContext">Recovery design, guardrails, fast rollback</span></div>
       <div><span class="intro-proofMetric">−60% cost</span><span class="intro-proofContext">Architecture simplification without degrading uptime</span></div>
      </div>
   </div>
