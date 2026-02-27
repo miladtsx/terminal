@@ -643,6 +643,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
       if (!entry) {
         setLinesFromModel([`unknown command: ${name}`, `try: help`, ""]);
+        void logEvent({
+          action: name,
+          userInput: cmd,
+          message: "unknown command",
+        });
         return;
       }
 
