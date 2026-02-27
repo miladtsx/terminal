@@ -526,7 +526,7 @@ function renderSegment(
           onClick={() => executeCommand(attrs.command)}
           aria-label={ariaLabel}
         >
-          {attrs.label}
+          <span className="t-commandLabel">{attrs.label}</span>
         </button>
       );
     }

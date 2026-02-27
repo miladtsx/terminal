@@ -408,12 +408,14 @@
     position: relative;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 8px 12px;
     margin: 2px 6px;
     cursor: pointer;
     max-width: fit-content;
     color: var(--chip-color, var(--text));
+    text-align: center;
     text-decoration: none;
     letter-spacing: 0.25px;
     font-weight: 600;
@@ -463,6 +465,8 @@
     background: none;
     border: none;
     box-shadow: none;
+    justify-content: flex-start;
+    text-align: left;
     padding: 0;
     margin: 0 12px 0 0;
     letter-spacing: 0.2px;
@@ -482,16 +486,26 @@
   }
 
   .t-commandLink.is-sparkle {
-    --chip-bg: color-mix(in srgb, var(--accent) 32%, #050915 68%);
-    --chip-hover-bg: color-mix(in srgb, var(--accent) 42%, #050915 58%);
-    --chip-border: color-mix(in srgb, var(--accent) 55%, #0c1426 45%);
+    --chip-bg: transparent;
+    --chip-hover-bg: transparent;
+    --chip-border: color-mix(in srgb, var(--accent, #6d9cff) 55%, #0c1426 45%);
     --chip-color: #fefefe;
     --chip-hover-color: #ffffff;
     padding: 10px 16px;
     margin: 0 14px 0 0;
     min-width: 120px;
     justify-content: center;
+    text-align: center;
+    gap: 0;
     overflow: hidden;
+  }
+
+  :root[data-terminal-tone="light"] .t-commandLink.is-sparkle {
+    --chip-bg: transparent;
+    --chip-hover-bg: transparent;
+    --chip-border: color-mix(in srgb, var(--accent, #2563eb) 64%, #93c5fd 36%);
+    --chip-color: #0b1322;
+    --chip-hover-color: #050a14;
   }
 
   .t-commandLink.is-sparkle .t-sparkleSurface {
@@ -513,10 +527,24 @@
 
   .t-commandLink.is-sparkle .t-sparkleLabel {
     position: relative;
+    display: block;
+    width: 100%;
+    text-align: center;
     z-index: 1;
     letter-spacing: 0.4px;
     font-size: 0.92rem;
     text-transform: uppercase;
+  }
+
+  .t-commandLink:not(.is-link) {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .t-commandLabel {
+    display: block;
+    width: 100%;
+    text-align: center;
   }
 
   /* inner ring */
@@ -1020,6 +1048,9 @@
 
   .intro-ctaNav .t-commandLink {
     margin: 0;
+  }
+
+  .intro-ctaNav .t-commandLink.is-link {
     padding-left: 0;
     background: none;
     box-shadow: none;
@@ -1027,8 +1058,12 @@
     letter-spacing: 0.18px;
   }
 
-  .intro-ctaNav .t-commandLink:hover,
-  .intro-ctaNav .t-commandLink:focus-visible {
+  .intro-ctaNav .t-commandLink.is-sparkle {
+    text-decoration: none;
+  }
+
+  .intro-ctaNav .t-commandLink.is-link:hover,
+  .intro-ctaNav .t-commandLink.is-link:focus-visible {
     color: var(--text);
     text-decoration: underline;
     text-underline-offset: 4px;
