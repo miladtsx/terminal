@@ -1776,22 +1776,29 @@
   }
 
   .terminal-toolbar-button {
+    --press-bg: transparent;
+    --press-hover-bg: transparent;
+    --press-border: color-mix(in srgb, var(--accent) 46%, var(--border) 54%);
+    --press-hover-border: color-mix(in srgb, var(--accent) 68%, var(--border) 32%);
+    --press-color: color-mix(in srgb, var(--text) 82%, var(--accent) 18%);
+    --press-hover-color: var(--text);
+    --press-shadow-rest: none;
+    --press-shadow-half: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    --press-shadow-full: inset 0 2px 5px rgba(0, 0, 0, 0.5);
     width: 42px;
     height: 42px;
     border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    color: var(--text);
+    border: 1px solid var(--press-border);
+    color: var(--press-color);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
     cursor: pointer;
-    transition: transform 160ms ease, box-shadow 220ms ease, background 200ms ease, color 200ms ease;
-
-    box-shadow:
-      0 18px 90px rgba(0, 0, 0, 0.65),
-      inset 0 1px 0 rgba(255, 255, 255, 0.25),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+    background: var(--press-bg);
+    box-shadow: var(--press-shadow-rest);
+    backdrop-filter: blur(6px) saturate(110%);
     overflow: hidden;
     z-index: 1;
   }
@@ -1829,18 +1836,23 @@
 
   .terminal-toolbar-button:hover:not(:disabled),
   .terminal-toolbar-button:focus-visible {
-    transform: scale(1.18);
-    background: linear-gradient(170deg,
-        color-mix(in srgb, var(--surface, #0a0d12) 80%, rgba(255, 255, 255, 0.4)),
-        color-mix(in srgb, var(--surface, #0a0d12) 30%, rgba(255, 255, 255, 0.85)));
-    border-color: color-mix(in srgb, var(--accent) 80%, rgba(255, 255, 255, 0.95));
-    color: var(--accent);
+    filter: brightness(1.03);
+    background: var(--press-hover-bg);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: var(--press-hover-color);
+    transform: translateY(1.5px) scale(0.995);
     box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
-    transform-origin: center;
+      inset 0 1px 3px rgba(0, 0, 0, .35),
+      inset 0 0 0 1px rgba(255, 255, 255, .10);
     outline: none;
+  }
+
+  .terminal-toolbar-button:active {
+    transform: translateY(3px) scale(0.99);
+    box-shadow:
+      inset 0 3px 8px rgba(0, 0, 0, .55),
+      inset 0 0 0 1px rgba(255, 255, 255, .06);
+    filter: brightness(0.98);
   }
 
   .terminal-toolbar-button:hover:not(:disabled)::after,
@@ -1863,12 +1875,10 @@
   }
 
   .terminal-toolbar-button.is-active {
-    border-color: color-mix(in srgb, var(--accent) 80%, rgba(255, 255, 255, 0.9));
-    background: color-mix(in srgb, var(--surface, #0a0d12) 40%, rgba(255, 255, 255, 0.45));
+    border-color: color-mix(in srgb, var(--accent) 76%, var(--border) 24%);
+    background: color-mix(in srgb, transparent 82%, var(--accent) 18%);
     color: var(--accent);
-    box-shadow:
-      0 12px 24px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
   }
 
   .terminal-toolbar-badge {
