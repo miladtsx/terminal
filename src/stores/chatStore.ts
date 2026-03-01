@@ -257,42 +257,11 @@ export const useChatStore = create<ChatStore>()(
             },
           });
 
-          const history = [...get().messages].filter(
-            (m) => m.role === "user" || m.role === "assistant",
-          );
-
-          let isFirstUser = true;
-
-          const systemInstruction = (() => {
-            if (state.tone === "technical") {
-              return "You are Milad's assistant. Respond in a technical tone: be concise, assume engineering context, include implementation details, and prefer code or architecture examples.";
-            }
-            if (state.tone === "non-technical") {
-              return "You are Milad's assistant. Respond in an accessible, non-technical tone: avoid jargon, use plain language, brief analogies, and focus on outcomes instead of implementation details.";
-            }
-            return "You are Milad's assistant. Adjust depth based on the question while staying clear and helpful.";
-          })();
-
-          const formatted = [
-            {
-              role: "system",
-              content: `<|start_header_id|>system<|end_header_id|>${systemInstruction}<|eot_id|>`,
-            },
-            ...history.map((m) => {
-              const prefixedContent =
-                m.role === "user" && isFirstUser && state.tone
-                  ? `Please rephrase your responses for a ${state.tone.replace("-", " ")} audience. ${m.content}`
-                  : m.content;
-              if (m.role === "user" && isFirstUser) isFirstUser = false;
-              return {
-                role: m.role,
-                content:
-                  m.role === "user"
-                    ? `<|start_header_id|>user<|end_header_id|>${prefixedContent}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`
-                    : `${m.content}<|eot_id|>`,
-              };
-            }),
-          ];
+          const rawHistory = [...get().messages];
+          const history = rawHistory
+            .slice(-12) // avoid unnecessary bandwidth
+            .filter((m) => m.role === "user" || m.role === "assistant")
+            .map((m) => ({ role: m.role, content: m.content })); // drop id/createdAt
 
           abortController = new AbortController();
 
@@ -300,7 +269,11 @@ export const useChatStore = create<ChatStore>()(
             const resp = await fetch(CHATBOT_URL, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ message: formatted }),
+              body: JSON.stringify({
+                tone: state.tone ?? "non-technical",
+                history,
+                message: content,
+              }),
               signal: abortController.signal,
             });
 
