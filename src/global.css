@@ -1430,27 +1430,23 @@
   .t-searchClear {
     position: absolute;
     right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 26px;
     height: 26px;
-    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
     color: color-mix(in srgb, var(--muted) 80%, var(--text) 20%);
     cursor: pointer;
     font-size: 16px;
     line-height: 1;
-    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
   }
 
   .t-searchClear:hover {
     background: color-mix(in srgb, var(--surface) 80%, var(--accent) 20%);
     color: var(--text);
     border-color: color-mix(in srgb, var(--accent) 50%, var(--border) 50%);
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
   }
 
   .t-searchClear:focus-visible {
