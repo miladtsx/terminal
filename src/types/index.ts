@@ -8,6 +8,7 @@ export interface CommandButton {
   command: string;
   label?: string;
   variant?: "primary" | "secondary" | "link" | "sparkle";
+  typing?: "auto" | "simulate" | "instant";
 }
 
 export interface TerminalProps {
@@ -44,7 +45,10 @@ export type ControllerReturn = {
   handleKeyDown: (event: ReactKeyboardEvent<HTMLTextAreaElement>) => void;
   onInputChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
   focusInput: () => void;
-  executeCommand: (cmd: any) => void;
+  executeCommand: (
+    cmd: string,
+    options?: { typing?: CommandButton["typing"] },
+  ) => void;
   introStartLineRange: { start: number; count: number } | null;
   introStartVisible: boolean;
   showIntroInput: boolean;
@@ -61,6 +65,7 @@ export type CommandSegment = {
   command: string;
   ariaLabel?: string;
   variant?: CommandButton["variant"];
+  typing?: CommandButton["typing"];
 };
 
 export type CopySegment = {
@@ -216,7 +221,10 @@ export type TerminalLineProps = {
   line: TerminalLine;
   lineIndex: number;
   className?: string;
-  executeCommand: (command: string) => void;
+  executeCommand: (
+    command: string,
+    options?: { typing?: CommandButton["typing"] },
+  ) => void;
   isCommandLine?: boolean;
   isCollapsed?: boolean;
   prompt?: string;

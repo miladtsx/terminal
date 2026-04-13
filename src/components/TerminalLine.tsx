@@ -20,6 +20,8 @@ import {
 } from "@types";
 import { DownloadIntegrity } from "./terminal/DownloadIntegrity";
 
+type ExecuteCommand = TerminalLineProps["executeCommand"];
+
 function CopyIcon({ active }: { active: boolean }) {
   return (
     <svg
@@ -143,7 +145,7 @@ function AvatarMessageSegment({
   executeCommand,
 }: {
   segment: AvatarSegment;
-  executeCommand: (command: string) => void;
+  executeCommand: ExecuteCommand;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -294,7 +296,7 @@ function SearchHits({
   executeCommand,
 }: {
   segment: SearchHitsSegmentType;
-  executeCommand: (command: string) => void;
+  executeCommand: ExecuteCommand;
 }) {
   const { hits, query } = segment;
   const [open, setOpen] = useState(true);
@@ -468,7 +470,7 @@ function SearchHits({
 function renderSegment(
   segment: LineSegment,
   key: string,
-  executeCommand: (command: string) => void,
+  executeCommand: ExecuteCommand,
 ) {
   switch (segment.type) {
     case "text":
@@ -506,7 +508,9 @@ function renderSegment(
             key={key}
             label={attrs.label}
             ariaLabel={ariaLabel}
-            onClick={() => executeCommand(attrs.command)}
+            onClick={() =>
+              executeCommand(attrs.command, { typing: attrs.typing })
+            }
           />
         );
       }
@@ -523,7 +527,9 @@ function renderSegment(
           key={key}
           type="button"
           className={`t-commandLink t-pressable${variantClass}`}
-          onClick={() => executeCommand(attrs.command)}
+          onClick={() =>
+            executeCommand(attrs.command, { typing: attrs.typing })
+          }
           aria-label={ariaLabel}
         >
           <span className="t-commandLabel">{attrs.label}</span>
@@ -855,7 +861,7 @@ function ActivityTree({
   executeCommand,
 }: {
   segment: ActivityTreeSegment;
-  executeCommand: (command: string) => void;
+  executeCommand: ExecuteCommand;
 }) {
   const [open, setOpen] = useState<Record<string, boolean>>(() => {
     const state: Record<string, boolean> = {};

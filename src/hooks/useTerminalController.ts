@@ -331,12 +331,14 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       command: string,
       label: string,
       variant?: CommandButton["variant"],
+      typing?: CommandButton["typing"],
     ): LineSegment => ({
       type: "command",
       command,
       label,
       ariaLabel: label,
       variant,
+      typing,
     });
 
     const introMarkdown: MarkdownSegment = {
@@ -362,7 +364,12 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
 
     suggested.forEach((cmd, index) => {
       const label = cmd.label || cmd.command;
-      const button = createCommandSegment(cmd.command, label, cmd.variant);
+      const button = createCommandSegment(
+        cmd.command,
+        label,
+        cmd.variant,
+        cmd.typing ?? "simulate",
+      );
 
       if (index === 0) {
         primaryCtaLine.push(button);
@@ -684,7 +691,10 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
   };
 
   const executeCommand = useCallback(
-    (command: string) => {
+    (
+      command: string,
+      options?: { typing?: CommandButton["typing"] },
+    ) => {
       const normalized = (command || "").trim();
       if (!normalized) return;
 
@@ -695,7 +705,11 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       setState((prev) => ({ ...prev, input: "" }));
       focusInput();
 
-      if (isMotionReduced()) {
+      const shouldSimulateTyping =
+        options?.typing === "simulate" ||
+        (options?.typing !== "instant" && !isMotionReduced());
+
+      if (!shouldSimulateTyping) {
         setState((prev) => ({ ...prev, input: "" }));
         void runCommand(normalized);
         return;

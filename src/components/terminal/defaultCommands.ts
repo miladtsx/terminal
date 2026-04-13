@@ -41,9 +41,24 @@ import {
 import { searchStore } from "@stores/searchStore";
 
 export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
-  { command: "contact", label: "Contact", variant: "primary" },
-  { command: "work", label: "Case studies", variant: "secondary" },
-  { command: "download resume", label: "CV", variant: "secondary" },
+  {
+    command: "contact",
+    label: "Contact",
+    variant: "primary",
+    typing: "simulate",
+  },
+  {
+    command: "work",
+    label: "Case studies",
+    variant: "secondary",
+    typing: "simulate",
+  },
+  {
+    command: "download resume",
+    label: "CV",
+    variant: "secondary",
+    typing: "simulate",
+  },
 ];
 
 const APP_VERSION = packageJson.version;
@@ -58,12 +73,14 @@ const createCommandSegment = (
   label?: string,
   ariaLabel?: string,
   variant?: CommandButton["variant"],
+  typing?: CommandButton["typing"],
 ): CommandSegment => ({
   type: "command",
   label: label ?? `${command}`,
   command,
   ariaLabel,
   variant,
+  typing,
 });
 
 const createCopySegment = (value: string, label?: string): CopySegment => ({
@@ -93,7 +110,15 @@ const buildCommandButtonLine = (commands: CommandButton[]): LineSegment[] => {
     const cmd = c.command;
     const label = c.label ? c.label : c.command;
     const ariaLabel = label;
-    segments.push(createCommandSegment(cmd, label, ariaLabel, c.variant));
+    segments.push(
+      createCommandSegment(
+        cmd,
+        label,
+        ariaLabel,
+        c.variant,
+        c.typing ?? "simulate",
+      ),
+    );
   });
   return segments;
 };

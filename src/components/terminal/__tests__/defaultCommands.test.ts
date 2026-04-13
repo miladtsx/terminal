@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TerminalLine, TerminalLineInput } from "@types";
 import { CommandRegistry } from "../commandRegistry";
-import { registerDefaultCommands } from "../defaultCommands";
+import {
+  DEFAULT_SUGGESTED_COMMANDS,
+  formatCommandToButton,
+  registerDefaultCommands,
+} from "../defaultCommands";
 import { TerminalModel } from "../terminalModel";
 import { findFileByName } from "../../../data/files";
 
@@ -250,5 +254,19 @@ describe("default commands", () => {
     const clearLines = Array.isArray(clearOutput) ? clearOutput : [clearOutput];
     expect(clearLines.join("\n")).toContain("cleared");
     expect(model.getHistory()).toEqual([]);
+  });
+
+  it("marks suggested command buttons to use simulated typing", () => {
+    const lines = formatCommandToButton("> ", DEFAULT_SUGGESTED_COMMANDS)();
+    const buttonLine = lines[1];
+    expect(Array.isArray(buttonLine)).toBe(true);
+
+    const buttons = (buttonLine as TerminalLine).filter(
+      (segment): segment is Extract<TerminalLine[number], { type: "command" }> =>
+        typeof segment !== "string" && segment.type === "command",
+    );
+
+    expect(buttons.length).toBe(DEFAULT_SUGGESTED_COMMANDS.length);
+    expect(buttons.every((segment) => segment.typing === "simulate")).toBe(true);
   });
 });
