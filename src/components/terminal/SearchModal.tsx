@@ -196,64 +196,70 @@ export function SearchModal({ executeCommand }: { executeCommand: (cmd: string) 
                   <span className={`t-searchTag is-${key}`}>{group.label}</span>
                   <span className="t-searchCount">[{group.items.length}]</span>
                 </summary>
-                <div className="t-searchGroupBody">
-                  {group.items.map((entry) => (
-                    <details key={entry.key} className="t-searchHit" open>
-                      <summary className="t-searchHead">
-                        <span className="t-searchCaret">▾</span>
-                        <span className="t-searchTitle">{entry.title} ({entry.snippets.length})</span>
-                      </summary>
-                      {entry.snippets.map((hit) => (
-                        <pre
-                          key={hit.id}
-                          className="t-searchSnippet"
-                          dangerouslySetInnerHTML={{
-                            __html: (() => {
-                              const content = hit.before.concat([hit.line], hit.after).join("\n");
-                              const escaped = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                              const marked = highlightRegex
-                                ? escaped.replace(highlightRegex, "<mark>$1</mark>")
-                                : escaped;
+                <div className="t-searchGroupPanel">
+                  <div className="t-searchGroupBody">
+                    {group.items.map((entry) => (
+                      <details key={entry.key} className="t-searchHit" open>
+                        <summary className="t-searchHead">
+                          <span className="t-searchCaret">▾</span>
+                          <span className="t-searchTitle">{entry.title} ({entry.snippets.length})</span>
+                        </summary>
+                        <div className="t-searchHitPanel">
+                          <div className="t-searchHitBody">
+                            {entry.snippets.map((hit) => (
+                              <pre
+                                key={hit.id}
+                                className="t-searchSnippet"
+                                dangerouslySetInnerHTML={{
+                                  __html: (() => {
+                                    const content = hit.before.concat([hit.line], hit.after).join("\n");
+                                    const escaped = content.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                                    const marked = highlightRegex
+                                      ? escaped.replace(highlightRegex, "<mark>$1</mark>")
+                                      : escaped;
 
-                              return marked
-                                .split("\n")
-                                .map((line, idx) => {
-                                  const isFocusLine = idx === hit.before.length;
-                                  return isFocusLine
-                                    ? `<span class=\"t-searchLineFocus\">${line}</span>`
-                                    : line;
-                                })
-                                .join("\n");
-                            })(),
-                          }}
-                        />
-                      ))}
-                      <div className="t-searchActions">
-                        <button
-                          type="button"
-                          className="t-commandLink t-pressable"
-                          onClick={() => {
-                            executeCommand(entry.readCommand);
-                            minimize();
-                          }}
-                        >
-                          Read more
-                        </button>
-                        {entry.downloadCommand ? (
-                          <button
-                            type="button"
-                            className="t-commandLink t-pressable"
-                            onClick={() => executeCommand(entry.downloadCommand!)}
-                          >
-                            Download
-                          </button>
-                        ) : null}
-                      </div>
-                      {entry.downloadCommand ? (
-                        <DownloadIntegrity command={entry.downloadCommand} />
-                      ) : null}
-                    </details>
-                  ))}
+                                    return marked
+                                      .split("\n")
+                                      .map((line, idx) => {
+                                        const isFocusLine = idx === hit.before.length;
+                                        return isFocusLine
+                                          ? `<span class=\"t-searchLineFocus\">${line}</span>`
+                                          : line;
+                                      })
+                                      .join("\n");
+                                  })(),
+                                }}
+                              />
+                            ))}
+                            <div className="t-searchActions">
+                              <button
+                                type="button"
+                                className="t-commandLink t-pressable"
+                                onClick={() => {
+                                  executeCommand(entry.readCommand);
+                                  minimize();
+                                }}
+                              >
+                                Read more
+                              </button>
+                              {entry.downloadCommand ? (
+                                <button
+                                  type="button"
+                                  className="t-commandLink t-pressable"
+                                  onClick={() => executeCommand(entry.downloadCommand!)}
+                                >
+                                  Download
+                                </button>
+                              ) : null}
+                            </div>
+                            {entry.downloadCommand ? (
+                              <DownloadIntegrity command={entry.downloadCommand} />
+                            ) : null}
+                          </div>
+                        </div>
+                      </details>
+                    ))}
+                  </div>
                 </div>
               </details>
             ))

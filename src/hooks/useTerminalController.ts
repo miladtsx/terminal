@@ -344,7 +344,7 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       markdown: `
 <div class="intro-hero">
   <div class="intro-headline">I make critical software predictable.</div>
-  <div class="intro-subline">Backends + security for systems where downtime, fraud, or bad data is expensive.</div>
+  <div class="intro-subline">I turn failure modes into invariants, tests, and recovery primitives.</div>
   <div class="intro-proof">
     <div class="intro-proofLabel">How I reduce risk</div>
     <div class="intro-proofList">

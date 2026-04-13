@@ -1496,6 +1496,16 @@
     border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
     border-radius: 12px;
     background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+    overflow: hidden;
+    transition:
+      border-color 360ms ease,
+      box-shadow 520ms ease,
+      background 520ms ease;
+  }
+
+  .t-searchGroup[open] {
+    border-color: color-mix(in srgb, var(--accent) 52%, var(--border) 48%);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--bg) 70%, rgba(0, 0, 0, 0.28));
   }
 
   .t-searchGroupHead {
@@ -1509,11 +1519,29 @@
     color: var(--text);
   }
 
+  .t-searchGroupPanel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 520ms ease, opacity 380ms ease;
+  }
+
+  .t-searchGroup[open]>.t-searchGroupPanel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
   .t-searchGroupBody {
-    padding: 12px 14px 14px;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 14px;
     display: flex;
     flex-direction: column;
     gap: 14px;
+  }
+
+  .t-searchGroup[open]>.t-searchGroupPanel>.t-searchGroupBody {
+    padding: 12px 14px 14px;
   }
 
   .t-searchCount {
@@ -1526,8 +1554,18 @@
     border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 30%);
     border-radius: 10px;
     background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
-    padding: 0 0 10px;
     box-shadow: var(--shadow, 0 10px 28px rgba(0, 0, 0, 0.25));
+    overflow: hidden;
+    transition:
+      border-color 360ms ease,
+      box-shadow 520ms ease,
+      background 520ms ease;
+  }
+
+  .t-searchHit[open] {
+    border-color: color-mix(in srgb, var(--accent) 56%, var(--border) 44%);
+    background: color-mix(in srgb, var(--surface) 86%, var(--accent) 14%);
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--bg) 68%, rgba(0, 0, 0, 0.34));
   }
 
   .t-searchHead {
@@ -1539,6 +1577,28 @@
     flex-wrap: wrap;
     width: 100%;
     padding: 12px 14px;
+  }
+
+  .t-searchHitPanel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 220ms ease, opacity 180ms ease;
+  }
+
+  .t-searchHit[open]>.t-searchHitPanel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .t-searchHitBody {
+    min-height: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .t-searchHit[open]>.t-searchHitPanel>.t-searchHitBody {
+    padding: 0 0 10px;
   }
 
   .t-searchTag {
@@ -1713,6 +1773,19 @@
     display: inline-flex;
     justify-content: center;
     color: var(--muted);
+    transition: transform 380ms ease, color 380ms ease;
+    transform-origin: 40% 50%;
+  }
+
+  .t-searchGroup[open] > .t-searchGroupHead .t-searchCaret,
+  .t-searchHit[open] > .t-searchHead .t-searchCaret {
+    transform: rotate(0deg);
+    color: var(--text);
+  }
+
+  .t-searchGroup:not([open]) > .t-searchGroupHead .t-searchCaret,
+  .t-searchHit:not([open]) > .t-searchHead .t-searchCaret {
+    transform: rotate(-90deg);
   }
 
   .terminal-toolbar {
