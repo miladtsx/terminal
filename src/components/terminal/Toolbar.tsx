@@ -56,27 +56,29 @@ export function TerminalToolbar({
         ) : null}
       </button>
 
-      <button
-        type="button"
-        className={`terminal-askAi${isExpanded ? " is-expanded" : ""}${isChatActive ? " is-active" : ""}`}
-        aria-label="Open chatbot"
-        title="Open chatbot"
-        onClick={handleAskClick}
-      >
-        <span className="terminal-askAiSparkles" aria-hidden="true">
-          <SparklesCore
-            background="transparent"
-            className="terminal-askAiSparklesCanvas"
-            minSize={0.4}
-            maxSize={1.4}
-            particleColor={sparkleColor}
-            particleDensity={120}
-            speed={0.5}
-          />
-        </span>
-        <span className="terminal-askAi-label">Ask AI</span>
-        {unread > 0 ? <span className="terminal-toolbar-dot" aria-hidden="true" /> : null}
-      </button>
+      <div className="terminal-askAiSlot">
+        <button
+          type="button"
+          className={`terminal-askAi${isExpanded ? " is-expanded" : ""}${isChatActive ? " is-active" : ""}`}
+          aria-label="Open chatbot"
+          title="Open chatbot"
+          onClick={handleAskClick}
+        >
+          <span className="terminal-askAiSparkles" aria-hidden="true">
+            <SparklesCore
+              background="transparent"
+              className="terminal-askAiSparklesCanvas"
+              minSize={0.4}
+              maxSize={1.4}
+              particleColor={sparkleColor}
+              particleDensity={120}
+              speed={0.5}
+            />
+          </span>
+          <span className="terminal-askAi-label">Ask AI</span>
+          {unread > 0 ? <span className="terminal-toolbar-dot" aria-hidden="true" /> : null}
+        </button>
+      </div>
     </div>
   );
 }
