@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { MarkdownBlock } from "@components/MarkdownBlock";
 import { SparklesCore } from "@components/ui/sparkles";
 import { useTerminalTone } from "@hooks/useTerminalTone";
@@ -618,6 +618,38 @@ function FaqAccordion({ items }: { items: FaqSegment["items"] }) {
 
 function LogAccordion({ items }: { items: LogSegment["items"] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const panelInnerRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [panelHeights, setPanelHeights] = useState<Record<number, number>>({});
+
+  const syncPanelHeight = (idx: number) => {
+    const panelInner = panelInnerRefs.current[idx];
+    if (!panelInner) return;
+
+    const nextHeight = Math.ceil(panelInner.getBoundingClientRect().height || panelInner.scrollHeight);
+    setPanelHeights((current) =>
+      current[idx] === nextHeight ? current : { ...current, [idx]: nextHeight }
+    );
+  };
+
+  useLayoutEffect(() => {
+    if (openIndex === null) return;
+
+    syncPanelHeight(openIndex);
+    const panelInner = panelInnerRefs.current[openIndex];
+    if (!panelInner) return;
+
+    const handleResize = () => syncPanelHeight(openIndex);
+    const observer =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(handleResize) : null;
+
+    observer?.observe(panelInner);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [openIndex, items]);
 
   return (
     <div className="t-logAccordion">
@@ -636,7 +668,15 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
               type="button"
               className="t-logSummary"
               aria-expanded={isOpen}
-              onClick={() => setOpenIndex(isOpen ? null : idx)}
+              onClick={() => {
+                if (isOpen) {
+                  setOpenIndex(null);
+                  return;
+                }
+
+                syncPanelHeight(idx);
+                setOpenIndex(idx);
+              }}
             >
               <span className="t-logChevron" aria-hidden="true">
                 ▸
@@ -648,9 +688,14 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
 
             <div
               className="t-logPanel"
-              style={{ maxHeight: isOpen ? "700px" : "0px" }}
+              style={{ maxHeight: isOpen ? `${panelHeights[idx] ?? 0}px` : "0px" }}
             >
-              <div className="t-logPanelInner">
+              <div
+                ref={(node) => {
+                  panelInnerRefs.current[idx] = node;
+                }}
+                className="t-logPanelInner"
+              >
                 {item.body ? (
                   <MarkdownBlock
                     segment={{ type: "markdown", markdown: item.body, title: item.note }}
