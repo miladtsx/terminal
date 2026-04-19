@@ -127,12 +127,12 @@ const buildContactRow = (label: string, value: string): LineSegment[] => {
   const isEmail = /@/.test(value);
   const valueSegment = isEmail
     ? createLinkSegment(
-        `mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`,
-        value,
-        {
-          ariaLabel: `Email ${value}`,
-        },
-      )
+      `mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`,
+      value,
+      {
+        ariaLabel: `Email ${value}`,
+      },
+    )
     : createTextSegment(value);
 
   return [
@@ -451,349 +451,264 @@ export function registerDefaultCommands({
   const themes = listThemes();
 
   //! instead of <What did you do?> SAY:
-    //! What broke, why, and how did you enforce correctness?
+  //! What broke, why, and how did you enforce correctness?
 
   const caseStudies = props.sampleWorks || [
     {
-      index: 2,
-      intro: "Infrastructure spend kept rising because the system stayed overprovisioned.",
-      title: "Cloud cost",
-      desc: "Cut monthly infra ~60% while improving p95 by ~18%.",
-      tags: ["cost", "reliability"],
-      pain: "Runaway infra bill as usage rose.",
-      outcome: "Cloud spend -60%",
-      timeframe: "6 weeks",
-      outcomeSummary: "Cloud spend down ~60% in 6 weeks; p95 ~18% faster.",
-      whyItMatters: "Prevent runaway infrastructure spend",
-      problem:
-        "AWS and node-provider costs kept climbing because services stayed always-on and workloads were not bounded to the right execution model.",
-      approach:
-        "Separated burstable work into serverless and spot pools, moved hot paths behind async queues, and enforced autoscaling behavior with canaries so cost cuts could not silently degrade latency.",
-      result:
-        "Monthly cloud spend dropped ~60% in 6 weeks while p95 improved ~18%, with rollout protected by canary gates and dashboards.",
-      beforeBullets: [
-        "Always-on services kept spend rising with usage.",
-        "Unsharded workloads forced expensive overprovisioning.",
-        "Naive cost cutting risked pushing latency regressions into production.",
-      ],
-      approachBullets: [
-        "Split burst and steady workloads across serverless and spot pools.",
-        "Moved hot paths behind async queues to decouple spikes from always-on capacity.",
-        "Added canaries and autoscaling SLO gates before broader rollout.",
-      ],
-      resultBullets: [
-        "Monthly cloud spend reduced ~60% in 6 weeks.",
-        "p95 latency improved ~18% instead of regressing during cost cuts.",
-        "Rollout remained bounded by canary checks rather than manual guesswork.",
-      ],
-      technicalDetails: `Stack: AWS, serverless workloads, spot pools, async queues, canaries
-
-Invariant:
-- Cost reduction must not regress p95 latency
-- Burst traffic must not force permanent overprovisioning
-- Scaling changes must fail safely before wide rollout
-
-Hardest constraint:
-Cut spend sharply without trading away responsiveness
-
-Solution:
-Separated burst and steady workloads, moved hot paths to async queues, and enforced autoscaling behavior with canary gates
-
-Verification:
-Monthly cloud spend fell ~60% in 6 weeks; p95 improved ~18%; canaries and dashboards guarded rollout`,
-    },
-    {
-      index: 4,
-      intro: "Production-critical contract work was about to be handed to a vendor before the deploy path was understood in-house.",
-      title: "Vendor",
-      desc: "Built the smart contract in-house and kept $47K in runway.",
-      tags: ["cost", "ownership", "web3"],
-      pain: "Vendor wanted $47k for smart contracts.",
-      outcome: "$47k vendor cost avoided",
-      timeframe: "2 weeks",
-      outcomeSummary: "$47k vendor cost avoided; kept ownership in-house.",
-      whyItMatters: "Prevent vendor lock-in on critical contract logic",
-      problem:
-        "The team needed a point-allocation smart contract system and was preparing to outsource it for roughly $47K, which would have externalized both correctness and deploy knowledge.",
-      approach:
-        "Specified the allocation rules directly, implemented and tested the contracts in-house, and constrained deployment through multisig plus a documented runbook so operational control stayed internal.",
-      result:
-        "The on-chain point system shipped without vendor dependency, roughly $47K in spend was avoided, and deploy authority remained under the team's control.",
-      beforeBullets: [
-        "Point-allocation work was blocked on a ~$47K vendor quote.",
-        "No internal ownership of the contract logic or deploy path.",
-        "External handoff would add integration and release risk.",
-      ],
-      approachBullets: [
-        "Specified allocation logic as explicit contract rules before implementation.",
-        "Built and tested the contracts in Hardhat to keep correctness reviewable in-house.",
-        "Used multisig deploy controls and a runbook to bound operational risk.",
-      ],
-      resultBullets: [
-        "$47K vendor spend avoided while keeping code ownership internal.",
-        "Deploy authority stayed constrained through multisig instead of a vendor handoff.",
-        "Required on-chain allocation logic shipped without adding an external dependency.",
-      ],
-      technicalDetails: `Stack: Solidity, Hardhat, multisig
-
-Invariant:
-- Point allocation rules must execute deterministically on-chain
-- Deployment authority must remain internal
-- Shipping the contract must not depend on vendor-controlled knowledge
-
-Hardest constraint:
-Deliver unfamiliar smart-contract work quickly without turning deploy safety into vendor lock-in
-
-Solution:
-Implemented the allocation logic in-house, validated behavior with Hardhat tests, and constrained deployment through multisig plus runbook
-
-Verification:
-Hardhat tests covered the contract behavior; the contract integrated with the existing backend and frontend flow; ~$47K vendor spend was avoided`,
-    },
-    {
-      index: 5,
-      intro: "Fundraising was blocked because there was no working product proof, only scope pressure and agency quotes.",
-      title: "MVP",
-      desc: "Investor-ready MVP in 10 days for <$300 (saved ~$10K agency fees).",
-      tags: ["mvp", "founder"],
-      pain: "Needed investor-ready demo before spending big.",
-      outcome: "Investor-ready MVP — 10 days",
-      timeframe: "10 days",
-      outcomeSummary: "Investor-ready MVP — 10 days",
-      whyItMatters: "Prevent premature spend before proof",
-      problem:
-        "Early-stage founders needed something real to show investors, but the obvious path was a slow outsourced build that would burn capital before product proof existed.",
-      approach:
-        "Reduced scope to the critical fundraising flow, built a typed vertical slice with reusable components, and kept non-critical systems mocked so the demo surface stayed small and inspectable.",
-      result:
-        "A demo-ready MVP shipped in 10 days for under $300, giving founders a credible fundraising artifact without committing to an agency build.",
-      beforeBullets: [
-        "No working demo existed for investor conversations.",
-        "Agency quotes were north of $10K with multi-week timelines.",
-        "Fundraising was blocked on building too much too early.",
-      ],
-      approachBullets: [
-        "Cut scope to the one flow required for fundraising proof.",
-        "Built a typed vertical slice with reusable components to keep the failure surface narrow.",
-        "Mocked non-critical systems and added analytics plus a walkthrough for inspectability.",
-      ],
-      resultBullets: [
-        "Investor-ready MVP shipped in 10 days for <$300.",
-        "Fundraising could proceed without committing to a full build.",
-        "Estimated ~$10K agency spend was avoided by keeping scope bounded.",
-      ],
-      technicalDetails: `Stack: typed API, reusable UI components, analytics, Loom
-
-Invariant:
-- Founders must have a working demo before committing major build spend
-- The core fundraising flow must be demoable within 10 days
-- Non-critical systems must not expand the build surface
-
-Hardest constraint:
-Meet a fixed investor timeline with almost no budget
-
-Solution:
-Built one typed vertical slice, mocked non-critical systems, and instrumented only the core demo path
-
-Verification:
-Investor-ready MVP shipped in 10 days for <$300, avoiding estimated ~$10K in agency cost`,
-    },
-    {
       index: 1,
-      intro: "Live user funds were exposed to contract regressions unless deployment and monitoring were made explicit.",
       title: "Funds safety",
-      desc: "Safeguarded ~$4M in user funds over 3 years with zero incidents.",
+      description: `Live user funds were at risk if contract regressions or unsafe upgrades reached production.
+
+## Before
+- TVL grew toward ~$4M while monitoring remained fragmented.
+- Contract regressions could reach mainnet without one explicit release gate.
+- Critical contract events and gas anomalies were not surfaced consistently.
+
+## What I did
+- Added invariant tests around critical contract behavior in CI.
+- Added deploy gates so upgrades could not ship without passing checks.
+- Added additional contract checks where they reduced regression risk.
+- Instrumented critical contract events and gas anomalies with alerting and runbooks.
+
+## Result
+- No loss events across 36 months at roughly ~$4M TVL.
+- Upgrades shipped without downtime.
+- Gas usage stayed within expected operating bounds under production monitoring.
+
+## Technical details
+- Stack: Solidity contracts, invariant tests, deploy gates, production alerting
+- Hardest constraint: Keep live funds safe while continuing to ship upgrades
+
+### Invariant
+- Contract upgrades should not create loss-of-funds conditions
+- Critical regressions should be caught before or at deployment
+- Upgrade and recovery handling should not require downtime
+
+### Solution
+Combined invariant-driven CI, explicit deploy gates, targeted contract checks, and production alerting for contract events and gas anomalies.
+
+### Verification
+No security incidents over 36 months around ~$4M TVL; upgrades shipped without downtime; gas remained within expected bounds.`,
       tags: ["security", "finance"],
-      pain: "TVL growing; regressions could cost millions.",
-      outcome: "No loss events (~$4M TVL)",
-      timeframe: "36 months",
-      outcomeSummary: "No loss events around ~$4M TVL over 36 months.",
-      whyItMatters: "Prevent loss in production",
-      problem:
-        "TVL grew toward roughly $4M while monitoring was fragmented, leaving room for contract regressions or gas anomalies to reach production too late.",
-      approach:
-        "Added invariant tests in CI, used formal checks where they materially reduced risk, and instrumented critical contract events plus gas spikes so upgrades could not ship without explicit gates and visibility.",
-      result:
-        "There were zero security incidents across 36 months, upgrades shipped without downtime, and gas usage stayed within budget.",
-      beforeBullets: [
-        "TVL climbed toward ~$4M while monitoring remained fragmented.",
-        "Contract regressions could have reached mainnet without a unified gate.",
-        "Critical event and gas anomalies were not surfaced consistently.",
-      ],
-      approachBullets: [
-        "Added invariant tests and formal checks where they reduced mainnet regression risk.",
-        "Enforced deploy gates before contract upgrades could ship.",
-        "Instrumented contract events and gas anomalies with alerting and runbooks.",
-      ],
-      resultBullets: [
-        "No loss events across 36 months at roughly ~$4M TVL.",
-        "Upgrades shipped without downtime.",
-        "Gas usage remained within budget under production monitoring.",
-      ],
-      technicalDetails: `Stack: Solidity contracts, invariant tests, selective formal checks, production alerting
+    },
+    {
+      index: 2,
+      title: "Scale",
+      description: `The realtime backend degraded badly under load and stopped behaving reliably beyond ~100 concurrent users.
 
-Invariant:
-- Contract upgrades must not cause loss of user funds
-- Critical regressions must be detected before or at deployment
-- Recovery handling must not require downtime
+## Before
+- Service quality dropped sharply beyond ~100 CCU.
+- Packet loss increased and matchmaking queues stalled.
+- Successful match starts were around ~65%.
 
-Hardest constraint:
-Maintain zero-loss operation while shipping upgrades against live TVL
+## What I did
+- Separated the realtime data path (UDP + protobufs) from the control plane.
+- Introduced room sharding to limit per-node load.
+- Added circuit breakers to reduce retry amplification under stress.
+- Validated behavior with staged load tests up to ~2k CCU.
 
-Solution:
-Combined invariant-driven CI, selective formal verification, and event plus gas alerting behind explicit deploy gates
+## Result
+- System remained stable up to ~2k CCU, about a 20x increase.
+- Packet loss stayed below 0.5% under tested load.
+- Match success rate improved to ~92%.
 
-Verification:
-Zero security incidents over 36 months around ~$4M TVL; upgrades shipped without downtime; gas stayed within budget`,
+## Technical details
+- Stack: UDP, protobufs, sharded rooms, circuit breakers
+- Hardest constraint: Increase concurrency sharply without a gameplay rewrite
+
+### Invariant
+- The system should remain operational at the target load (~2k CCU)
+- Packet loss should stay below 0.5% under load
+- Match success rate should stay above 90%
+
+### Solution
+Separated realtime traffic from the control plane, bounded load through sharding, and added circuit breakers before staged load validation.
+
+### Verification
+Staged load tests to ~2k CCU held packet loss below 0.5% and improved reliability to ~92%.`,
+      tags: ["scale", "reliability", "gaming"],
     },
     {
       index: 3,
-      intro: "System collapses under load (loss of service beyond 100 CCU).",
-      title: "Scale",
-      desc: "Supported 20x more concurrent players and raised reliability from ~65% to 92%.",
-      tags: ["scale", "reliability", "gaming"],
-      pain: "Realtime servers fell over past ~100 CCU.",
-      outcome: "20× concurrency",
-      timeframe: "8 weeks",
-      outcomeSummary:
-        "Scaled to 2k+ CCU (~20×) and reliability from ~65% to ~92% in 8 weeks.",
-      whyItMatters: "Prevent collapse under load",
-      problem:
-        "Realtime servers fell over beyond ~100 concurrent players; packet drops and match queues stalled under load.",
-      approach:
-        "Separated the realtime data path from the control plane, bounded per-node load with room sharding, and added circuit breakers plus staged load tests to contain failure under concurrency.",
-      result:
-        "System remained stable up to 2,000+ concurrent players, with packet loss below 0.5% and successful match starts rising to ~92%.",
-      beforeBullets: [
-        "System collapses beyond ~100 CCU.",
-        "Packet loss spikes; matchmaking queues stall.",
-        "Successful match starts ~65%.",
-      ],
-      approachBullets: [
-        "Separated realtime data path (UDP + protobufs) from control plane.",
-        "Introduced room sharding to bound per-node load.",
-        "Added circuit breakers to prevent retry amplification.",
-        "Enforced behavior with staged load tests up to 2k CCU.",
-      ],
-      resultBullets: [
-        "System remains stable up to ~2k CCU (~20× increase).",
-        "Packet loss bounded below 0.5% under load.",
-        "Match success rate increased to ~92% (no collapse region).",
-      ],
-      technicalDetails: `Stack: UDP, protobufs, sharded rooms, circuit breakers
+      title: "Cloud cost",
+      description: `Infrastructure spend kept rising because the system stayed overprovisioned for bursty workloads.
 
-Invariant:
-- System must not collapse under target load (2k CCU)
-- Packet loss <0.5%
-- Match success rate >90%
+## Before
+- Always-on services caused spend to rise with traffic.
+- Workloads were not mapped to the right execution model, which forced overprovisioning.
+- Blind cost cutting risked pushing latency regressions into production.
 
-Hardest constraint:
-20× concurrency without gameplay rewrite
+## What I did
+- Split burst and steady workloads across serverless and spot-backed execution paths.
+- Moved hot paths behind async queues to decouple spikes from always-on capacity.
+- Added canaries and autoscaling SLO gates before broader rollout.
 
-Solution:
-Decoupled realtime path, bounded load via sharding, added circuit breakers
+## Result
+- Monthly cloud spend dropped ~60% in 6 weeks.
+- p95 latency improved ~18% instead of regressing during cost reduction.
+- Rollout decisions were guided by canary checks and dashboards rather than manual guesswork.
 
-Verification:
-Staged load tests to 2k CCU; packet loss <0.5%, reliability ~92%`,
+## Technical details
+- Stack: AWS, serverless workloads, spot pools, async queues, canaries
+- Hardest constraint: Reduce spend sharply without degrading responsiveness
+
+### Invariant
+- Cost reduction should not regress p95 latency
+- Burst traffic should not force permanent overprovisioning
+- Scaling changes should be checked before wide rollout
+
+### Solution
+Separated burst and steady workloads, moved hot paths to async queues, and enforced rollout checks with canary gates and autoscaling targets.
+
+### Verification
+Monthly cloud spend fell ~60% in 6 weeks, p95 improved ~18%, and canaries plus dashboards were used to guard rollout.`,
+      tags: ["cost", "reliability"],
+    },
+    {
+      index: 4,
+      title: "Gas",
+      description: `Users were dropping out because transaction costs were too high and too unpredictable for routine completion.
+
+## Before
+- Unpredictable L1 gas costs caused abandonment on core flows.
+- Multi-call execution amplified both gas exposure and revert risk.
+- Support burden rose because transaction cost was hard to predict.
+
+## What I did
+- Batched relays to reduce per-action on-chain overhead.
+- Compressed calldata and minimized writes to lower gas cost.
+- Routed verification through a zk-based path with L1 fallback.
+- Instrumented completion and revert rates to catch regressions.
+
+## Result
+- Average gas per successful transaction dropped by roughly ~90-99%.
+- Transaction completion improved as gas-related abandonment dropped.
+- Gas-related support tickets shrank.
+
+## Technical details
+- Stack: batched relays, calldata compression, zk-based verification, L1 fallback
+- Hardest constraint: Cut gas sharply without weakening verification guarantees
+
+### Invariant
+- Core user actions should remain affordable enough to complete
+- Verification should remain correct when routed off L1
+- L1 fallback should preserve continuity when needed
+
+### Solution
+Reduced multi-call overhead with batched relays, lowered calldata cost, and routed verification through a cheaper path with L1 fallback.
+
+### Verification
+Average gas per successful transaction fell by roughly ~90-99%; transaction completion improved; gas-related support burden decreased.`,
+      tags: ["cost", "web3"],
+    },
+    {
+      index: 5,
+      title: "SecOps",
+      description: `Security analysts were spending too much time on repetitive collection and first-pass triage.
+
+## Before
+- Analysts manually scraped alerts and logs every day.
+- Correlations were easy to miss across separate feeds.
+- Real threats could sit behind repetitive, low-signal checks.
+
+## What I did
+- Centralized feeds so alert state became queryable in one place.
+- Applied rule-based triage before analyst review.
+- Added LLM summaries only as a bounded aid, with Slack delivery and linked playbooks.
+- Kept audit logs so triage behavior remained inspectable.
+
+## Result
+- Roughly ~3 hours/day of analyst time was reclaimed.
+- Higher-signal alerts reached responders faster.
+- Visibility improved without returning to manual feed scraping.
+
+## Technical details
+- Stack: centralized alert feeds, rule engine, LLM summaries, Slack, audit logs
+- Hardest constraint: Reduce manual toil without creating new blind spots
+
+### Invariant
+- Analysts should not spend hours on repetitive collection before meaningful triage
+- High-signal threats should remain visible after automation
+- Automated summaries should remain attributable through audit logs
+
+### Solution
+Unified feeds, enforced rule-based triage ahead of analyst review, and added bounded summaries plus playbook-linked Slack alerts.
+
+### Verification
+Roughly ~3 hours/day reclaimed; alert handling became faster in practice; audit logs preserved decision traceability.`,
+      tags: ["security", "automation", "efficiency"],
     },
     {
       index: 6,
-      intro: "Users were dropping out because transaction cost was unpredictable and too high for normal completion.",
-      title: "Gas",
-      desc: "Made key user actions ~90–99% cheaper in gas, reducing drop-off.",
-      tags: ["cost", "web3"],
-      pain: "Users dropping from high gas fees per action.",
-      outcome: "Gas fees down ~90–99%",
-      timeframe: "4 weeks",
-      outcomeSummary: "Gas per transaction down ~90–99%; completion rate up.",
-      whyItMatters: "Prevent transaction-cost abandonment",
-      problem:
-        "Users were abandoning key flows because L1 gas costs were unpredictable and multi-call execution made each action too expensive and failure-prone.",
-      approach:
-        "Collapsed overhead with batched relays, compressed calldata, and routed verification through a zk-rollup path with L1 fallback so cost dropped without giving up correctness.",
-      result:
-        "Average gas per successful transaction fell ~90–99%, completion rate increased, and gas-related support tickets shrank.",
-      beforeBullets: [
-        "Unpredictable L1 gas caused users to abandon core actions.",
-        "Multi-call flows amplified both gas exposure and revert risk.",
-        "Support tickets rose because transaction cost was hard to predict.",
-      ],
-      approachBullets: [
-        "Batched relays to reduce per-action on-chain overhead.",
-        "Compressed calldata and minimized writes to bound gas cost.",
-        "Moved verification into a zk-rollup path with L1 fallback for correctness.",
-        "Instrumented completion and revert rates to catch regressions.",
-      ],
-      resultBullets: [
-        "Average gas per successful transaction dropped ~90–99%.",
-        "Completion rate increased as gas-related abandonment was reduced.",
-        "Gas-related support tickets shrank once transaction cost was contained.",
-      ],
-      technicalDetails: `Stack: batched relays, calldata compression, zk-rollup verification, L1 fallback
+      title: "Vendor",
+      description: `Critical contract logic was about to be outsourced before the team fully owned the implementation and deploy path.
 
-Invariant:
-- Core user actions must remain affordable enough to complete
-- Verification must remain correct when routed off L1
-- Fallback to L1 must preserve execution continuity
+## Before
+- Point-allocation work was blocked on a ~$47K vendor quote.
+- The team did not yet own the contract logic or deploy path internally.
+- Outsourcing would have added integration risk and externalized release knowledge.
 
-Hardest constraint:
-Cut gas sharply without weakening verification guarantees
+## What I did
+- Specified allocation logic as explicit contract rules before implementation.
+- Built and tested the contracts in Hardhat so behavior stayed reviewable in-house.
+- Added multisig deploy controls and a runbook to keep release authority internal.
 
-Solution:
-Collapsed multi-call overhead with batched relays, reduced calldata cost, and routed verification through a zk-rollup path with L1 fallback
+## Result
+- Roughly ~$47K in vendor spend was avoided.
+- Contract logic and deploy knowledge stayed in-house.
+- The required on-chain allocation system shipped without introducing a vendor dependency.
 
-Verification:
-Average gas per successful transaction fell ~90–99%; completion rate increased; gas-related support tickets shrank`,
+## Technical details
+- Stack: Solidity, Hardhat, multisig
+- Hardest constraint: Deliver unfamiliar smart-contract work quickly without trading deploy safety for vendor lock-in
+
+### Invariant
+- Point-allocation rules should execute deterministically on-chain
+- Deployment authority should remain internal
+- Shipping the contract should not depend on vendor-held knowledge
+
+### Solution
+Implemented the allocation logic in-house, validated behavior with Hardhat tests, and constrained deployment through multisig plus a runbook.
+
+### Verification
+Hardhat tests covered contract behavior, the contract integrated with the existing backend and frontend flow, and the vendor engagement was no longer necessary.`,
+      tags: ["cost", "ownership", "web3"],
     },
     {
       index: 7,
-      intro: "Security analysts were losing time and signal because alert collection and first-pass triage were still manual.",
-      title: "SecOps",
-      desc: "Freed ~3 hours/day of analyst time and improved visibility into threats.",
-      tags: ["security", "automation", "efficiency"],
-      pain: "Analysts burning hours on manual triage.",
-      outcome: "~3 hours/day reclaimed",
-      timeframe: "3 weeks",
-      outcomeSummary:
-        "Freed ~3 hours/day of analyst time within 3 weeks by automating triage.",
-      whyItMatters: "Contain analyst toil without losing visibility",
-      problem:
-        "Analysts manually scraped alerts and logs every day, which burned time, hid correlations across feeds, and delayed response on real threats.",
-      approach:
-        "Centralized feeds into one queryable path, enforced rule-based triage before analyst review, and used LLM summaries only as a bounded assist alongside Slack delivery, playbooks, and audit logs.",
-      result:
-        "Manual review dropped by roughly 3 hours per day while high-signal alerts reached responders faster and remained auditable.",
-      beforeBullets: [
-        "Analysts manually scraped alerts and logs every day.",
-        "Correlations were missed across separate feeds.",
-        "Real threats waited behind repetitive low-signal checks.",
-      ],
-      approachBullets: [
-        "Centralized feeds so alert state became queryable in one place.",
-        "Applied rule-based triage to enforce first-pass filtering before analyst review.",
-        "Added LLM summaries only as a bounded aid, with Slack delivery and linked playbooks.",
-        "Kept audit logs so triage behavior remained inspectable.",
-      ],
-      resultBullets: [
-        "~3 hours/day of analyst time reclaimed.",
-        "High-signal alerts reached responders faster.",
-        "Visibility improved without returning to manual feed scraping.",
-      ],
-      technicalDetails: `Stack: centralized alert feeds, rule engine, LLM summaries, Slack, audit logs
+      title: "MVP",
+      description: `Fundraising was blocked because there was no working product proof—only scope pressure and expensive delivery options.
 
-Invariant:
-- Analysts should not spend hours on repetitive collection before meaningful triage
-- High-signal threats must remain visible after automation
-- Automated summaries must stay attributable through audit logs
+## Before
+- No working demo existed for investor conversations.
+- Agency quotes were above ~$10K with multi-week timelines.
+- Scope was expanding faster than proof.
 
-Hardest constraint:
-Reduce manual toil without creating new blind spots
+## What I did
+- Reduced scope to the one flow needed for fundraising.
+- Built a typed vertical slice with reusable components to keep the surface area small.
+- Mocked non-critical systems and added analytics plus a walkthrough for inspectability.
 
-Solution:
-Unified feeds, enforced rule-based triage ahead of analyst review, and added bounded LLM summaries plus playbook-linked Slack alerts
+## Result
+- An investor-ready MVP shipped in 10 days for under $300.
+- Fundraising could proceed without committing to a larger build.
+- Estimated agency spend was avoided by keeping scope bounded.
 
-Verification:
-~3 hours/day reclaimed; true-positive handling speed improved; audit trail preserved alert decisions`,
+## Technical details
+- Stack: typed API, reusable UI components, analytics, Loom
+- Hardest constraint: Meet a fixed investor timeline with almost no budget
+
+### Invariant
+- Founders should get working product proof before major build spend
+- The core fundraising flow should be demoable inside 10 days
+- Non-critical systems should not expand the initial build surface
+
+### Solution
+Built one typed vertical slice, mocked non-critical systems, and instrumented the core demo path.
+
+### Verification
+An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfront agency commitment.`,
+      tags: ["mvp", "founder"],
     },
   ];
   const orderedCaseStudies = [...caseStudies]
@@ -838,7 +753,7 @@ Verification:
   const formatSuggestedLines = formatCommandToButton(
     "Suggested commands:",
     (props.suggestedCommands as CommandButton[] | undefined) ??
-      DEFAULT_SUGGESTED_COMMANDS,
+    DEFAULT_SUGGESTED_COMMANDS,
   );
 
   const historyHandler = async ({ args, model }: CommandHandlerContext) => {
@@ -1543,8 +1458,7 @@ Verification:
           return [`--- ${target.name} ---`, ...lines];
         } catch (error) {
           return [
-            `cat failed for ${target.name}: ${
-              (error as Error)?.message || "fetch error"
+            `cat failed for ${target.name}: ${(error as Error)?.message || "fetch error"
             }`,
           ];
         }
@@ -1641,8 +1555,7 @@ Verification:
           ];
         } catch (error) {
           return [
-            `verify failed for ${target.name}: ${
-              (error as Error)?.message || "fetch error"
+            `verify failed for ${target.name}: ${(error as Error)?.message || "fetch error"
             }`,
           ];
         }
@@ -1743,8 +1656,7 @@ Verification:
           if (!hits.length) return [`no log matches for \"${query}\"`];
           const lines = hits.map(
             (hit) =>
-              `  ${hit.slug.padEnd(18)} (${hit.score}) ${hit.title}${
-                hit.summary ? ` — ${hit.summary}` : ""
+              `  ${hit.slug.padEnd(18)} (${hit.score}) ${hit.title}${hit.summary ? ` — ${hit.summary}` : ""
               }`,
           );
           return ["logs search results:", ...lines];
