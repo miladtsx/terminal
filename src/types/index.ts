@@ -187,22 +187,9 @@ export type ContactInfo = {
 
 export type SampleWork = {
   index?: number;
-  intro: string;
   title: string;
-  desc: string;
+  description: string;
   tags?: string[];
-  problem?: string;
-  approach?: string;
-  result?: string;
-  technicalDetails?: string;
-  pain?: string;
-  outcome?: string;
-  timeframe?: string;
-  outcomeSummary?: string;
-  whyItMatters?: string;
-  beforeBullets?: string[];
-  approachBullets?: string[];
-  resultBullets?: string[];
 };
 
 export type NotificationOverlayProps = {

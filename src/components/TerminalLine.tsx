@@ -753,65 +753,22 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [openIndex]);
 
-  const toBulletList = (content?: string[]) =>
-    content
-      ?.map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => `- ${line}`)
-      .join("\n");
+  const getCardSummary = (item: SampleWork) => {
+    const lead = item.description
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .find((line) => line && !line.startsWith("#"));
 
-  const buildCaseStudyMarkdown = (item: SampleWork) => {
-    const blocks: string[] = [];
+    if (!lead) return "Details coming soon.";
 
-    if (item.intro?.trim()) {
-      blocks.push(item.intro.trim());
-    }
-
-    const summaryLines = [
-      item.outcome || item.outcomeSummary
-        ? `- Outcome: ${(item.outcome || item.outcomeSummary || "").trim()}`
-        : "",
-      item.timeframe ? `- Timeframe: ${item.timeframe.trim()}` : "",
-      item.whyItMatters ? `- Why it matters: ${item.whyItMatters.trim()}` : "",
-    ].filter(Boolean);
-
-    if (summaryLines.length) {
-      blocks.push(summaryLines.join("\n"));
-    }
-
-    const sections = [
-      {
-        label: "Before",
-        content: item.beforeBullets?.length
-          ? toBulletList(item.beforeBullets)
-          : item.problem?.trim(),
-      },
-      {
-        label: "What I did",
-        content: item.approachBullets?.length
-          ? toBulletList(item.approachBullets)
-          : item.approach?.trim(),
-      },
-      {
-        label: "Result",
-        content: item.resultBullets?.length
-          ? toBulletList(item.resultBullets)
-          : item.result?.trim(),
-      },
-    ].filter((section) => section.content);
-
-    sections.forEach((section) => {
-      blocks.push(`## ${section.label}\n\n${section.content}`);
-    });
-
-    if (item.technicalDetails?.trim()) {
-      blocks.push(item.technicalDetails.trim());
-    }
-
-    return blocks.join("\n\n").trim() || "Details coming soon.";
+    return lead
+      .replace(/^[-*]\s+/, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1");
   };
 
-  const modalMarkdown = openItem ? buildCaseStudyMarkdown(openItem) : "";
+  const modalMarkdown = openItem ? openItem.description.trim() : "";
 
   return (
     <div className="t-work">
@@ -830,11 +787,18 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
             aria-label={`Open ${item.title} details`}
           >
             <div className="t-proofMain">
-              <div className="t-proofOutcome">{item.outcome || item.desc || item.result}</div>
+              <div className="t-proofPain">{item.title}</div>
+              <div className="t-proofOutcome">{getCardSummary(item)}</div>
             </div>
             <div className="t-proofFooter">
-              <div className="t-proofTimeframe">{item.timeframe || "\u00a0"}</div>
-              <span className="t-proofCta">Details →</span>
+              <div className="t-workTags" aria-label="Tags">
+                {(item.tags || []).slice(0, 3).map((tag) => (
+                  <span key={tag} className="t-workTag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <span className="t-proofCta">Read</span>
             </div>
           </button>
         ))}
@@ -856,18 +820,13 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
               <div>
                 <div className="t-workModalEyebrow">Case study</div>
                 <div className="t-workModalTitle">{openItem.title}</div>
-                {(openItem.outcome || openItem.outcomeSummary || openItem.timeframe || openItem.whyItMatters) ? (
-                  <div className="t-proofStats" aria-label="Outcome summary">
-                    {[openItem.outcome || openItem.outcomeSummary, openItem.timeframe, openItem.whyItMatters]
-                      .filter(Boolean)
-                      .map((stat, statIdx, arr) => (
-                        <span key={`stat-${statIdx}`} className="t-proofStat">
-                          {stat}
-                          {statIdx < arr.length - 1 ? (
-                            <span className="t-proofStatDot" aria-hidden="true">·</span>
-                          ) : null}
-                        </span>
-                      ))}
+                {openItem.tags?.length ? (
+                  <div className="t-proofStats" aria-label="Case study tags">
+                    {openItem.tags.map((tag) => (
+                      <span key={tag} className="t-workTag">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
                 ) : null}
               </div>

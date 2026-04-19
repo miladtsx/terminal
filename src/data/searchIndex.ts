@@ -64,24 +64,7 @@ export const makeWorkSlug = (title: string) =>
 
 function workToLines(item: SampleWork): string[] {
   const tagLine = item.tags?.length ? `tags: ${item.tags.join(", ")}` : "";
-  const fields = [
-    item.title,
-    item.intro,
-    item.desc,
-    item.pain,
-    item.outcome,
-    item.timeframe,
-    item.outcomeSummary,
-    item.whyItMatters,
-    item.problem,
-    item.approach,
-    item.result,
-    item.technicalDetails,
-    ...(item.beforeBullets || []),
-    ...(item.approachBullets || []),
-    ...(item.resultBullets || []),
-    tagLine,
-  ].filter(Boolean) as string[];
+  const fields = [item.title, item.description, tagLine].filter(Boolean) as string[];
 
   return fields.flatMap((value) =>
     value
