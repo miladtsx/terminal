@@ -345,14 +345,16 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       type: "markdown",
       markdown: `
 <div class="intro-hero">
-  <div class="intro-headline">Full-stack systems, built to behave under failure</div>
-  <div class="intro-subline">I turn failure modes into invariants, tests, and recovery primitives.</div>
+  <div class="intro-headline">I make systems behave predictably under failure.</div>
+  <div class="intro-subline font-mono">Failures are inevitable. Uncontrolled behavior is not.</div>
   <div class="intro-proof">
-    <div class="intro-proofLabel">How I reduce risk</div>
+  <p>I take systems that break under load, cost, or scale—and turn them into predictable, controllable systems.</p>
+    <div class="intro-proofLabel">That includes:</div>
     <div class="intro-proofList">
-       <div><span class="intro-proofMetric">Prevent</span><span class="intro-proofContext">guardrails and safe releases</span></div>
-       <div><span class="intro-proofMetric">Detect</span><span class="intro-proofContext">monitoring and audit trails</span></div>
-       <div><span class="intro-proofMetric">Recover</span><span class="intro-proofContext">rollbacks and incident playbooks</span></div>
+       <div><span class="intro-proofMetric">Preventing<span class="intro-proofContext">loss of real money in production</span></span></div>
+       <div><span class="intro-proofMetric">Containing<span class="intro-proofContext">systems under 20× load</span></span></div>
+       <div><span class="intro-proofMetric">Stopping<span class="intro-proofContext">infrastructure cost from scaling uncontrollably</span></span></div>
+       <div><span class="intro-proofMetric">Reducing<span class="intro-proofContext">transaction costs that drive user drop-off</span></span></div>
      </div>
   </div>
 </div>
