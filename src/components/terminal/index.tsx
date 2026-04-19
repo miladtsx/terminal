@@ -3,6 +3,7 @@ import { useTerminalController } from "@hooks/useTerminalController";
 import { useTerminalFonts } from "@hooks/useTerminalFonts";
 import { useTerminalColors } from "@hooks/useTerminalColors";
 import { useNotificationOverlay } from "@hooks/useNotificationOverlay";
+import { useAppVersionRefresh } from "@hooks/useAppVersionRefresh";
 import { NotificationOverlay } from "@components/NotificationOverlay";
 import { TerminalLineRow } from "@components/TerminalLine";
 import { TerminalProps } from "@types";
@@ -52,7 +53,8 @@ export default function Terminal(props: TerminalProps) {
     x: number;
     y: number;
   } | null>(null);
-  const { notification, dismiss } = useNotificationOverlay();
+  const { notification, showNotification, dismiss } = useNotificationOverlay();
+  useAppVersionRefresh(showNotification);
   const fontLoading = useUiStore(
     useShallow((state) => ({
       loading: state.fontLoading.loading,

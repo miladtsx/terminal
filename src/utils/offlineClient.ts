@@ -34,12 +34,136 @@ export async function registerServiceWorker() {
     const base = (import.meta as any).env?.BASE_URL || "/";
     const swUrl = `${base.replace(/\/$/, "")}/service-worker.js`;
     const scope = base || "/";
-    const reg = await navigator.serviceWorker.register(swUrl, { scope });
+    const reg = await navigator.serviceWorker.register(swUrl, {
+      scope,
+      updateViaCache: "none",
+    });
     return reg;
   } catch (error) {
     console.error("service worker registration failed", error);
     return null;
   }
+}
+
+function hasActiveServiceWorkerController() {
+  return Boolean(navigator.serviceWorker?.controller);
+}
+
+export function watchForUpdatedVersion(
+  registration: ServiceWorkerRegistration,
+  onUpdateReady: (registration: ServiceWorkerRegistration) => void
+) {
+  let installingWorker: ServiceWorker | null = null;
+  let notified = false;
+
+  const notify = () => {
+    if (notified || !hasActiveServiceWorkerController()) return;
+    notified = true;
+    onUpdateReady(registration);
+  };
+
+  const handleStateChange = () => {
+    if (installingWorker?.state === "installed") {
+      notify();
+    }
+  };
+
+  const trackInstallingWorker = (worker: ServiceWorker | null) => {
+    if (installingWorker) {
+      installingWorker.removeEventListener("statechange", handleStateChange);
+    }
+
+    installingWorker = worker;
+
+    if (!installingWorker) return;
+    if (installingWorker.state === "installed") {
+      notify();
+      return;
+    }
+
+    installingWorker.addEventListener("statechange", handleStateChange);
+  };
+
+  const handleUpdateFound = () => {
+    trackInstallingWorker(registration.installing);
+  };
+
+  registration.addEventListener("updatefound", handleUpdateFound);
+  if (registration.waiting) {
+    notify();
+  } else {
+    trackInstallingWorker(registration.installing);
+  }
+
+  if (navigator.onLine) {
+    const timeout = globalThis.setTimeout(() => {
+      void registration
+        .update()
+        .then(() => {
+          if (registration.waiting) notify();
+        })
+        .catch((error) => {
+          console.error("service worker update check failed", error);
+        });
+    }, 0);
+
+    return () => {
+      globalThis.clearTimeout(timeout);
+      registration.removeEventListener("updatefound", handleUpdateFound);
+      if (installingWorker) {
+        installingWorker.removeEventListener("statechange", handleStateChange);
+      }
+    };
+  }
+
+  return () => {
+    registration.removeEventListener("updatefound", handleUpdateFound);
+    if (installingWorker) {
+      installingWorker.removeEventListener("statechange", handleStateChange);
+    }
+  };
+}
+
+export async function clearOfflineSnapshot() {
+  if (!("serviceWorker" in navigator)) return;
+
+  if ("caches" in globalThis) {
+    try {
+      const keys = await globalThis.caches.keys();
+      await Promise.all(keys.map((key) => globalThis.caches.delete(key)));
+    } catch (error) {
+      console.error("cache cleanup failed", error);
+    }
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister()));
+  } catch (error) {
+    console.error("service worker unregister failed", error);
+  }
+}
+
+export async function refreshToLatestVersion() {
+  if (!navigator.onLine) {
+    throw new Error("Internet access is required to load the latest version.");
+  }
+
+  await clearOfflineSnapshot();
+
+  try {
+    await fetch(globalThis.location.href, {
+      cache: "reload",
+      headers: {
+        pragma: "no-cache",
+        "cache-control": "no-cache",
+      },
+    });
+  } catch (error) {
+    console.error("latest version prefetch failed", error);
+  }
+
+  globalThis.location.reload();
 }
 
 export async function getOfflineStatus(): Promise<OfflineStatus> {

@@ -213,7 +213,9 @@ describe("default commands", () => {
       registry,
     });
     const listLines = Array.isArray(listOut) ? listOut : [listOut];
-    expect(JSON.stringify(listLines)).toContain("Shipped blog commands");
+    const logsSummary = JSON.stringify(listLines);
+    expect(logsSummary).toContain("70% fewer Gen AI tokens in a hot path");
+    expect(logsSummary).toContain("Improved Tab autocompletion");
 
     const readOut = await logsHandler?.({
       args: ["read", "2025-01-21-tab"],
@@ -294,16 +296,21 @@ describe("default commands", () => {
     );
     expect(avatarSegment).toMatchObject({
       lines: [
-        "Title: Your all-in-one IT Partner",
+        "Your all-in-one IT Partner",
         "Milad",
-        "Full-stack Software Developer - 0 -> 1, Control & Reliability",
-      ],
-      bodyLines: [
-        "I build new systems fast, then make them safe to operate.",
-        "I focus on the paths that usually kill early startups: fewer incidents, faster recovery, and lower cloud spend.",
-        "My work centers on fail-closed workflows, validation and rate limits, observability and SLOs, performance tuning, cost control, and security hardening.",
+        "Software Engineering - Control & Reliability",
       ],
       emphasizeLines: [1],
     });
+    expect(avatarSegment?.bodyLines).toEqual(
+      expect.arrayContaining([
+        "Systems should behave predictably-even when assumptions break.".replace(
+          "-",
+          "—",
+        ),
+        "By day: building them.",
+        "By night: breaking them—turning failures into controlled outcomes.",
+      ]),
+    );
   });
 });

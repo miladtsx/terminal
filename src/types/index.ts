@@ -283,12 +283,25 @@ export type OverlayNotification = {
   description?: string;
   durationMs: number;
   progress: number;
+  persistent?: boolean;
+  dismissLabel?: string | null;
+  actions?: OverlayNotificationAction[];
 };
 
 export type NotificationPayload = {
   title: string;
   description?: string;
   durationMs?: number;
+  persistent?: boolean;
+  dismissLabel?: string | null;
+  actions?: OverlayNotificationAction[];
+};
+
+export type OverlayNotificationAction = {
+  id: string;
+  label: string;
+  variant?: "primary" | "secondary";
+  onSelect?: () => void | Promise<void>;
 };
 
 export type TelemetryLevel = "info" | "warn" | "error";

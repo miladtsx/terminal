@@ -24,6 +24,7 @@ export function useNotificationOverlay(defaultDurationMs = DEFAULT_DURATION) {
 
   useEffect(() => {
     if (!notification) return;
+    if (notification.persistent || notification.durationMs <= 0) return;
 
     const tick = () => {
       const elapsed = performance.now() - startRef.current;
@@ -44,7 +45,14 @@ export function useNotificationOverlay(defaultDurationMs = DEFAULT_DURATION) {
   }, [notification?.id, dismiss, stopLoop]);
 
   const showNotification = useCallback(
-    ({ title, description, durationMs }: NotificationPayload) => {
+    ({
+      title,
+      description,
+      durationMs,
+      persistent,
+      dismissLabel,
+      actions,
+    }: NotificationPayload) => {
       const duration = durationMs ?? defaultDurationMs;
       durationRef.current = duration;
       startRef.current = performance.now();
@@ -56,6 +64,9 @@ export function useNotificationOverlay(defaultDurationMs = DEFAULT_DURATION) {
         description,
         durationMs: duration,
         progress: 0,
+        persistent,
+        dismissLabel,
+        actions,
       });
     },
     [defaultDurationMs, stopLoop]
