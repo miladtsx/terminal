@@ -17,6 +17,7 @@ import {
   SearchHitsSegment as SearchHitsSegmentType,
   ActivityTreeNode,
   ActivityTreeSegment,
+  SampleWork,
 } from "@types";
 import { DownloadIntegrity } from "./terminal/DownloadIntegrity";
 
@@ -752,36 +753,65 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [openIndex]);
 
-  const renderMarkdown = (content: string | string[], title?: string) => {
-    const markdown = Array.isArray(content)
-      ? content
-          .map((line) => line.trim())
-          .filter(Boolean)
-          .map((line) => `- ${line}`)
-          .join("\n")
-      : content;
+  const toBulletList = (content?: string[]) =>
+    content
+      ?.map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => `- ${line}`)
+      .join("\n");
 
-    if (!markdown.trim()) return null;
+  const buildCaseStudyMarkdown = (item: SampleWork) => {
+    const blocks: string[] = [];
 
-    return (
-      <div className="t-proofMarkdown">
-        <MarkdownBlock segment={{ type: "markdown", markdown, title }} />
-      </div>
-    );
+    if (item.intro?.trim()) {
+      blocks.push(item.intro.trim());
+    }
+
+    const summaryLines = [
+      item.outcome || item.outcomeSummary
+        ? `- Outcome: ${(item.outcome || item.outcomeSummary || "").trim()}`
+        : "",
+      item.timeframe ? `- Timeframe: ${item.timeframe.trim()}` : "",
+      item.whyItMatters ? `- Why it matters: ${item.whyItMatters.trim()}` : "",
+    ].filter(Boolean);
+
+    if (summaryLines.length) {
+      blocks.push(summaryLines.join("\n"));
+    }
+
+    const sections = [
+      {
+        label: "Before",
+        content: item.beforeBullets?.length
+          ? toBulletList(item.beforeBullets)
+          : item.problem?.trim(),
+      },
+      {
+        label: "What I did",
+        content: item.approachBullets?.length
+          ? toBulletList(item.approachBullets)
+          : item.approach?.trim(),
+      },
+      {
+        label: "Result",
+        content: item.resultBullets?.length
+          ? toBulletList(item.resultBullets)
+          : item.result?.trim(),
+      },
+    ].filter((section) => section.content);
+
+    sections.forEach((section) => {
+      blocks.push(`## ${section.label}\n\n${section.content}`);
+    });
+
+    if (item.technicalDetails?.trim()) {
+      blocks.push(item.technicalDetails.trim());
+    }
+
+    return blocks.join("\n\n").trim() || "Details coming soon.";
   };
 
-  const modalSections = openItem
-    ? (
-        [
-          { label: "Before", content: openItem.beforeBullets || openItem.problem },
-          { label: "What I did", content: openItem.approachBullets || openItem.approach },
-          { label: "Result", content: openItem.resultBullets || openItem.result },
-        ] as const
-      ).filter(
-        (entry): entry is { label: string; content: string | string[] } =>
-          Boolean(entry.content),
-      )
-    : [];
+  const modalMarkdown = openItem ? buildCaseStudyMarkdown(openItem) : "";
 
   return (
     <div className="t-work">
@@ -851,44 +881,11 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
               </button>
             </div>
             <div className="t-proofModalBody">
-              <div className="t-proofModalSections">
-                {modalSections.length
-                  ? modalSections.map((section) => (
-                      <div className="t-proofModalSection" key={section.label}>
-                      <div className="t-proofModalLabel">{section.label}</div>
-                        <div className="t-proofModalCopy">
-                          {renderMarkdown(section.content)}
-                        </div>
-                      </div>
-                    ))
-                  : (
-                    <div className="t-proofModalSection">
-                      <div className="t-proofModalLabel">Details</div>
-                      <div className="t-proofModalCopy">
-                        {renderMarkdown("Details coming soon.")}
-                      </div>
-                    </div>
-                  )}
+              <div className="t-proofMarkdown t-proofModalMarkdown">
+                <MarkdownBlock
+                  segment={{ type: "markdown", markdown: modalMarkdown }}
+                />
               </div>
-
-              {openItem.technicalDetails ? (
-                <details className="t-proofDetails">
-                  <summary>Technical details (for engineers)</summary>
-                  <div className="t-proofModalCopy t-proofDetailsBody">
-                    {renderMarkdown(openItem.technicalDetails)}
-                  </div>
-                </details>
-              ) : null}
-
-              {openItem.tags?.length ? (
-                <div className="t-proofModalTags" aria-label="Tags">
-                  {openItem.tags.map((tag) => (
-                    <span key={`tag-${openItem.title}-${tag}`} className="t-workTag">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
             </div>
           </div>
         </div>

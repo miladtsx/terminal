@@ -929,6 +929,7 @@
     letter-spacing: 0.06px;
     line-height: 1.32;
     opacity: 0.7;
+    padding: 0px 0px 5px 25px;
   }
 
   /* theme-aware overrides for the terminal shell */
@@ -2607,55 +2608,18 @@
   }
 
   .t-proofModalBody {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .t-proofModalSections {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  @media (min-width: 720px) {
-    .t-proofModalSections {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  .t-proofModalSection {
-    border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 20%);
-    border-radius: 12px;
-    padding: 0.95em;
-    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
-    min-height: 11em;
-  }
-
-  .t-proofModalLabel {
-    font-size: 0.85em;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--accent) 70%, var(--text) 30%);
-    margin-bottom: 6px;
-    font-weight: 700;
-  }
-
-  .t-proofModalCopy {
-    color: color-mix(in srgb, var(--text) 82%, var(--muted) 18%);
-    font-size: 1em;
-    line-height: 1.45;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .t-proofModalCopy p {
-    margin: 0;
+    min-width: 0;
   }
 
   .t-proofMarkdown {
     width: 100%;
+  }
+
+  .t-proofModalMarkdown {
+    border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 20%);
+    border-radius: 12px;
+    padding: 0.95em;
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
   }
 
   .t-proofMarkdown .t-markdown {
@@ -2703,38 +2667,6 @@
     line-height: 1.35;
   }
 
-  .t-proofModalTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-    margin-top: 4px;
-  }
-
-  .t-proofDetails {
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-    border-radius: 12px;
-    padding: 10px 12px;
-    background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
-  }
-
-  .t-proofDetails summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: color-mix(in srgb, var(--text) 88%, var(--accent) 12%);
-    outline: none;
-  }
-
-  .t-proofDetails[open] summary {
-    margin-bottom: 6px;
-  }
-
-  .t-proofDetailsBody {
-    max-height: min(42vh, 24rem);
-    overflow-y: auto;
-    padding-right: 6px;
-  }
-
   .t-workModalHead {
     display: flex;
     align-items: flex-start;
@@ -2779,13 +2711,6 @@
     margin-left: 4px;
     margin-right: 2px;
     font-weight: 700;
-  }
-
-  .t-workModalIntro {
-    margin-top: 4px;
-    color: color-mix(in srgb, var(--accent) 78%, var(--text) 22%);
-    font-size: 14px;
-    font-weight: 600;
   }
 
   .t-workModalClose {

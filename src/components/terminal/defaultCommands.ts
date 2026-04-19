@@ -455,6 +455,7 @@ export function registerDefaultCommands({
 
   const caseStudies = props.sampleWorks || [
     {
+      index: 2,
       intro: "Infrastructure spend kept rising because the system stayed overprovisioned.",
       title: "Cloud cost",
       desc: "Cut monthly infra ~60% while improving p95 by ~18%.",
@@ -502,6 +503,7 @@ Verification:
 Monthly cloud spend fell ~60% in 6 weeks; p95 improved ~18%; canaries and dashboards guarded rollout`,
     },
     {
+      index: 4,
       intro: "Production-critical contract work was about to be handed to a vendor before the deploy path was understood in-house.",
       title: "Vendor",
       desc: "Built the smart contract in-house and kept $47K in runway.",
@@ -549,6 +551,7 @@ Verification:
 Hardhat tests covered the contract behavior; the contract integrated with the existing backend and frontend flow; ~$47K vendor spend was avoided`,
     },
     {
+      index: 5,
       intro: "Fundraising was blocked because there was no working product proof, only scope pressure and agency quotes.",
       title: "MVP",
       desc: "Investor-ready MVP in 10 days for <$300 (saved ~$10K agency fees).",
@@ -596,6 +599,7 @@ Verification:
 Investor-ready MVP shipped in 10 days for <$300, avoiding estimated ~$10K in agency cost`,
     },
     {
+      index: 1,
       intro: "Live user funds were exposed to contract regressions unless deployment and monitoring were made explicit.",
       title: "Funds safety",
       desc: "Safeguarded ~$4M in user funds over 3 years with zero incidents.",
@@ -643,6 +647,7 @@ Verification:
 Zero security incidents over 36 months around ~$4M TVL; upgrades shipped without downtime; gas stayed within budget`,
     },
     {
+      index: 3,
       intro: "System collapses under load (loss of service beyond 100 CCU).",
       title: "Scale",
       desc: "Supported 20x more concurrent players and raised reliability from ~65% to 92%.",
@@ -692,6 +697,7 @@ Verification:
 Staged load tests to 2k CCU; packet loss <0.5%, reliability ~92%`,
     },
     {
+      index: 6,
       intro: "Users were dropping out because transaction cost was unpredictable and too high for normal completion.",
       title: "Gas",
       desc: "Made key user actions ~90–99% cheaper in gas, reducing drop-off.",
@@ -740,6 +746,7 @@ Verification:
 Average gas per successful transaction fell ~90–99%; completion rate increased; gas-related support tickets shrank`,
     },
     {
+      index: 7,
       intro: "Security analysts were losing time and signal because alert collection and first-pass triage were still manual.",
       title: "SecOps",
       desc: "Freed ~3 hours/day of analyst time and improved visibility into threats.",
@@ -789,25 +796,13 @@ Verification:
 ~3 hours/day reclaimed; true-positive handling speed improved; audit trail preserved alert decisions`,
     },
   ];
-  const headlineOrder = [
-    "cloud spend -60%",
-    "no loss events over 36 months (~$4m tvl)",
-    "20× concurrency",
-    "$47k vendor cost avoided",
-    "Investor-ready MVP — 10 days",
-    "Gas fees down ~90–99%",
-    "~3 hours/day reclaimed",
-  ];
-
-  const caseStudyPriority = (item: SampleWork) => {
-    const outcome = (item.outcome || "").toLowerCase();
-    const index = headlineOrder.findIndex((needle) => outcome.includes(needle));
-    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
-  };
-
-  const orderedCaseStudies = [...caseStudies].sort(
-    (a, b) => caseStudyPriority(a) - caseStudyPriority(b),
-  );
+  const orderedCaseStudies = [...caseStudies]
+    .map((item, fallbackIndex) => ({ item, fallbackIndex }))
+    .sort(
+      (a, b) =>
+        (a.item.index ?? a.fallbackIndex) - (b.item.index ?? b.fallbackIndex),
+    )
+    .map(({ item }) => item);
 
   setSearchWorkItems(orderedCaseStudies);
   const workIndex = new Map<string, SampleWork>();
@@ -1182,7 +1177,7 @@ Verification:
     const lines = [
       "Name: Milad TSX",
       "Role: Software Backend Engineer",
-      "Focus: Reliability / Infrastructure",
+      "Focus: 0 -> 1 / Reliability / Infrastructure",
       "Open to collaboration",
     ];
     return [
@@ -1203,22 +1198,21 @@ Verification:
       "about",
       () => {
         const aboutHeaderLines = [
-          "Your all-in-one IT Partner",
           "Milad",
           "Software Engineering - Control & Reliability",
         ];
         const aboutBioLines = props.aboutLines || [
           "",
-          "Systems should behave predictably—even when assumptions break.",
+          "One goal:",
+          "make the system safe to operate under failure.",
           "",
-          "By day: building them.",
-          "By night: breaking them—turning failures into controlled outcomes.",
           "",
-          "The rest of my routine:",
+          "The rest of my daily routine goes to:",
           "",
-          "- Serving 🐈🐈",
-          "- Serving my better half 👩",
-          "- An hour of walking",
+          " - serving 🐈🐈",
+          " - serving my better half 👸",
+          " - an hour of walking",
+          " - resting like it's the last day on earth",
           "",
         ];
 

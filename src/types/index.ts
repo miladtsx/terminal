@@ -186,6 +186,7 @@ export type ContactInfo = {
 };
 
 export type SampleWork = {
+  index?: number;
   intro: string;
   title: string;
   desc: string;
