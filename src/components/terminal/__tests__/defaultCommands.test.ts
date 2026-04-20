@@ -8,15 +8,16 @@ import {
 } from "../defaultCommands";
 import { TerminalModel } from "../terminalModel";
 import { findFileByName } from "../../../data/files";
+import type { TerminalProps } from "@types";
 
 const noop = () => {};
 
-function buildRegistry() {
+function buildRegistry(props: TerminalProps = {}) {
   const registry = new CommandRegistry();
   const model = new TerminalModel({ prompt: ">" });
   registerDefaultCommands({
     registry,
-    props: {},
+    props,
     model,
     setLinesFromModel: noop,
   });
@@ -273,7 +274,15 @@ describe("default commands", () => {
   });
 
   it("structures the about command into header and bio sections", async () => {
-    const { registry, model } = buildRegistry();
+    const aboutLines = [
+      "Systems should behave predictably-even when assumptions break.".replace(
+        "-",
+        "—",
+      ),
+      "By day: building them.",
+      "By night: breaking them—turning failures into controlled outcomes.",
+    ];
+    const { registry, model } = buildRegistry({ aboutLines });
     const aboutHandler = registry.get("about")?.handler;
     expect(aboutHandler).toBeTruthy();
 
@@ -296,21 +305,11 @@ describe("default commands", () => {
     );
     expect(avatarSegment).toMatchObject({
       lines: [
-        "Your all-in-one IT Partner",
         "Milad",
         "Software Engineering - Control & Reliability",
       ],
       emphasizeLines: [1],
     });
-    expect(avatarSegment?.bodyLines).toEqual(
-      expect.arrayContaining([
-        "Systems should behave predictably-even when assumptions break.".replace(
-          "-",
-          "—",
-        ),
-        "By day: building them.",
-        "By night: breaking them—turning failures into controlled outcomes.",
-      ]),
-    );
+    expect(avatarSegment?.bodyLines).toEqual(aboutLines);
   });
 });
