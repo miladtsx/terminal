@@ -798,7 +798,6 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
                   </span>
                 ))}
               </div>
-              <span className="t-proofCta">Read</span>
             </div>
           </button>
         ))}

@@ -897,6 +897,7 @@
     letter-spacing: 0.26px;
     text-transform: uppercase;
     color: var(--muted);
+    padding-top: 15px;
   }
 
   .intro-start-line .intro-proofList {
@@ -922,14 +923,13 @@
   }
 
   .intro-proofContext {
-    display: block;
     font-size: 13px;
     color: var(--muted);
     font-style: italic;
     letter-spacing: 0.06px;
     line-height: 1.32;
     opacity: 0.7;
-    padding: 0px 0px 5px 25px;
+    padding: 0px 0px 0px 10px;
   }
 
   /* theme-aware overrides for the terminal shell */
@@ -2502,8 +2502,7 @@
 
   .t-proofOutcome {
     color: color-mix(in srgb, var(--muted) 18%, var(--text) 82%);
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 12px;
     line-height: 1.35;
     letter-spacing: 0.1px;
     display: -webkit-box;
