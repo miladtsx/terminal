@@ -340,20 +340,20 @@ export function useTerminalController(props: TerminalProps): ControllerReturn {
       variant,
       typing,
     });
-
     const introMarkdown: MarkdownSegment = {
       type: "markdown",
       markdown: `
 <div class="intro-hero">
-  <div class="intro-headline">I make systems behave predictably under failure.</div>
-  <div class="intro-subline font-mono">Failures are inevitable. Uncontrolled behavior is not.</div>
-  <p>I take systems that break under load, cost, or scale—and turn them into predictable, controllable systems.</p>
-    <div class="intro-proofLabel">That includes:</div>
+  <div class="intro-headline">Reliable automation for work that cannot stay manual.</div>
+  <div class="intro-subline font-mono">Internal tools, AI workflows, and ingestion systems with visible state and outcomes.</div>
+    <div class="intro-proofLabel"></div>
     <div class="intro-proofList">
-       <div><span class="intro-proofMetric">Preventing<span class="intro-proofContext">loss of real money in production</span></span></div>
-       <div><span class="intro-proofMetric">Containing<span class="intro-proofContext">systems under 20× load</span></span></div>
-       <div><span class="intro-proofMetric">Stopping<span class="intro-proofContext">infrastructure cost from scaling uncontrollably</span></span></div>
-       <div><span class="intro-proofMetric">Reducing<span class="intro-proofContext">transaction costs that drive user drop-off</span></span></div>
+       <div><span class="intro-proofMetric">⯎ fewer manual handoffs</span></div>
+       <div><span class="intro-proofMetric">⯎ cleaner data intake</span></div>
+       <div><span class="intro-proofMetric">⯎ faster review loops</span></div>
+       <div><span class="intro-proofMetric">⯎ safer retries and approvals</span></div>
+       <div><span class="intro-proofMetric">⯎ visible logs and outcomes</span></div>
+       <div><span class="intro-proofMetric">⯎ systems teams can maintain</span></div>
      </div>
   </div>
 </div>

@@ -828,6 +828,7 @@
     background: none;
     border: none;
     box-shadow: none;
+    animation: intro-avatar-float-position 4.8s ease-in-out infinite;
   }
 
   .intro-start-line .t-avatarMessage::after {
@@ -844,10 +845,38 @@
     aspect-ratio: auto;
     border-radius: 50%;
     box-shadow: 0 11px 21px rgba(0, 0, 0, 0.3);
+    animation: intro-avatar-breathe-size 4.8s ease-in-out infinite;
+    will-change: width, height, box-shadow;
   }
 
   .intro-start-line .t-avatarContent {
     gap: 4px;
+  }
+
+  @keyframes intro-avatar-float-position {
+    0%,
+    100% {
+      top: 6px;
+    }
+
+    50% {
+      top: -4px;
+    }
+  }
+
+  @keyframes intro-avatar-breathe-size {
+    0%,
+    100% {
+      box-shadow: 0 11px 21px rgba(0, 0, 0, 0.3);
+      height: 38px;
+      width: 38px;
+    }
+
+    50% {
+      box-shadow: 0 17px 30px rgba(0, 0, 0, 0.38);
+      height: 46px;
+      width: 46px;
+    }
   }
 
   .intro-start-line .intro-hero {
@@ -875,6 +904,7 @@
     letter-spacing: 0.32px;
     line-height: 1.28;
     color: var(--text);
+    padding-top: 10px;
   }
 
   .intro-start-line .intro-subline {
@@ -903,8 +933,7 @@
   .intro-start-line .intro-proofList {
     display: grid;
     gap: 7px;
-    margin: 4px 0 0;
-    padding: 0;
+    margin-left: -55px;
     max-width: 520px;
   }
 
@@ -3325,35 +3354,38 @@
 /* Respect OS motion preferences; also toggled via .motion-reduce class */
 @media (prefers-reduced-motion: reduce) {
 
-  .t-root,
-  .intro-start-line {
+  :root:not(.motion-allow) .t-root,
+  :root:not(.motion-allow) .intro-start-line {
     transition: none !important;
   }
 
-  .t-caret {
+  :root:not(.motion-allow) .t-caret {
     animation: none !important;
     opacity: 1;
   }
 
-  .terminal-toolbar,
-  .terminal-askAi,
-  .terminal-searchButton,
-  .t-commandLink,
-  .t-lineCommand,
-  .t-avatarPhoto,
-  .t-contextMenu,
-  .t-suggestItem,
-  .t-output,
-  .t-wrap {
+  :root:not(.motion-allow) .terminal-toolbar,
+  :root:not(.motion-allow) .terminal-askAi,
+  :root:not(.motion-allow) .terminal-searchButton,
+  :root:not(.motion-allow) .t-commandLink,
+  :root:not(.motion-allow) .t-lineCommand,
+  :root:not(.motion-allow) .intro-start-line .t-avatarMessage,
+  :root:not(.motion-allow) .intro-start-line .t-avatarMedia,
+  :root:not(.motion-allow) .t-avatarPhoto,
+  :root:not(.motion-allow) .t-contextMenu,
+  :root:not(.motion-allow) .t-suggestItem,
+  :root:not(.motion-allow) .t-output,
+  :root:not(.motion-allow) .t-wrap {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
 
-  .terminal-askAi,
-  .terminal-searchButton,
-  .t-commandLink,
-  .t-lineCommand,
-  .t-avatarPhoto {
+  :root:not(.motion-allow) .terminal-askAi,
+  :root:not(.motion-allow) .terminal-searchButton,
+  :root:not(.motion-allow) .t-commandLink,
+  :root:not(.motion-allow) .t-lineCommand,
+  :root:not(.motion-allow) .intro-start-line .t-avatarMedia,
+  :root:not(.motion-allow) .t-avatarPhoto {
     transform: none !important;
   }
 }
@@ -3373,6 +3405,8 @@
 :root.motion-reduce .terminal-searchButton,
 :root.motion-reduce .t-commandLink,
 :root.motion-reduce .t-lineCommand,
+:root.motion-reduce .intro-start-line .t-avatarMessage,
+:root.motion-reduce .intro-start-line .t-avatarMedia,
 :root.motion-reduce .t-avatarPhoto,
 :root.motion-reduce .t-contextMenu,
 :root.motion-reduce .t-suggestItem,
@@ -3386,6 +3420,7 @@
 :root.motion-reduce .terminal-searchButton,
 :root.motion-reduce .t-commandLink,
 :root.motion-reduce .t-lineCommand,
+:root.motion-reduce .intro-start-line .t-avatarMedia,
 :root.motion-reduce .t-avatarPhoto {
   transform: none !important;
 }

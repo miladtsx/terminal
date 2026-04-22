@@ -3,7 +3,7 @@ import Terminal from "@components/terminal";
 import BookingOverlay from "@components/BookingOverlay";
 
 const CONTACT_EMAIL =
-  import.meta.env.VITE_CONTACT_EMAIL || "miladtsx+terminal@gmail.com";
+  import.meta.env.VITE_CONTACT_EMAIL || "contact@failuresmith.xyz";
 
 export default function App() {
   const [bookingOpen, setBookingOpen] = useState(false);

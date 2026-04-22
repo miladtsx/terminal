@@ -127,7 +127,7 @@ const buildContactRow = (label: string, value: string): LineSegment[] => {
   const isEmail = /@/.test(value);
   const valueSegment = isEmail
     ? createLinkSegment(
-      `mailto:${value}?subject=Need%20help%20building%20something%20that%20has%20to%20work%20reliably`,
+      `mailto:${value}?subject=Recurring%20workflow%20context`,
       value,
       {
         ariaLabel: `Email ${value}`,
@@ -204,9 +204,9 @@ const textCache = new Map<string, string>();
 
 const FAQ_ITEMS = [
   {
-    question: "What kinds of projects do you take on?",
+    question: "What kinds of workflows do you take on?",
     answer:
-      "Fast-moving SaaS/platform work where a senior IC can own a vertical: ship features, fix reliability, improve delivery loops.",
+      "Workflows where manual review, messy inputs, or repeated operational steps are slowing the team down. I turn them into small, maintainable systems with clear state, logs, tests, and handoff points.",
   },
   {
     question: "How quickly can we start?",
@@ -334,6 +334,11 @@ const prefersReducedMotion = () =>
 const applyMotionMode = (mode: MotionMode) => {
   const root = document.documentElement;
   root.classList.remove("motion-reduce");
+  root.classList.remove("motion-allow");
+  if (mode === "allow") {
+    root.classList.add("motion-allow");
+    return;
+  }
   if (mode === "reduce") {
     root.classList.add("motion-reduce");
     return;
@@ -442,7 +447,7 @@ export function registerDefaultCommands({
   const fontController = appearanceController?.font;
   const colorController = appearanceController?.color;
   const contact = props.contact || {
-    email: "miladtsx+terminal@gmail.com",
+    email: "contact@failuresmith.xyz",
   };
   if (typeof document !== "undefined") {
     applyMotionMode(readStoredMotion());
@@ -1311,6 +1316,8 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
       "contact",
       () => {
         const lines: TerminalLineInput[] = [
+          "If a recurring workflow is costing time, creating errors, or blocking scale, send me the context.",
+          "",
           ...contactEntries.map((entry) =>
             buildContactRow(entry.displayLabel ?? entry.label, entry.value),
           ),
@@ -1380,7 +1387,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
         return ["usage: work [list] | work read <title|slug>"];
       },
-      { desc: "selected projects", subcommands: ["list", "read"] },
+      { desc: "selected work", subcommands: ["list", "read"] },
     )
     .register(
       "activity",
@@ -1905,15 +1912,15 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
     .register("assumptions", async () => {
       return [
         `
-      I don’t believe in “rockstar engineers”.
+      I do not treat automation as a shortcut around engineering judgment.
 
       I believe:
       - most problems are underspecified
       - most failures come from bad framing, not bad code
       - speed without auditability is technical debt with interest
 
-      If you expect instant answers, I’m not a fit.
-      If you expect careful systems that survive contact with reality, ⤶
+      Useful systems make decisions visible, retry safely,
+      and leave enough evidence for the next operator.
       `,
         [
           createTextSegment(" 📞 "),
@@ -1945,7 +1952,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
       - show its work
       - accept being stopped
 
-      If that sounds slow, I’m not your engineer.
+      Good automation should make work faster without making outcomes harder to trust.
       `,
       ];
     })

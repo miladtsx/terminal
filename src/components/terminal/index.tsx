@@ -132,7 +132,7 @@ export default function Terminal(props: TerminalProps) {
       {
         id: "human",
         label: "Contact me",
-        meta: "Lets talk about your project",
+        meta: "Send recurring workflow context",
         action: () => executeCommand("contact"),
       },
     ],

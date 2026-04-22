@@ -1,11 +1,11 @@
 {
-  "name": "portfolio-terminal",
-  "description": "Basic portfolio website",
+  "name": "fs-terminal",
+  "description": "Introduction to FailureSmith",
   "author": {
-    "email": "miladtsx+terminalpackage@gmail.com",
-    "name": "TSX"
+    "email": "contact@failuresmith.xyz",
+    "name": "FS"
   },
-  "version": "0.5.2",
+  "version": "0.5.3",
   "type": "module",
   "scripts": {
     "dev": "vite",

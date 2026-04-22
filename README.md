@@ -3,7 +3,7 @@
 A single-page, terminal-style personal site built with React + Vite. Fork it, drop in your details, and publish to GitHub Pages in a few minutes.
 
 - Prerequisites: Node 18+ and pnpm (`npm i -g pnpm`).
-- Fork this repo on GitHub, then clone your fork: `git clone --depth 1 https://github.com/miladtsx/terminal && cd terminal`.
+- Fork this repo on GitHub, then clone your fork: `git clone --depth 1 https://github.com/failuresmith/terminal && cd terminal`.
 - Install and run locally: `pnpm install && pnpm dev` (open the shown localhost URL).
 
 ## Customize your copy
