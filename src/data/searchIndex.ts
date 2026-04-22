@@ -147,7 +147,7 @@ async function collectSearchEntries(): Promise<SurfaceEntry[]> {
       title: item.title,
       location: "work",
       lines: workToLines(item),
-      readCommand: `work read ${slug}`,
+      readCommand: `selected_cases read ${slug}`,
     });
   });
 

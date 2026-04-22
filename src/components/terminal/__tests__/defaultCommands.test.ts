@@ -202,6 +202,30 @@ describe("default commands", () => {
     expect(summary.toLowerCase()).toContain("outsourcing");
   });
 
+  it("uses selected_cases as the case study command", async () => {
+    const { registry, model } = buildRegistry();
+    expect(registry.get("work")).toBeUndefined();
+
+    const selectedCasesHandler = registry.get("selected_cases")?.handler;
+    expect(selectedCasesHandler).toBeTruthy();
+
+    const listOut = await selectedCasesHandler?.({
+      args: [],
+      raw: "selected_cases",
+      model,
+      registry,
+    });
+    expect(JSON.stringify(listOut)).toContain("Release Gates for Live Funds");
+
+    const readOut = await selectedCasesHandler?.({
+      args: ["read", "security-triage-automation"],
+      raw: "selected_cases read security-triage-automation",
+      model,
+      registry,
+    });
+    expect(JSON.stringify(readOut)).toContain("Security Triage Automation");
+  });
+
   it("lists and reads logs from markdown", async () => {
     const { registry, model } = buildRegistry();
     const logsHandler = registry.get("logs")?.handler;

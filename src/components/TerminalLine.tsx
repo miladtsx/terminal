@@ -793,9 +793,8 @@ function WorkGrid({ segment }: { segment: WorkSegment }) {
   return (
     <div className="t-work">
       <div className="t-proofHeader">
-        <div className="t-proofTitle">Proof: results in production</div>
+        <div className="t-proofTitle font-extralight">Less fragility. More control</div>
         <div className="t-proofSubtitle">
-          Cost down. Reliability up. MVPs shipped.
         </div>
       </div>
 

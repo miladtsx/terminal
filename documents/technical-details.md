@@ -19,7 +19,7 @@ This document dives into the runtime, command system, assets, and helpers that m
 ## Command system
 
 - `CommandRegistry` (`src/components/terminal/commandRegistry.ts:1`) stores handlers, descriptions, and subcommand suggestion callbacks. It normalizes names and exposes `suggest`/`suggestSubcommands` for autocomplete.
-- `registerDefaultCommands` in `src/components/terminal/defaultCommands.ts:1` defines the built-in portfolio commands: `contact`, `work`, `blog`, `logs`, `faq`, filesystem helpers (`ls`, `cat`, `download`, `verify`), offline controls, font display, resume download, and custom text blocks (`assumptions`, `philosophy`, etc.).
+- `registerDefaultCommands` in `src/components/terminal/defaultCommands.ts:1` defines the built-in portfolio commands: `contact`, `selected_cases`, `blog`, `logs`, `faq`, filesystem helpers (`ls`, `cat`, `download`, `verify`), offline controls, font display, resume download, and custom text blocks (`assumptions`, `philosophy`, etc.).
 - The default commands leverage the blog/log indexes, file manifest, history store, clipboard helpers, offline client, and font controller exposed via `RegisterDefaultsArgs`. Hooks such as `setLinesFromModel`, `executeCommand`, and `fontController` allow commands to push rich line segments, interact with overlays, and mutate prompt/output state.
 - Add new commands by registering them through `CommandRegistry.register`. You can borrow `LineSegment` helpers from `@types` and reuse UI primitives (command buttons, copy buttons, markdown blocks) to enrich the experience.
 

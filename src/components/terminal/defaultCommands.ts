@@ -48,7 +48,7 @@ export const DEFAULT_SUGGESTED_COMMANDS: CommandButton[] = [
     typing: "simulate",
   },
   {
-    command: "work",
+    command: "selected_cases",
     label: "Case studies",
     variant: "secondary",
     typing: "simulate",
@@ -242,15 +242,16 @@ const ACTIVITY_TREE_NODES: ActivityTreeNode[] = [
         id: "2026-reliability",
         title: "Reliability programs",
         period: "Q1–Q2",
-        summary: "Safer releases, stronger observability, fewer incidents.",
-        command: "work read cloud-bill-down-60",
+        summary: "Cost control, safer rollout, stronger observability.",
+        command:
+          "selected_cases read cost-control-without-reliability-regression",
       },
       {
         id: "2026-scale",
         title: "Scale under load",
         period: "Q2",
         summary: "Increased concurrency and kept p95 and uptime stable.",
-        command: "work read game-backend-20x-players",
+        command: "selected_cases read containment-under-20x-load",
       },
     ],
   },
@@ -263,11 +264,10 @@ const ACTIVITY_TREE_NODES: ActivityTreeNode[] = [
     children: [
       {
         id: "2025-mvp",
-        title: "Investor-ready MVPs",
+        title: "Scope-controlled product proof",
         period: "10-day sprints",
-        summary: "Shipped lean MVPs to validate before large spend.",
-        command:
-          "work read investor-ready-mock-mvp-in-10-days-for-300-saved-founder-10k-in-agency-fees",
+        summary: "Shipped investor proof before larger build spend.",
+        command: "selected_cases read scope-control-for-investor-proof",
       },
       {
         id: "2025-secops",
@@ -275,7 +275,7 @@ const ACTIVITY_TREE_NODES: ActivityTreeNode[] = [
         period: "ongoing",
         summary:
           "Reduced repetitive manual checks, improved analyst throughput.",
-        command: "work read security-ops-automation",
+        command: "selected_cases read security-triage-automation",
       },
     ],
   },
@@ -286,9 +286,9 @@ const ACTIVITY_TREE_NODES: ActivityTreeNode[] = [
     summary: "Jump from timeline to deeper command views.",
     children: [
       {
-        id: "explore-work",
-        title: "All work",
-        command: "work",
+        id: "explore-selected-cases",
+        title: "Selected cases",
+        command: "selected_cases",
       },
       {
         id: "explore-logs",
@@ -461,15 +461,18 @@ export function registerDefaultCommands({
   const caseStudies = props.sampleWorks || [
     {
       index: 1,
-      title: "Funds safety",
-      description: `Live user funds were at risk if contract regressions or unsafe upgrades reached production.
+      title: "Release Gates for Live Funds",
+      description: `A production upgrade path had to keep live user funds safe while the system continued shipping.
 
-## Before
+## Problem
 - TVL grew toward ~$4M while monitoring remained fragmented.
 - Contract regressions could reach mainnet without one explicit release gate.
 - Critical contract events and gas anomalies were not surfaced consistently.
 
-## What I did
+## Failure mode
+An unsafe contract change could pass through release, create a loss-of-funds condition, or leave operators without clear production signals.
+
+## What changed
 - Added invariant tests around critical contract behavior in CI.
 - Added deploy gates so upgrades could not ship without passing checks.
 - Added additional contract checks where they reduced regression risk.
@@ -479,6 +482,9 @@ export function registerDefaultCommands({
 - No loss events across 36 months at roughly ~$4M TVL.
 - Upgrades shipped without downtime.
 - Gas usage stayed within expected operating bounds under production monitoring.
+
+## Why it matters
+The operating path became safer and more inspectable: release checks happened before production, and production behavior left signals operators could act on.
 
 ## Technical details
 - Stack: Solidity contracts, invariant tests, deploy gates, production alerting
@@ -498,15 +504,18 @@ No security incidents over 36 months around ~$4M TVL; upgrades shipped without d
     },
     {
       index: 2,
-      title: "Scale",
-      description: `The realtime backend degraded badly under load and stopped behaving reliably beyond ~100 concurrent users.
+      title: "Containment Under 20x Load",
+      description: `A realtime backend needed to handle far more concurrent users without turning load into system-wide instability.
 
-## Before
+## Problem
 - Service quality dropped sharply beyond ~100 CCU.
 - Packet loss increased and matchmaking queues stalled.
 - Successful match starts were around ~65%.
 
-## What I did
+## Failure mode
+Load on one part of the system could amplify across the control plane, causing packet loss, stalled queues, and failed match starts.
+
+## What changed
 - Separated the realtime data path (UDP + protobufs) from the control plane.
 - Introduced room sharding to limit per-node load.
 - Added circuit breakers to reduce retry amplification under stress.
@@ -516,6 +525,9 @@ No security incidents over 36 months around ~$4M TVL; upgrades shipped without d
 - System remained stable up to ~2k CCU, about a 20x increase.
 - Packet loss stayed below 0.5% under tested load.
 - Match success rate improved to ~92%.
+
+## Why it matters
+The system became more dependable under pressure because load was bounded, retries were contained, and the target behavior was tested before relying on it.
 
 ## Technical details
 - Stack: UDP, protobufs, sharded rooms, circuit breakers
@@ -535,15 +547,18 @@ Staged load tests to ~2k CCU held packet loss below 0.5% and improved reliabilit
     },
     {
       index: 3,
-      title: "Cloud cost",
-      description: `Infrastructure spend kept rising because the system stayed overprovisioned for bursty workloads.
+      title: "Cost Control Without Reliability Regression",
+      description: `Infrastructure spend needed to come down without turning cost reduction into a production reliability problem.
 
-## Before
+## Problem
 - Always-on services caused spend to rise with traffic.
 - Workloads were not mapped to the right execution model, which forced overprovisioning.
 - Blind cost cutting risked pushing latency regressions into production.
 
-## What I did
+## Failure mode
+A cheaper infrastructure shape could have looked successful on the bill while quietly degrading latency or overload behavior.
+
+## What changed
 - Split burst and steady workloads across serverless and spot-backed execution paths.
 - Moved hot paths behind async queues to decouple spikes from always-on capacity.
 - Added canaries and autoscaling SLO gates before broader rollout.
@@ -552,6 +567,9 @@ Staged load tests to ~2k CCU held packet loss below 0.5% and improved reliabilit
 - Monthly cloud spend dropped ~60% in 6 weeks.
 - p95 latency improved ~18% instead of regressing during cost reduction.
 - Rollout decisions were guided by canary checks and dashboards rather than manual guesswork.
+
+## Why it matters
+The business got lower spend and a safer operating model: workload spikes no longer forced permanent capacity, and rollout decisions had observable guardrails.
 
 ## Technical details
 - Stack: AWS, serverless workloads, spot pools, async queues, canaries
@@ -571,15 +589,18 @@ Monthly cloud spend fell ~60% in 6 weeks, p95 improved ~18%, and canaries plus d
     },
     {
       index: 4,
-      title: "Gas",
-      description: `Users were dropping out because transaction costs were too high and too unpredictable for routine completion.
+      title: "Reliable Transaction Completion at Lower Cost",
+      description: `A core transaction workflow needed to become cheaper and more predictable so users could complete routine actions.
 
-## Before
+## Problem
 - Unpredictable L1 gas costs caused abandonment on core flows.
 - Multi-call execution amplified both gas exposure and revert risk.
 - Support burden rose because transaction cost was hard to predict.
 
-## What I did
+## Failure mode
+High and unpredictable transaction cost could block completion, increase support load, and hide regressions until users dropped out.
+
+## What changed
 - Batched relays to reduce per-action on-chain overhead.
 - Compressed calldata and minimized writes to lower gas cost.
 - Routed verification through a zk-based path with L1 fallback.
@@ -589,6 +610,9 @@ Monthly cloud spend fell ~60% in 6 weeks, p95 improved ~18%, and canaries plus d
 - Average gas per successful transaction dropped by roughly ~90-99%.
 - Transaction completion improved as gas-related abandonment dropped.
 - Gas-related support tickets shrank.
+
+## Why it matters
+The workflow became faster to complete, cheaper to operate, and easier to watch for regressions through completion and revert signals.
 
 ## Technical details
 - Stack: batched relays, calldata compression, zk-based verification, L1 fallback
@@ -608,15 +632,18 @@ Average gas per successful transaction fell by roughly ~90-99%; transaction comp
     },
     {
       index: 5,
-      title: "SecOps",
-      description: `Security analysts were spending too much time on repetitive collection and first-pass triage.
+      title: "Security Triage Automation",
+      description: `A daily security review workflow needed to move faster without hiding analyst judgment or creating blind spots.
 
-## Before
+## Problem
 - Analysts manually scraped alerts and logs every day.
 - Correlations were easy to miss across separate feeds.
 - Real threats could sit behind repetitive, low-signal checks.
 
-## What I did
+## Failure mode
+Manual collection could delay response, bury high-signal alerts, and leave too little evidence about why a triage decision happened.
+
+## What changed
 - Centralized feeds so alert state became queryable in one place.
 - Applied rule-based triage before analyst review.
 - Added LLM summaries only as a bounded aid, with Slack delivery and linked playbooks.
@@ -626,6 +653,9 @@ Average gas per successful transaction fell by roughly ~90-99%; transaction comp
 - Roughly ~3 hours/day of analyst time was reclaimed.
 - Higher-signal alerts reached responders faster.
 - Visibility improved without returning to manual feed scraping.
+
+## Why it matters
+The workflow became faster and more maintainable while preserving the controls that matter: rules first, human review, linked playbooks, and audit logs.
 
 ## Technical details
 - Stack: centralized alert feeds, rule engine, LLM summaries, Slack, audit logs
@@ -645,15 +675,18 @@ Roughly ~3 hours/day reclaimed; alert handling became faster in practice; audit 
     },
     {
       index: 6,
-      title: "Vendor",
-      description: `Critical contract logic was about to be outsourced before the team fully owned the implementation and deploy path.
+      title: "Internal Ownership of a Critical Workflow",
+      description: `A critical allocation workflow needed to ship without making the team dependent on vendor-held implementation and release knowledge.
 
-## Before
+## Problem
 - Point-allocation work was blocked on a ~$47K vendor quote.
 - The team did not yet own the contract logic or deploy path internally.
 - Outsourcing would have added integration risk and externalized release knowledge.
 
-## What I did
+## Failure mode
+The team could pay for delivery while losing control of the rules, the deploy path, and the knowledge needed to operate or change the workflow later.
+
+## What changed
 - Specified allocation logic as explicit contract rules before implementation.
 - Built and tested the contracts in Hardhat so behavior stayed reviewable in-house.
 - Added multisig deploy controls and a runbook to keep release authority internal.
@@ -662,6 +695,9 @@ Roughly ~3 hours/day reclaimed; alert handling became faster in practice; audit 
 - Roughly ~$47K in vendor spend was avoided.
 - Contract logic and deploy knowledge stayed in-house.
 - The required on-chain allocation system shipped without introducing a vendor dependency.
+
+## Why it matters
+The workflow became more maintainable because the team owned the rules, tests, deploy controls, and operating knowledge instead of outsourcing the critical path.
 
 ## Technical details
 - Stack: Solidity, Hardhat, multisig
@@ -681,15 +717,18 @@ Hardhat tests covered contract behavior, the contract integrated with the existi
     },
     {
       index: 7,
-      title: "MVP",
-      description: `Fundraising was blocked because there was no working product proof—only scope pressure and expensive delivery options.
+      title: "Scope Control for Investor Proof",
+      description: `A founder needed credible product proof quickly without turning a fundraising demo into an expensive full build.
 
-## Before
+## Problem
 - No working demo existed for investor conversations.
 - Agency quotes were above ~$10K with multi-week timelines.
 - Scope was expanding faster than proof.
 
-## What I did
+## Failure mode
+The team could spend weeks and thousands of dollars building around the wrong surface area before proving the core flow was useful.
+
+## What changed
 - Reduced scope to the one flow needed for fundraising.
 - Built a typed vertical slice with reusable components to keep the surface area small.
 - Mocked non-critical systems and added analytics plus a walkthrough for inspectability.
@@ -698,6 +737,9 @@ Hardhat tests covered contract behavior, the contract integrated with the existi
 - An investor-ready MVP shipped in 10 days for under $300.
 - Fundraising could proceed without committing to a larger build.
 - Estimated agency spend was avoided by keeping scope bounded.
+
+## Why it matters
+The work became faster and easier to reason about because the demo focused on the decision that mattered, kept non-critical systems out, and left an inspectable path for follow-up.
 
 ## Technical details
 - Stack: typed API, reusable UI components, analytics, Loom
@@ -1354,7 +1396,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
       { desc: "Chat with my resume! [Beta]" },
     )
     .register(
-      "work",
+      "selected_cases",
       ({ args }) => {
         const action = (args[0] || "list").toLowerCase();
 
@@ -1371,9 +1413,9 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
         if (action === "read") {
           const target = args.slice(1).join(" ").trim();
-          if (!target) return ["usage: work read <title|slug>"];
+          if (!target) return ["usage: selected_cases read <title|slug>"];
           const entry = findWorkEntry(target);
-          if (!entry) return [`no work entry found for "${target}"`];
+          if (!entry) return [`no selected case found for "${target}"`];
           return [
             entry.title,
             [
@@ -1385,7 +1427,9 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
           ];
         }
 
-        return ["usage: work [list] | work read <title|slug>"];
+        return [
+          "usage: selected_cases [list] | selected_cases read <title|slug>",
+        ];
       },
       { desc: "selected work", subcommands: ["list", "read"] },
     )
@@ -1674,7 +1718,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
         ];
       },
       {
-        desc: "work logs list/read/search",
+        desc: "logs list/read/search",
         subcommands: ["list", "read", "search"],
       },
     )
@@ -1803,8 +1847,12 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
           cat: ["cat <file> — print text files only"],
           grep: ["grep <term> — unified search (alias of search)"],
           search: [
-            "search <term> — unified search across works, logs, and resume text",
+            "search <term> — unified search across selected cases, logs, and resume text",
             "Cmd/Ctrl+F pre-fills the search prompt",
+          ],
+          selected_cases: [
+            "selected_cases [list] — show selected case studies",
+            "selected_cases read <slug|title> — open a selected case",
           ],
           open: ["open <file> — open in new tab"],
           download: ["download <file> — trigger browser download"],
@@ -1827,7 +1875,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
             "logs search <query> — keyword search",
           ],
           activity: [
-            "activity — show a tree/timeline style overview of work and focus areas",
+            "activity — show a tree/timeline style overview of selected cases and focus areas",
           ],
           faq: ["faq — interactive Q&A accordion (click to expand)"],
           history: [
