@@ -23,6 +23,24 @@ import { DownloadIntegrity } from "./terminal/DownloadIntegrity";
 
 type ExecuteCommand = TerminalLineProps["executeCommand"];
 
+const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat("en", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function formatMonthYear(date: string) {
+  const trimmed = date.trim();
+  const match = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(trimmed);
+  if (!match) return trimmed;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (!Number.isFinite(year) || month < 1 || month > 12) return trimmed;
+
+  return MONTH_YEAR_FORMATTER.format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
 function CopyIcon({ active }: { active: boolean }) {
   return (
     <svg
@@ -677,15 +695,12 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
     <div className="t-logAccordion">
       {items.map((item, idx) => {
         const isOpen = openIndex === idx;
-        const shareCommand =
-          item.slug &&
-          (item.kind === "blog"
-            ? `blog read ${item.slug}`
-            : `logs read ${item.slug}`);
+        const displayDate = formatMonthYear(item.date);
+        const shareCommand = item.slug && `blogs read ${item.slug}`;
         const shareText =
           shareCommand && typeof window !== "undefined"
             ? buildShareLink(shareCommand, window.location.href)
-            : `${item.date} — ${item.note}`;
+            : `${displayDate} — ${item.note}`;
         return (
           <div key={idx} className={`t-logItem${isOpen ? " is-open" : ""}`}>
             <button
@@ -706,7 +721,7 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
                 ▸
               </span>
               <span className="t-logTitle">{item.note}</span>
-              <span className="t-logDate">{item.date}</span>
+              <span className="t-logDate">{displayDate}</span>
               {item.body ? <EyeIcon open={isOpen} /> : null}
             </button>
 
