@@ -292,9 +292,9 @@ const ACTIVITY_TREE_NODES: ActivityTreeNode[] = [
         command: "selected_cases",
       },
       {
-        id: "explore-blogs",
+        id: "explore-blog",
         title: "Blogs",
-        command: "blogs list",
+        command: "blog list",
       },
     ],
   },
@@ -894,7 +894,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
     );
   };
 
-  const blogsHandler = ({ args }: CommandHandlerContext): TerminalLineInput[] => {
+  const blogHandler = ({ args }: CommandHandlerContext): TerminalLineInput[] => {
     const first = (args[0] || "list").toLowerCase();
     const effectiveArgs = first.startsWith("--") ? ["list", ...args] : args;
     const sub = (effectiveArgs[0] || "list").toLowerCase();
@@ -928,10 +928,10 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
       if (!entries.length) {
         return [
-          "blogs:",
+          "blog:",
           "  no entries found" + (tag ? ` for tag '${tag}'` : ""),
           "",
-          "try: blogs tags",
+          "try: blog tags",
         ];
       }
 
@@ -947,7 +947,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
     if (sub === "read") {
       const query = effectiveArgs.slice(1).join(" ").trim();
-      if (!query) return ["usage: blogs read <slug|title>"];
+      if (!query) return ["usage: blog read <slug|title>"];
 
       const entry = findBlogSurfaceEntry(query);
       if (!entry) return [`blog entry not found: ${query}`];
@@ -972,7 +972,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
     if (sub === "search") {
       const query = effectiveArgs.slice(1).join(" ").trim();
-      if (!query) return ["usage: blogs search <query>"];
+      if (!query) return ["usage: blog search <query>"];
       const hits = searchBlogSurfaceEntries(query);
       if (!hits.length) return [`no blog matches for "${query}"`];
 
@@ -980,7 +980,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
         const summary = hit.summary ? ` — ${hit.summary}` : "";
         return `  ${hit.slug.padEnd(18)} (${hit.score}) [blog] ${hit.title}${summary}`;
       });
-      return ["blogs search results:", ...lines];
+      return ["blog search results:", ...lines];
     }
 
     if (sub === "tags") {
@@ -994,14 +994,14 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
 
     return [
       "usage:",
-      "  blogs list [--tag t] [--search q]",
-      "  blogs read <slug|title>",
-      "  blogs search <query>",
-      "  blogs tags",
+      "  blog list [--tag t] [--search q]",
+      "  blog read <slug|title>",
+      "  blog search <query>",
+      "  blog tags",
     ];
   };
 
-  const blogsSubcommandSuggestions = ({
+  const blogSubcommandSuggestions = ({
     prefix,
     parts,
     hasTrailingSpace,
@@ -1025,9 +1025,9 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
       .map((title) => `read ${title}`);
   };
   const blogCommandMeta = {
-    desc: "blogs list/read/search/tags",
+    desc: "blog list/read/search/tags",
     subcommands: ["list", "read", "search", "tags"],
-    subcommandSuggestions: blogsSubcommandSuggestions,
+    subcommandSuggestions: blogSubcommandSuggestions,
   };
 
   const helpHandler = ({
@@ -1395,9 +1395,7 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
       },
       { desc: "short bio" },
     )
-    .register("blogs", blogsHandler, blogCommandMeta)
-    .alias("blog", "blogs", { desc: "alias for blogs" })
-    .alias("logs", "blogs", { desc: "alias for blogs" })
+    .register("blog", blogHandler, blogCommandMeta)
     .register(
       "contact",
       () => {
@@ -1822,11 +1820,11 @@ An investor-ready MVP shipped in 10 days for under $300, avoiding a larger upfro
           whoami: ["compact profile card; alias: finger"],
           resume: ["open resume PDF"],
           ver: ["ver — show app version"],
-          blogs: [
-            "blogs list [--tag t] [--search q] — show blogs and engineering notes",
-            "blogs read <slug|title> — open an entry",
-            "blogs search <query> — ranked search",
-            "blogs tags — show tag counts",
+          blog: [
+            "blog list [--tag t] [--search q] — show blog entries and engineering notes",
+            "blog read <slug|title> — open an entry",
+            "blog search <query> — ranked search",
+            "blog tags — show tag counts",
           ],
           activity: [
             "activity — show a tree/timeline style overview of selected cases and focus areas",

@@ -111,9 +111,9 @@ async function collectSearchEntries(): Promise<SurfaceEntry[]> {
     entries.push({
       source: "blog",
       title: entry.title,
-      location: "blogs",
+      location: "blog",
       lines: entry.lines,
-      readCommand: `blogs read ${entry.slug}`,
+      readCommand: `blog read ${entry.slug}`,
     });
   });
 

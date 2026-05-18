@@ -60,17 +60,17 @@ describe("CommandRegistry", () => {
 
     it("resolves aliases to the canonical command entry", () => {
         const registry = new CommandRegistry();
-        const handler = () => "blogs";
+        const handler = () => "search";
         registry
-            .register("blogs", handler, { subcommands: ["list", "read"] })
-            .alias("blog", "blogs", { desc: "alias for blogs" });
+            .register("search", handler, { subcommands: ["history", "resume"] })
+            .alias("grep", "search", { desc: "alias for search" });
 
-        expect(registry.get("blog")).toBe(registry.get("blogs"));
-        expect(registry.getCanonicalName("blog")).toBe("blogs");
-        expect(registry.suggestSubcommands("blog", "r")).toEqual(["read"]);
+        expect(registry.get("grep")).toBe(registry.get("search"));
+        expect(registry.getCanonicalName("grep")).toBe("search");
+        expect(registry.suggestSubcommands("grep", "r")).toEqual(["resume"]);
         expect(registry.list()).toContainEqual({
-            name: "blog",
-            desc: "alias for blogs",
+            name: "grep",
+            desc: "alias for search",
         });
     });
 });

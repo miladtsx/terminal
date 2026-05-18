@@ -132,12 +132,12 @@ describe("default commands", () => {
 
   it("lists blogs in the accordion view and supports reading", async () => {
     const { registry, model } = buildRegistry();
-    const blogsHandler = registry.get("blogs")?.handler;
-    expect(blogsHandler).toBeTruthy();
+    const blogHandler = registry.get("blog")?.handler;
+    expect(blogHandler).toBeTruthy();
 
-    const listOut = await blogsHandler?.({
+    const listOut = await blogHandler?.({
       args: ["list"],
-      raw: "blogs list",
+      raw: "blog list",
       model,
       registry,
     });
@@ -148,9 +148,9 @@ describe("default commands", () => {
     expect(listSummary).toContain("Building an MVP");
     expect(listSummary).toContain("\"type\":\"logs\"");
 
-    const readOut = await blogsHandler?.({
+    const readOut = await blogHandler?.({
       args: ["read", "solo-contractor"],
-      raw: "blogs read solo-contractor",
+      raw: "blog read solo-contractor",
       model,
       registry,
     });
@@ -165,12 +165,12 @@ describe("default commands", () => {
 
   it("searches consolidated blogs and includes them in grep", async () => {
     const { registry, model } = buildRegistry();
-    const blogsHandler = registry.get("blogs")?.handler;
+    const blogHandler = registry.get("blog")?.handler;
     const grepHandler = registry.get("grep")?.handler;
 
-    const searchOut = await blogsHandler?.({
+    const searchOut = await blogHandler?.({
       args: ["search", "kickoff"],
-      raw: "blogs search kickoff",
+      raw: "blog search kickoff",
       model,
       registry,
     });
@@ -229,19 +229,19 @@ describe("default commands", () => {
     expect(JSON.stringify(readOut)).toContain("Security Triage Automation");
   });
 
-  it("keeps logs as an alias for consolidated blog markdown", async () => {
+  it("uses only blog as the markdown command", async () => {
     const { registry, model } = buildRegistry();
-    expect(registry.get("blog")).toBe(registry.get("blogs"));
-    expect(registry.get("logs")).toBe(registry.get("blogs"));
-    expect(registry.getCanonicalName("blog")).toBe("blogs");
-    expect(registry.getCanonicalName("logs")).toBe("blogs");
+    expect(registry.get("blogs")).toBeUndefined();
+    expect(registry.get("logs")).toBeUndefined();
+    expect(registry.getCanonicalName("blogs")).toBeUndefined();
+    expect(registry.getCanonicalName("logs")).toBeUndefined();
 
-    const logsHandler = registry.get("logs")?.handler;
-    expect(logsHandler).toBeTruthy();
+    const blogHandler = registry.get("blog")?.handler;
+    expect(blogHandler).toBeTruthy();
 
-    const listOut = await logsHandler?.({
+    const listOut = await blogHandler?.({
       args: ["list"],
-      raw: "logs list",
+      raw: "blog list",
       model,
       registry,
     });
@@ -251,9 +251,9 @@ describe("default commands", () => {
     expect(logsSummary).toContain("Improved Tab autocompletion");
     expect(logsSummary).toContain("Building an MVP");
 
-    const readOut = await logsHandler?.({
+    const readOut = await blogHandler?.({
       args: ["read", "2025-01-21-tab"],
-      raw: "logs read 2025-01-21-tab",
+      raw: "blog read 2025-01-21-tab",
       model,
       registry,
     });

@@ -695,7 +695,7 @@ function LogAccordion({ items }: { items: LogSegment["items"] }) {
       {items.map((item, idx) => {
         const isOpen = openIndex === idx;
         const displayDate = formatMonthYear(item.date);
-        const shareCommand = item.slug && `blogs read ${item.slug}`;
+        const shareCommand = item.slug && `blog read ${item.slug}`;
         const shareText =
           shareCommand && typeof window !== "undefined"
             ? buildShareLink(shareCommand, window.location.href)
